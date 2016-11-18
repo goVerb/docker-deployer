@@ -35,3 +35,32 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+#Bower components
+/bower_components
+
+.idea
+.idea/competition-admin.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+
+
+#Dist Folder
+dist
+/dist
+dist/assets
+build
+
+
+#temp folder
+tmp
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
+npm-debug.log*
+testem.log
+.idea/

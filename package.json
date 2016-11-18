@@ -18,7 +18,8 @@
   "homepage": "https://github.com/reedyrm/docker-deployer#readme",
   "dependencies": {
     "aws-sdk": "^2.7.4",
-    "bluebird": "^3.4.6"
+    "bluebird": "^3.4.6",
+    "moment": "^2.16.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",

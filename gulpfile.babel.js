@@ -11,8 +11,8 @@ let util = require('util');
 
 gulp.task('build', (callback) => {
   return runSequence(
-    'build:clean',
     'build:lint',
+    'build:clean',
     'build:babel',
     callback);
 });

@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
+const __ = require('lodash');
 
 AWS.config.setPromisesDependency(require('bluebird'));
 
@@ -22,6 +23,19 @@ class VpcClient {
    *      cidrBlock: <this is a string of the cidrblock that represents the subnet>
    *    },
    *    ...
+   *  ],
+   *  networkAcls: [
+   *    {
+   *      name: <name of the network ACL>,
+   *      rules: [
+   *        {
+   *        cidrBlock: '',
+   *        egress: true | false,
+   *        protocol: TCP | UDP | -1 (all protocols) ,
+   *        ruleAction: 'allow' | 'deny',
+   *        ruleNumber: a number 0 < x < big number?
+   *        }
+   *      ]
    *  ]
    * }
    * @param config
@@ -37,21 +51,59 @@ class VpcClient {
         let vpcId = '';
         let internetGatewayId = '';
         let subnetIds = [];
+        let networkAclNameToIdLookup = {};
+        let subnetNameToIdLookup = {};
         return this.createVpc(config.name, config.environment, config.cidrBlock).then(createdVpcId => {
           vpcId = createdVpcId;
 
           return;
         }).then(() => {
+          let createNetworkAclPromises = [];
+
+          //generates a function that takes the networkAclName
+          let assignNetworkAclToLookup = (networkAclName) => {
+            return (createdNetworkAclId) => {
+              networkAclNameToIdLookup[networkAclName] = createdNetworkAclId;
+            };
+          };
+
+          this.logMessage('Creting NetworkACLs');
+          for(let networkAclIndex = 0; networkAclIndex < config.networkAcls.length; networkAclIndex++) {
+            let networkAclObject = config.networkAcls[networkAclIndex];
+            createNetworkAclPromises.push(this.createNetworkAclWithRules(vpcId, networkAclObject.name, config.environment, networkAclObject.rules).then(assignNetworkAclToLookup(networkAclObject.name)));
+          }
+
+          return BlueBirdPromise.all(createNetworkAclPromises);
+        }).then(() => {
+
+          this.logMessage(`Creating VPC Subnets. [VpcId: ${vpcId}]`);
+
+          let assignSubnetIdToArray = (subnetName) => {
+            return (createdSubnetId) => {
+              subnetIds.push(createdSubnetId);
+              subnetNameToIdLookup[subnetName] = createdSubnetId;
+            };
+          };
 
           let subnetPromises = [];
           for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
             let subnetObject = config.subnets[subnetIndex];
-            subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, config.environment, subnetObject.cidrBlock).then(subnetResult => {
-              subnetIds.push(subnetResult.Subnet.SubnetId);
-            }));
+            subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, config.environment, subnetObject.cidrBlock).then(assignSubnetIdToArray(subnetObject.name)));
           }
 
           return BlueBirdPromise.all(subnetPromises);
+        }).then(() => {
+          let subnetToNetworkAclPromises = [];
+
+          this.logMessage(`Associating VPC Subnets with Network Acl. [VpcId: ${vpcId}]`);
+          for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
+            let subnetObject = config.subnets[subnetIndex];
+            let subnetId = subnetNameToIdLookup[subnetObject.name];
+            let networkAclId = networkAclNameToIdLookup[subnetObject.networkAclName];
+            subnetToNetworkAclPromises.push(this.replaceNetworkAclAssociation(networkAclId, subnetId));
+          }
+
+          return BlueBirdPromise.all(subnetToNetworkAclPromises);
         }).then(() => {
           return this.createAndAttachInternetGateway(vpcId, `${config.name} - Internet Gateway`, config.environment).then(createdInternetGatewayId => {
             internetGatewayId = createdInternetGatewayId;
@@ -197,7 +249,7 @@ class VpcClient {
   }
 
   /**
-   *
+   * Returns InternetGatewayId
    * @param vpcId
    * @param name
    * @param environment
@@ -226,9 +278,18 @@ class VpcClient {
         VpcId: vpcId
       };
       return this.ec2Client.attachInternetGateway(params).promise();
+    }).then(() => {
+      return internetGatewayId;
     });
   }
 
+  /**
+   *
+   * @param vpcId
+   * @param name
+   * @param environment
+   * @returns {Promise.<TResult>}
+   */
   createRouteTable(vpcId, name, environment) {
     let params = {
       VpcId: vpcId
@@ -287,6 +348,120 @@ class VpcClient {
     let associateRouteTablePromise = this.ec2Client.associateRouteTable(params).promise();
 
     return associateRouteTablePromise;
+  }
+
+  /**
+   *
+   * @param vpcId
+   * @param name
+   * @param environment
+   * @param networkAclRules
+   * @returns {Promise.<TResult>}
+   */
+  createNetworkAclWithRules(vpcId, name, environment, networkAclRules) {
+    let params = {
+      VpcId: vpcId
+    };
+
+    let createNetworkAclPromise = this.ec2Client.createNetworkAcl(params).promise();
+
+    let networkAclId = '';
+    return createNetworkAclPromise.then(result => {
+      networkAclId = result.NetworkAcl.NetworkAclId;
+
+      //assign tags
+      let tags = [
+        { Key: 'Name', Value: name },
+        { Key: 'Environment', Value: environment },
+      ];
+
+      return this._createTags(networkAclId, tags);
+    }).then(() => {
+
+      let createNetworkAclEntryPromises = [];
+      //create rules on NetworkAcl
+      for(let networkAclRuleIndex = 0; networkAclRuleIndex < networkAclRules.length; networkAclRuleIndex++) {
+        let ruleObject = networkAclRules[networkAclRuleIndex];
+        createNetworkAclEntryPromises.push(this.createNetworkAclRule(networkAclId, ruleObject.cidrBlock, ruleObject.egress, ruleObject.protocol, ruleObject.ruleAction, ruleObject.ruleNumber));
+      }
+
+      return BlueBirdPromise.all(createNetworkAclEntryPromises);
+    }).then(() => {
+      return networkAclId;
+    });
+  }
+
+  /**
+   *
+   * @param networkAclId This is the networkAclId that the rule will be added to
+   * @param cidrBlock This is the CIDR Block where the rule will be applied
+   * @param egress If false, applies to inbound, if true, applies to outbound traffic
+   * @param protocol -1 means all protocols
+   * @param ruleAction This is a string which can be 'allow | deny'
+   * @param ruleNumber This is the rule number
+   */
+  createNetworkAclRule(networkAclId, cidrBlock, egress, protocol, ruleAction, ruleNumber) {
+
+    /*
+      egress = true => outbound
+      egress = false => inbound
+     */
+    let params = {
+      CidrBlock: cidrBlock, /* required */
+      Egress: egress, /* required */
+      NetworkAclId: networkAclId, /* required */
+      Protocol: protocol, /* required */
+      RuleAction: ruleAction, /* required */
+      RuleNumber: ruleNumber, /* required */
+      DryRun: false,
+      PortRange: {
+        From: 0,
+        To: 0
+      }
+    };
+
+    return this.ec2Client.createNetworkAclEntry(params).promise();
+  }
+
+  replaceNetworkAclAssociation(networkAclId, subnetId) {
+
+    let getNetworkAclAssociationId = this._findCurrentNetworkAclAssociationIdForSubnetId(subnetId);
+
+    return getNetworkAclAssociationId.then(associationId => {
+      let params = {
+        AssociationId: associationId, /* required */
+        NetworkAclId: networkAclId, /* required */
+        DryRun: false
+      };
+
+      this.logMessage(`Replacing NetworkAcl Association for Subnet. [SubnetId: ${subnetId}] [AssociationId: ${associationId}] [New NetworkAclId: ${networkAclId}]`);
+      return this.ec2Client.replaceNetworkAclAssociation(params).promise();
+    });
+
+
+  }
+
+  _findCurrentNetworkAclAssociationIdForSubnetId(subnetId) {
+    let params = {
+      DryRun: false,
+      Filters: [
+        {
+          Name: 'association.subnet-id',
+          Values: [ subnetId ]
+        }
+      ]
+    };
+
+    let describeNetworkAclsPromise = this.ec2Client.describeNetworkAcls(params).promise();
+
+    this.logMessage(`Looking up NetworkAclAssociationId for Subnet. [SubnetId: ${subnetId}]`);
+    return describeNetworkAclsPromise.then(result => {
+      this.logMessage(`Subnet NetworkAcls Lookup. [Result: ${JSON.stringify(result)}]`);
+      let networkAclAssociations = result.NetworkAcls[0].Associations;
+      let subnetAssociationObject = __.find(networkAclAssociations, {'SubnetId': subnetId});
+      return subnetAssociationObject.NetworkAclAssociationId;
+    });
+
   }
 
   /**

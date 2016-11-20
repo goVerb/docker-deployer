@@ -20,6 +20,8 @@ class VpcClient {
    *  subnets: [
    *    {
    *      name: <name of subnet>,
+   *      availabilityZone: <string>,
+   *      mapPublicIpOnLaunch: true | false
    *      cidrBlock: <this is a string of the cidrblock that represents the subnet>
    *    },
    *    ...
@@ -67,7 +69,7 @@ class VpcClient {
             };
           };
 
-          this.logMessage('Creting NetworkACLs');
+          this.logMessage('Creating NetworkACLs');
           for(let networkAclIndex = 0; networkAclIndex < config.networkAcls.length; networkAclIndex++) {
             let networkAclObject = config.networkAcls[networkAclIndex];
             createNetworkAclPromises.push(this.createNetworkAclWithRules(vpcId, networkAclObject.name, config.environment, networkAclObject.rules).then(assignNetworkAclToLookup(networkAclObject.name)));
@@ -88,7 +90,7 @@ class VpcClient {
           let subnetPromises = [];
           for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
             let subnetObject = config.subnets[subnetIndex];
-            subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, config.environment, subnetObject.cidrBlock).then(assignSubnetIdToArray(subnetObject.name)));
+            subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, config.environment, subnetObject.cidrBlock, subnetObject.availabilityZone, subnetObject.mapPublicIpOnLaunch).then(assignSubnetIdToArray(subnetObject.name)));
           }
 
           return BlueBirdPromise.all(subnetPromises);
@@ -178,12 +180,20 @@ class VpcClient {
         ];
         return this._createTags(vpcId, tags);
       }).then(() => {
+        return this._modifyVpcAttributes(vpcId, true, true);
+      }).then(() => {
         return vpcId;
       }).catch(err => {
-        console.log(`error: ${JSON.stringify(err)}`);
+        console.log(`CreateVPC Error: ${JSON.stringify(err)}`);
+        throw err;
       });
   }
 
+  /**
+   * Returns the VpcId associated with the name
+   * @param name
+   * @return {Promise.<TResult>}
+   */
   getVpcIdFromName(name) {
     let params = {
       DryRun: false,
@@ -223,11 +233,15 @@ class VpcClient {
    * @param name
    * @param environment
    * @param cidrBlock
+   * @param availabilityZone
+   * @param mapPublicIpOnLaunch
+   * @return
    */
-  createVpcSubnet(vpcId, name, environment, cidrBlock) {
-    this.logMessage(`Creating Vpc Subnet. [VpcId: ${vpcId}] [VpcSubnetName: ${name}] [Environment: ${environment}] [Subnet CidrBlock: ${cidrBlock}]`);
+  createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch = true) {
+    this.logMessage(`Creating Vpc Subnet. [VpcId: ${vpcId}] [VpcSubnetName: ${name}] [Environment: ${environment}] [CidrBlock: ${cidrBlock}] [AvailabilityZone: ${availabilityZone}]`);
     let params = {
       CidrBlock: cidrBlock,
+      AvailabilityZone: availabilityZone,
       VpcId: vpcId,
       DryRun: false
     };
@@ -242,7 +256,9 @@ class VpcClient {
         { Key: 'Name', Value: name },
         { Key: 'Environment', Value: environment },
       ];
-      return this._createTags(result.Subnet.SubnetId, tags);
+      return this._createTags(subnetId, tags);
+    }).then(() => {
+      return this._setMapPublicIpOnLaunchAttribute(subnetId, mapPublicIpOnLaunch);
     }).then(() => {
       return subnetId;
     });
@@ -295,6 +311,7 @@ class VpcClient {
       VpcId: vpcId
     };
 
+    this.logMessage(`Creating RouteTable. [VpcId: ${vpcId}] [RouteTableName: ${name}]`);
     let createRouteTablePromise = this.ec2Client.createRouteTable(params).promise();
 
     let routeTableId = '';
@@ -314,7 +331,7 @@ class VpcClient {
   }
 
   /**
-   *
+   * Associates the Internet Gateway with a specific Route Table
    * @param internetGatewayId
    * @param routeTableId
    * @returns {Promise<EC2.Types.CreateRouteResult>}
@@ -363,6 +380,7 @@ class VpcClient {
       VpcId: vpcId
     };
 
+    this.logMessage(`Creating NetworkAcl. [VpcId: ${vpcId}] [Name: ${name}]`);
     let createNetworkAclPromise = this.ec2Client.createNetworkAcl(params).promise();
 
     let networkAclId = '';
@@ -423,6 +441,12 @@ class VpcClient {
     return this.ec2Client.createNetworkAclEntry(params).promise();
   }
 
+  /**
+   * Replaces a subnet's Network ACL associate with the given network ACL
+   * @param networkAclId
+   * @param subnetId
+   * @return {Promise.<TResult>|*}
+   */
   replaceNetworkAclAssociation(networkAclId, subnetId) {
 
     let getNetworkAclAssociationId = this._findCurrentNetworkAclAssociationIdForSubnetId(subnetId);
@@ -441,6 +465,12 @@ class VpcClient {
 
   }
 
+  /**
+   * Finds the NetworkAclAssociationId associated with the subnet
+   * @param subnetId
+   * @return {Promise.<TResult>}
+   * @private
+   */
   _findCurrentNetworkAclAssociationIdForSubnetId(subnetId) {
     let params = {
       DryRun: false,
@@ -462,6 +492,57 @@ class VpcClient {
       return subnetAssociationObject.NetworkAclAssociationId;
     });
 
+  }
+
+  /**
+   *
+   * @param subnetId
+   * @param value This is the flag to set for the MapPublicIpOnLaunch. True sets the value to yes, false sets the value to no
+   * @return {Promise<{}>}
+   * @private
+   */
+  _setMapPublicIpOnLaunchAttribute(subnetId, value = true) {
+    let params = {
+      SubnetId: subnetId, /* required */
+      MapPublicIpOnLaunch: {
+        Value: value
+      }
+    };
+
+    let modifySubnetAttributePromise = this.ec2Client.modifySubnetAttribute(params).promise();
+
+    return modifySubnetAttributePromise;
+  }
+
+  /**
+   *
+   * @param vpcId
+   * @param enableDnsHostnames
+   * @param enableDnsSupport
+   * @return {*}
+   * @private
+   */
+  _modifyVpcAttributes(vpcId, enableDnsHostnames = true, enableDnsSupport = true) {
+    let enableDnsHostnamesParams = {
+      VpcId: vpcId, /* required */
+      EnableDnsHostnames: {
+        Value: enableDnsHostnames
+      }
+    };
+
+    let enableDnsSupportParams = {
+      VpcId: vpcId, /* required */
+      EnableDnsSupport: {
+        Value: enableDnsSupport
+      }
+    };
+
+
+    this.logMessage(`Setting VPC Attributes. [VpcId: ${vpcId}] [EnableDnsHostnames: ${enableDnsHostnames}] [EnableDnsSupport: ${enableDnsSupport}]`);
+    let modifyDnsHostnamesPromise = this.ec2Client.modifyVpcAttribute(enableDnsHostnamesParams).promise();
+    let modifyDnsSupportPromise = this.ec2Client.modifyVpcAttribute(enableDnsSupportParams).promise();
+
+    return BlueBirdPromise.all([modifyDnsHostnamesPromise, modifyDnsSupportPromise]);
   }
 
   /**
@@ -489,6 +570,10 @@ class VpcClient {
     return this.ec2Client.createTags(createTagParams).promise();
   }
 
+  /**
+   * Logs messages
+   * @param msg
+   */
   logMessage(msg) {
     console.log(msg);
   }

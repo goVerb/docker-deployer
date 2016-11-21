@@ -3,7 +3,7 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
-AWS.config.setPromisesDependency(require('bluebird'));
+AWS.config.setPromisesDependency(BlueBirdPromise);
 
 
 class EcsClient {

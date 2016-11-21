@@ -3,7 +3,7 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
-AWS.config.setPromisesDependency(require('bluebird'));
+AWS.config.setPromisesDependency(BlueBirdPromise);
 
 class VpcClient {
 
@@ -209,6 +209,41 @@ class VpcClient {
     return this.ec2Client.describeVpcs(params).promise().then(result => {
       if(result.Vpcs && result.Vpcs.length > 0) {
         return result.Vpcs[0].VpcId;
+      } else {
+        return '';
+      }
+    });
+  }
+
+  getSubnetIdsFromSubnetName(vpcId, subnetNames) {
+
+    let lookupValues = subnetNames;
+    if(!__.isArray(subnetNames)) {
+      lookupValues = [subnetNames];
+    }
+
+    let params = {
+      DryRun: false,
+      Filters: [
+        {
+          Name: 'tag:Name',
+          Values: lookupValues
+        },
+        {
+          Name: 'vpc-id',
+          Values: [vpcId]
+        }
+      ]
+    };
+
+    this.logMessage(`Looking up Subnets by name. [VpcId: ${vpcId}] [SubnetName Lookup Values: ${JSON.stringify(lookupValues)}]`);
+    return this.ec2Client.describeSubnets(params).promise().then(result => {
+      if(result.Subnets && result.Subnets.length > 0) {
+        let subnetIds = [];
+        for(let itemIndex = 0; itemIndex < result.Subnets.length; itemIndex++) {
+          subnetIds.push(result.Subnets[itemIndex].SubnetId);
+        }
+        return subnetIds;
       } else {
         return '';
       }

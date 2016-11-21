@@ -1,10 +1,14 @@
 const VPC = require('./vpcClient.js');
+const ECS = require('./ecsClient.js');
+const ELB = require('./elbClient.js');
 
 
 //VPC Creation
 
 
-// let vpcClient = new VPC();
+ let vpcClient = new VPC();
+
+
 //
 // let vpcConfig = {
 //   name: 'Richard Test 2',
@@ -36,8 +40,29 @@ const VPC = require('./vpcClient.js');
 //
 // vpcClient.createVpcFromConfig(vpcConfig);
 
+//ECS
+
+//Cluster creation
+
+// let ecsClient = new ECS();
+//
+// ecsClient.createCluster('Richard-Test-1').then(() => {
+//   console.log('done');
+// });
+
+//TODO: Create Security Group for VPC
+
+let elbClient = new ELB();
+
+vpcClient.getSubnetIdsFromSubnetName('vpc-fc14d59b', ['Instance Subnet 1', 'Instance Subnet 2']).then(result => {
+  elbClient.createApplicationLoadBalancer('***REMOVED***-API', 'Richard-Test-App-ELB', result, 'internet-facing', ['']);
+});
+
+
+
 module.exports = function() {
   return {
-    VpcClient: VPC
+    VpcClient: VPC,
+    EcsClient: ECS
   };
 }();

@@ -44,10 +44,10 @@ class VpcClient {
    */
   createVpcFromConfig(config) {
 
-    return this.doesVpcExists(config.name).then(exists => {
-      if(exists) {
-        this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}]`);
-        return;
+    return this.getVpcIdFromName(config.name).then(existingVpcId => {
+      if(existingVpcId) {
+        this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}] [ExistingVpcId: ${existingVpcId}]`);
+        return existingVpcId;
       }
       else {
         let vpcId = '';
@@ -127,10 +127,11 @@ class VpcClient {
 
             return BlueBirdPromise.all(subnetAssociationPromises);
           });
+        }).then(() => {
+          //finally return the vpcId of the newly created VPC
+          return vpcId;
         });
       }
-    }).then(() => {
-      console.log('done');
     });
 
 
@@ -215,6 +216,12 @@ class VpcClient {
     });
   }
 
+  /**
+   * Returns list of SubnetIds
+   * @param vpcId
+   * @param subnetNames
+   * @return {Promise.<TResult>}
+   */
   getSubnetIdsFromSubnetName(vpcId, subnetNames) {
 
     let lookupValues = subnetNames;

@@ -18,7 +18,7 @@ class ElbClient {
    * @param appElbName
    * @param subnetIds
    * @param scheme Possible Values: 'internet-facing' | 'internal'
-   * @param securityGroups
+   * @param securityGroupIds
    */
   createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
     let params = {
@@ -27,21 +27,21 @@ class ElbClient {
       Scheme: scheme,
       SecurityGroups: securityGroupIds,
       Tags: [
-        {
-          Key: 'Environment', /* required */
-          Value: environment
-        },
+        { Key: 'Environment', Value: environment },
+        { Key: 'Created', Value: moment().format() }
       ]
     };
 
-
+    this.logMessage(`Creating Application Load Balancer. [Name: ${appElbName}]`);
     let createAppLoadBalancerPromise = this.elbv2Client.createLoadBalancer(params).promise();
 
-    return createAppLoadBalancerPromise;
-  }
-
-  getApplicationLoadBalancerIdByName(appElbName) {
-
+    return createAppLoadBalancerPromise.then(result => {
+      if(result.LoadBalancers && result.LoadBalancers.length > 0) {
+        return result.LoadBalancers[0].LoadBalancerName;
+      } else {
+        return '';
+      }
+    });
   }
 
   /**

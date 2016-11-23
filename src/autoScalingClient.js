@@ -29,7 +29,7 @@ class AutoScalingClient {
       AssociatePublicIpAddress: true,
       BlockDeviceMappings: [],
       EbsOptimized: false,
-      //IamInstanceProfile: 'STRING_VALUE',
+      IamInstanceProfile: 'ecsInstanceRole',
       ImageId: imageId,
       InstanceMonitoring: {
         Enabled: false
@@ -44,8 +44,7 @@ class AutoScalingClient {
     }
 
     if(ecsClusterName) {
-      let ec2StartupScript = `#!/bin/bash
-      echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
+      let ec2StartupScript = `#!/bin/bash\necho ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
 
       params.UserData = base64.encode(ec2StartupScript);
     }
@@ -56,22 +55,43 @@ class AutoScalingClient {
     return createLaunchConfigurationPromise;
   }
 
-  createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity) {
+  /**
+   *
+   * @param environment
+   * @param name (Required)
+   * @param launchConfigurationName
+   * @param minSize
+   * @param maxSize
+   * @param desiredCapacity
+   * @param targetGroupArns This is an array of TargetGroupArns
+   * @param vpcSubnets This is a CSV of subnets where the instances will be launched into
+   * @return {Promise<D>}
+   */
+  createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
+
+
+    let formattedTargetGroupArns = targetGroupArns;
+    if(!__.isArray(formattedTargetGroupArns)) {
+      formattedTargetGroupArns = [targetGroupArns];
+    }
+
+
     let params = {
       AutoScalingGroupName: name, /* required */
-      MaxSize: minSize, /* required */
-      MinSize: maxSize, /* required */
-      AvailabilityZones: [
-        'STRING_VALUE',
-        /* more items */
-      ],
-      DefaultCooldown: 0,
+      MaxSize: maxSize, /* required */
+      MinSize: minSize, /* required */
+      DefaultCooldown: 300,
       DesiredCapacity: desiredCapacity,
       HealthCheckGracePeriod: 0,
       LaunchConfigurationName: launchConfigurationName,
       NewInstancesProtectedFromScaleIn: false,
-      PlacementGroup: 'STRING_VALUE',
       Tags: [
+        {
+          Key: 'Name', /* required */
+          PropagateAtLaunch: true,
+          ResourceType: 'auto-scaling-group',
+          Value: `${environment} - ECS Instance`
+        },
         {
           Key: 'Environment', /* required */
           PropagateAtLaunch: true,
@@ -82,14 +102,11 @@ class AutoScalingClient {
           Key: 'Created', /* required */
           PropagateAtLaunch: true,
           ResourceType: 'auto-scaling-group',
-          Value: moment.format()
+          Value: moment().format()
         }
       ],
-      TargetGroupARNs: [
-        'STRING_VALUE',
-        /* more items */
-      ],
-      VPCZoneIdentifier: 'STRING_VALUE'
+      TargetGroupARNs: formattedTargetGroupArns,
+      VPCZoneIdentifier: vpcSubnets
     };
 
     let createAutoScalingGroupPromise = this.autoScalingClient.createAutoScalingGroup(params).promise();

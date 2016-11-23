@@ -8,15 +8,15 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 class Ec2Client {
 
   constructor(region = 'us-west-2') {
-    this.ec2Client = new AWS.EC2({apiVersion: '2016-09-15', region: region});
+    this._awsEc2Client = new AWS.EC2({apiVersion: '2016-09-15', region: region});
   }
 
   /**
    * Creates a security group with the given json configs
    * @param securityGroupConfig
    * {
-   *  name: <name of the security group>,
-   *  description: <description of the security group>,
+   *  name: (Required) <name of the security group>,
+   *  description: (Required)<description of the security group>,
    *  environment: <infrastructure environment>,
    *  vpcId: <optional field that has the vpcId that should be associated with the security group>,
    *  rules: [
@@ -26,22 +26,26 @@ class Ec2Client {
    *      fromPort: <number 0 - 65535>,
    *      toPort: <number 0 - 65535>,
    *      allowedIpCidrBlock: <cidr block allowed to access>,
-   *      allowedSecurityGroupId: <securityGroupId allowed to access>
+   *      allowedSecurityGroupName: <securityGroupName allowed to access>
    *    }
    *  ]
    */
-  createSecurityGroupFromConfig(securityGroupConfig) {
+  createSecurityGroupFromConfig(environment, securityGroupConfig) {
 
     //Check if security group exists before creating
     return this.doesSecurityGroupExists(securityGroupConfig.name, securityGroupConfig.vpcId).then(result => {
-      if(result) { return; }
+      if(result) {
+        this.logMessage(`Security group exist. No action taken. [SecurityGroupName: ${securityGroupConfig.name}] [VpcId: ${securityGroupConfig.vpcId}]`);
+        return;
+      }
       else {
-        return this._createSecurityGroup(securityGroupConfig.environment, securityGroupConfig.name, securityGroupConfig.description, securityGroupConfig.vpcId, securityGroupConfig.rules);
+        return this._createSecurityGroup(environment, securityGroupConfig.name, securityGroupConfig.description, securityGroupConfig.vpcId, securityGroupConfig.rules);
       }
     });
   }
 
   _createSecurityGroup(environment, sgName, description = '', vpcId = null, rules = []) {
+
     let params = {
       Description: description, /* required */
       GroupName: sgName, /* required */
@@ -53,7 +57,7 @@ class Ec2Client {
     }
 
     this.logMessage(`Creating Security Group [Name: ${sgName}] [Description: ${description}] [VpcId: ${vpcId}]`);
-    let createSecurityGroupPromise = this.ec2Client.createSecurityGroup(params).promise();
+    let createSecurityGroupPromise = this._awsEc2Client.createSecurityGroup(params).promise();
 
     let securityGroupId = '';
     return createSecurityGroupPromise.then(result => {
@@ -70,9 +74,16 @@ class Ec2Client {
     }).then(() => {
       let securityGroupRulePromises = [];
 
+      let lookupSecurityGroupIdFromName = (ruleObject) => {
+        return this.getSecurityGroupIdFromName(ruleObject.allowedSecurityGroupName, vpcId).then(allowedSecurityGroupId => {
+
+          return this._authorizeSecurityGroup(securityGroupId, ruleObject.egress, ruleObject.protocol, ruleObject.fromPort, ruleObject.toPort, ruleObject.allowedIpCidrBlock, allowedSecurityGroupId);
+        });
+      };
+
       for(let ruleIndex = 0; ruleIndex < rules.length; ruleIndex++) {
         let ruleObject = rules[ruleIndex];
-        securityGroupRulePromises.push(this._authorizeSecurityGroup(securityGroupId, ruleObject.egress, ruleObject.protocol, ruleObject.fromPort, ruleObject.toPort, ruleObject.allowedIpCidrBlock, ruleObject.allowedSecurityGroupId));
+        securityGroupRulePromises.push(lookupSecurityGroupIdFromName(ruleObject));
       }
 
       return BlueBirdPromise.all(securityGroupRulePromises);
@@ -83,7 +94,7 @@ class Ec2Client {
   }
 
   /**
-   * Create Outbound security group rule
+   * Create security group rule
    * @param securityGroupId
    * @param egress If false, applies to inbound, if true, applies to outbound traffic
    * @param protocol
@@ -95,7 +106,7 @@ class Ec2Client {
   _authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock = null, allowedSecurityGroupId = null) {
 
     if(!allowedIpCidrBlock && !allowedSecurityGroupId) {
-      throw new Exception(`There is no valid allowed scope. [SecurityGroupId: ${securityGroupId}] [AllowedIpCidrBlock: ${allowedIpCidrBlock}] [AllowedSecurityGroupId: ${allowedSecurityGroupId}]`);
+      throw new Error(`There is no valid allowed scope. [SecurityGroupId: ${securityGroupId}] [AllowedIpCidrBlock: ${allowedIpCidrBlock}] [AllowedSecurityGroupId: ${allowedSecurityGroupId}]`);
     }
 
     let baseIpPermission = {
@@ -120,10 +131,10 @@ class Ec2Client {
 
     if(egress) {
       this.logMessage(`Creating outbound security group rule. [SecurityGroupId: ${securityGroupId}] [Params: ${JSON.stringify(params)}]`);
-      return this.ec2Client.authorizeSecurityGroupEgress(params).promise();
+      return this._awsEc2Client.authorizeSecurityGroupEgress(params).promise();
     } else {
       this.logMessage(`Creating inbound security group rule. [SecurityGroupId: ${securityGroupId}] [Params: ${JSON.stringify(params)}]`);
-      return this.ec2Client.authorizeSecurityGroupIngress(params).promise();
+      return this._awsEc2Client.authorizeSecurityGroupIngress(params).promise();
     }
   }
 
@@ -136,6 +147,8 @@ class Ec2Client {
   }
 
   getSecurityGroupIdFromName(securityGroupName, vpcId = null) {
+
+    this.logMessage(`Looking up security group id from name. [SecurityGroupName: ${securityGroupName}] [VpcId: ${vpcId}]`);
     let params = {
       DryRun: false,
       Filters: [
@@ -155,8 +168,8 @@ class Ec2Client {
       });
     }
 
-    this.logMessage(`Looking up security groups. [SecurityGroupName: ${securityGroupName}] [VpcId: ${vpcId}]`);
-    let describeSecurityGroupsPromise = this.ec2Client.describeSecurityGroups(params).promise();
+    this.logMessage(`Initiating call. [SecurityGroupName: ${securityGroupName}] [VpcId: ${vpcId}]`);
+    let describeSecurityGroupsPromise = this._awsEc2Client.describeSecurityGroups(params).promise();
 
     return describeSecurityGroupsPromise.then(result => {
       if(result.SecurityGroups && result.SecurityGroups.length > 0) {
@@ -190,7 +203,7 @@ class Ec2Client {
     };
 
     this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(tags)}]`);
-    return this.ec2Client.createTags(createTagParams).promise();
+    return this._awsEc2Client.createTags(createTagParams).promise();
   }
 
   /**

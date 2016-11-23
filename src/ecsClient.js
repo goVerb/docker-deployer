@@ -46,27 +46,37 @@ class EcsClient {
     return registerTaskDefinitionPromise;
   }
 
-  createService() {
+  /**
+   *
+   * @param clusterName
+   * @param serviceName
+   * @param taskDefinition
+   * @param desiredCount
+   * @param containerName
+   * @param containerPort
+   * @param targetGroupArn
+   * @return {Promise<D>}
+   */
+  createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn) {
+
     let params = {
-      desiredCount: 0, /* required */
-      serviceName: 'STRING_VALUE', /* required */
-      taskDefinition: 'STRING_VALUE', /* required */
-      clientToken: 'STRING_VALUE',
-      cluster: 'STRING_VALUE',
+      desiredCount: desiredCount, /* required */
+      serviceName: serviceName, /* required */
+      taskDefinition: taskDefinition, /* required */
+      //clientToken: 'STRING_VALUE',
+      cluster: clusterName,
       deploymentConfiguration: {
-        maximumPercent: 0,
-        minimumHealthyPercent: 0
+        maximumPercent: 200,
+        minimumHealthyPercent: 50
       },
       loadBalancers: [
         {
-          containerName: 'STRING_VALUE',
-          containerPort: 0,
-          loadBalancerName: 'STRING_VALUE',
-          targetGroupArn: 'STRING_VALUE'
-        },
-        /* more items */
+          containerName: containerName,
+          containerPort: containerPort,
+          targetGroupArn: targetGroupArn
+        }
       ],
-      role: 'STRING_VALUE'
+      role: 'ecsServiceRole'
     };
 
     let createServicePromise = this.ecsClient.createService(params).promise();
@@ -74,6 +84,18 @@ class EcsClient {
     return createServicePromise;
   }
 
+  updateService(clusterName, serviceName, taskDefinition, desiredCount) {
+    let params = {
+      service: serviceName, /* required */
+      cluster: clusterName,
+      desiredCount: desiredCount,
+      taskDefinition: taskDefinition
+    };
+
+    let updateServicePromise = this.ecsClient.updateService(params).promise();
+
+    return updateServicePromise;
+  }
   /**
    * Logs messages
    * @param msg

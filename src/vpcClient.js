@@ -15,7 +15,6 @@ class VpcClient {
    * Creates a VPC from a custom configuration JSON object
    * {
    *  name: <name of VPC>,
-   *  environment: <environment tag for VPC>,
    *  cidrBlock: <this is a string of the cidrblock that represents the VPC>,
    *  subnets: [
    *    {
@@ -42,7 +41,8 @@ class VpcClient {
    * }
    * @param config
    */
-  createVpcFromConfig(config) {
+  createVpcFromConfig(environment, config) {
+    this.logMessage(`Executing createVpcFromConfig. [Environment: ${environment}] [Config: ${JSON.stringify(config)}]`);
 
     return this.getVpcIdFromName(config.name).then(existingVpcId => {
       if(existingVpcId) {
@@ -55,7 +55,7 @@ class VpcClient {
         let subnetIds = [];
         let networkAclNameToIdLookup = {};
         let subnetNameToIdLookup = {};
-        return this.createVpc(config.name, config.environment, config.cidrBlock).then(createdVpcId => {
+        return this.createVpc(config.name, environment, config.cidrBlock).then(createdVpcId => {
           vpcId = createdVpcId;
 
           return;
@@ -72,7 +72,7 @@ class VpcClient {
           this.logMessage('Creating NetworkACLs');
           for(let networkAclIndex = 0; networkAclIndex < config.networkAcls.length; networkAclIndex++) {
             let networkAclObject = config.networkAcls[networkAclIndex];
-            createNetworkAclPromises.push(this.createNetworkAclWithRules(vpcId, networkAclObject.name, config.environment, networkAclObject.rules).then(assignNetworkAclToLookup(networkAclObject.name)));
+            createNetworkAclPromises.push(this.createNetworkAclWithRules(vpcId, networkAclObject.name, environment, networkAclObject.rules).then(assignNetworkAclToLookup(networkAclObject.name)));
           }
 
           return BlueBirdPromise.all(createNetworkAclPromises);
@@ -90,7 +90,7 @@ class VpcClient {
           let subnetPromises = [];
           for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
             let subnetObject = config.subnets[subnetIndex];
-            subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, config.environment, subnetObject.cidrBlock, subnetObject.availabilityZone, subnetObject.mapPublicIpOnLaunch).then(assignSubnetIdToArray(subnetObject.name)));
+            subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, environment, subnetObject.cidrBlock, subnetObject.availabilityZone, subnetObject.mapPublicIpOnLaunch).then(assignSubnetIdToArray(subnetObject.name)));
           }
 
           return BlueBirdPromise.all(subnetPromises);
@@ -107,14 +107,14 @@ class VpcClient {
 
           return BlueBirdPromise.all(subnetToNetworkAclPromises);
         }).then(() => {
-          return this.createAndAttachInternetGateway(vpcId, `${config.name} - Internet Gateway`, config.environment).then(createdInternetGatewayId => {
+          return this.createAndAttachInternetGateway(vpcId, `${config.name} - Internet Gateway`, environment).then(createdInternetGatewayId => {
             internetGatewayId = createdInternetGatewayId;
           });
         }).then(() => {
           //Create Route Table and associate it with Subnets
           let routeTableId = '';
 
-          return this.createRouteTable(vpcId, `${config.name} - Route Table`, config.environment).then(createdRouteTableId => {
+          return this.createRouteTable(vpcId, `${config.name} - Route Table`, environment).then(createdRouteTableId => {
             routeTableId = createdRouteTableId;
           }).then(() => {
             return this.addInternetGatewayToRouteTable(internetGatewayId, routeTableId);
@@ -380,13 +380,13 @@ class VpcClient {
    */
   addInternetGatewayToRouteTable(internetGatewayId, routeTableId) {
     let params = {
-      DestinationCidrBlock: "0.0.0.0/0",
+      DestinationCidrBlock: '0.0.0.0/0',
       GatewayId: internetGatewayId,
       RouteTableId: routeTableId
     };
     let createRoutePromise = this.ec2Client.createRoute(params).promise();
 
-    this.logMessage(`Creating Route on RouteTable. [RouteTableId: ${routeTableId}]`);
+    this.logMessage(`Adding Internet Gateway to RouteTable. [RouteTableId: ${routeTableId}] [InternetGatewayId: ${internetGatewayId}]`);
     return createRoutePromise;
   }
 

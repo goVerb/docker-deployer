@@ -41,3 +41,12 @@ gulp.task('build:babel', (callback) => {
       callback()
     });
 });
+
+gulp.task('test', () => {
+  let mochaOptions = {
+    compilers: 'js:babel-core/register'
+  };
+
+  return gulp.src('./tests/**.js', {read: false})
+    .pipe(mocha(mochaOptions));
+});

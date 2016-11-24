@@ -12,6 +12,16 @@ class ElbClient {
     this._awsElbv2Client = new AWS.ELBv2({apiVersion: '2015-12-01', region: region});
   }
 
+  createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
+    return this.getApplicationLoadBalancerArnFromName(appElbName).then(applicationLoadBalancerArn => {
+      if(!applicationLoadBalancerArn) {
+        return this._createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds);
+      } else {
+        this.logMessage(`Application Load Balancer already exists. No action taken. [AppLoadBalancerName: ${appElbName}] [AppLoadBalancerArn: ${applicationLoadBalancerArn}]`);
+      }
+    });
+  }
+
   /**
    *
    * @param environment
@@ -20,7 +30,7 @@ class ElbClient {
    * @param scheme Possible Values: 'internet-facing' | 'internal'
    * @param securityGroupIds
    */
-  createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
+  _createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
     let params = {
       Name: appElbName, /* required */
       Subnets: subnetIds,
@@ -55,6 +65,18 @@ class ElbClient {
    * @return {Promise<D>}
    */
   createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
+    return this.getTargetGroupArnFromName(name).then(targetGroupArn => {
+      if(!targetGroupArn) {
+        this.logMessage(`TargetGroup does not exist.  Creating TargetGroup. [TargetGroupName: ${name}]`);
+        return this._createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      } else {
+        this.logMessage(`TargetGroup already exist. No action taken. [TargetGroupName: ${name}] [TargetGroupArn: ${targetGroupArn}]`);
+      }
+    });
+
+  }
+
+  _createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
     if(protocol.toLocaleUpperCase() !== 'HTTP' && protocol.toLocaleUpperCase() !== 'HTTPS') {
       throw new Error(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`);
     }
@@ -127,6 +149,16 @@ class ElbClient {
     });
   }
 
+  createListener(loadBalancerArn, targetGroupArn, protocol, port) {
+    return this.getListenerArn(loadBalancerArn, protocol, port).then(listenerArn => {
+      if(!listenerArn) {
+        return this._createListener(loadBalancerArn, targetGroupArn, protocol, port);
+      } else {
+        this.logMessage(`Listener already exist. No action taken. [LoadBalancerArn: ${loadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
+      }
+    });
+  }
+
   /**
    *
    * @param loadBalancerArn (Required)
@@ -135,7 +167,7 @@ class ElbClient {
    * @param port
    * @return {Promise<D>}
    */
-  createListener(loadBalancerArn, targetGroupArn, protocol, port) {
+  _createListener(loadBalancerArn, targetGroupArn, protocol, port) {
     let params = {
       DefaultActions: [ /* required */
         {
@@ -229,6 +261,27 @@ class ElbClient {
 
     this.logMessage(`Assigning Tags to ResourceArns. [ResourceArn: ${targetGroupArn}] [Tags: ${JSON.stringify(tags)}]`);
     return this._awsElbv2Client.addTags(addTagParams).promise();
+  }
+
+  getListenerArn(applicationLoadBalancerArn, protocol, port) {
+    let params = {
+      LoadBalancerArn: applicationLoadBalancerArn
+    };
+
+    this.logMessage(`Looking up ListenerArn by LoadBalancerArn, Protocol, and Port. [Arn: ${applicationLoadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
+    let describeListenersPromise = this._awsElbv2Client.describeListeners(params).promise();
+
+    return describeListenersPromise.then(result => {
+
+      this.logMessage(`Looking up result for ListenerArn. [Results: ${JSON.stringify(result)}]`);
+      let matchingEntry = __.filter(result.Listeners, { Port: port, Protocol: protocol });
+      if(matchingEntry) {
+        return matchingEntry.ListenerArn;
+      }
+      else {
+        return '';
+      }
+    });
   }
 
   /**

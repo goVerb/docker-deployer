@@ -9,16 +9,31 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 class EcsClient {
 
   constructor(region = 'us-west-2') {
-    this.ecsClient = new AWS.ECS({apiVersion: '2014-11-13', region: region});
+    this._awsEcsClient = new AWS.ECS({apiVersion: '2014-11-13', region: region});
   }
 
+  /**
+   * Creates a ECS Cluster with the specified name.  If cluster already exist, no action is taken.
+   * @param clusterName
+   * @return {Promise.<TResult>|*}
+   */
   createCluster(clusterName) {
+    return this.getClusterArn(clusterName).then(clusterArn => {
+      if(!clusterArn) {
+        return this._createCluster(clusterName);
+      } else {
+        this.logMessage(`Cluster already exist.  No action taken. [ClusterName: ${clusterName}] [ClusterArn: ${clusterArn}]`);
+      }
+    });
+  }
+
+  _createCluster(clusterName) {
     let params = {
       clusterName: clusterName
     };
 
     this.logMessage(`Creating ECS Cluster. [ClusterName: ${clusterName}]`);
-    let createClusterPromise = this.ecsClient.createCluster(params).promise();
+    let createClusterPromise = this._awsEcsClient.createCluster(params).promise();
 
     return createClusterPromise;
   }
@@ -33,7 +48,7 @@ class EcsClient {
    * @return {Promise<D>}
    */
   registerTaskDefinition(taskName, networkMode, taskRoleArn, containerDefinitions) {
-    var params = {
+    let params = {
       containerDefinitions: containerDefinitions,
       family: taskName, /* required */
       networkMode: networkMode,
@@ -41,9 +56,21 @@ class EcsClient {
       volumes: []
     };
 
-    let registerTaskDefinitionPromise = this.ecsClient.registerTaskDefinition(params).promise();
+    let registerTaskDefinitionPromise = this._awsEcsClient.registerTaskDefinition(params).promise();
 
     return registerTaskDefinitionPromise;
+  }
+
+  createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn) {
+    return this.getServiceArn(clusterName, serviceName).then(serviceArn => {
+      if(serviceArn) {
+        this.logMessage(`Service already exists.  Updating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}] [ServiceArn: ${serviceArn}]`);
+        this._updateService(clusterName, serviceName, taskDefinition, desiredCount);
+      } else {
+        this.logMessage(`Service does not exists.  Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
+        this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+      }
+    });
   }
 
   /**
@@ -57,7 +84,7 @@ class EcsClient {
    * @param targetGroupArn
    * @return {Promise<D>}
    */
-  createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn) {
+  _createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn) {
 
     let params = {
       desiredCount: desiredCount, /* required */
@@ -79,12 +106,21 @@ class EcsClient {
       role: 'ecsServiceRole'
     };
 
-    let createServicePromise = this.ecsClient.createService(params).promise();
+    this.logMessage(`Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
+    let createServicePromise = this._awsEcsClient.createService(params).promise();
 
     return createServicePromise;
   }
 
-  updateService(clusterName, serviceName, taskDefinition, desiredCount) {
+  /**
+   *
+   * @param clusterName
+   * @param serviceName
+   * @param taskDefinition
+   * @param desiredCount
+   * @return {Promise<D>}
+   */
+  _updateService(clusterName, serviceName, taskDefinition, desiredCount) {
     let params = {
       service: serviceName, /* required */
       cluster: clusterName,
@@ -92,10 +128,52 @@ class EcsClient {
       taskDefinition: taskDefinition
     };
 
-    let updateServicePromise = this.ecsClient.updateService(params).promise();
+    this.logMessage(`Updating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
+    let updateServicePromise = this._awsEcsClient.updateService(params).promise();
 
     return updateServicePromise;
   }
+
+  getServiceArn(clusterName, serviceName) {
+    let params = {
+      services: [ serviceName ],
+      cluster: clusterName
+    };
+
+    this.logMessage(`Looking up ServiceArn by Cluster Name and Service Name. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
+    let describeServicesPromise = this._awsEcsClient.describeServices(params).promise();
+
+    return describeServicesPromise.then(result => {
+      this.logMessage(`DescribeServices Results: ${JSON.stringify(result)}`);
+      if(result.services && result.services.length > 0) {
+        let service = result.services[0];
+        return service.status === "ACTiVE" && service.serviceArn;
+      } else {
+        return '';
+      }
+    });
+
+  }
+
+  getClusterArn(name) {
+    let params = {
+      clusters: [ name ]
+    };
+
+    this.logMessage(`Looking up ClusterArn by Cluster Name. [ClusterName: ${name}]`);
+    let describeClustersPromise = this._awsEcsClient.describeClusters(params).promise();
+
+    return describeClustersPromise.then(result => {
+      this.logMessage(`DescribeCluster Results: ${JSON.stringify(result)}`);
+      if(result.clusters && result.clusters.length > 0) {
+        let cluster = result.clusters[0];
+        return cluster.status === "ACTIVE" ? cluster.clusterArn : '';
+      } else {
+        return '';
+      }
+    });
+  }
+
   /**
    * Logs messages
    * @param msg

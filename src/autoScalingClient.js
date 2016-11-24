@@ -10,7 +10,37 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 class AutoScalingClient {
 
   constructor(region = 'us-west-2') {
-    this.autoScalingClient = new AWS.AutoScaling({apiVersion: '2015-12-01', region: region});
+    this._awsAutoScalingClient = new AWS.AutoScaling({apiVersion: '2015-12-01', region: region});
+  }
+
+  //TODO: Create a createOrUpdate method for AutoScalingGroup and LaunchConfiguration
+
+  /**
+   *
+   * @param launchConfigurationConfig
+   * {
+   *     name: <Name of the launch configuration>,
+   *     baseImageId: <ImageId that will be the base AMI for the EC2 instances>,
+   *     securityGroupId: <id of the security group to be applied to the EC2 instances>,
+   *     instanceType: <Instance type that will be used for the EC2 instances,
+   *     sshKeyName: (Optional) SSH Key associated with the EC2 instances
+   *     ecsClusterName: (Optional) <This is the ECS cluster that will be associated with the launch configuration>
+   *   }
+   * @return {Promise.<TResult>|*}
+   */
+  createLaunchConfigurationFromConfig(launchConfigurationConfig) {
+    return this.getLaunchConfigurationArn(launchConfigurationConfig.name).then(launchConfigurationArn => {
+      if(!launchConfigurationArn) {
+        return this._createLaunchConfiguration(launchConfigurationConfig.name,
+          launchConfigurationConfig.baseImageId,
+          launchConfigurationConfig.securityGroupId,
+          launchConfigurationConfig.instanceType,
+          launchConfigurationConfig.sshKeyName,
+          launchConfigurationConfig.ecsClusterName);
+      } else {
+        this.logMessage(`LaunchConfiguration already exists. No Action taken. [LaunchConfigurationName: ${launchConfigurationConfig.name}] [LaunchConfigurationArn: ${launchConfigurationArn}]`);
+      }
+    });
   }
 
   /**
@@ -22,7 +52,7 @@ class AutoScalingClient {
    * @param ecsClusterName (Optional)
    * @return {Promise<D>}
    */
-  createLaunchConfiguration(name, imageId, securityGroupId, instanceType, sshKeyName = null, ecsClusterName = null) {
+  _createLaunchConfiguration(name, imageId, securityGroupId, instanceType, sshKeyName = null, ecsClusterName = null) {
 
     let params = {
       LaunchConfigurationName: name, /* required */
@@ -50,12 +80,24 @@ class AutoScalingClient {
     }
 
     this.logMessage(`Creating Launch Configuration. [Name: ${name}] [Params: ${JSON.stringify(params)}]`);
-    let createLaunchConfigurationPromise = this.autoScalingClient.createLaunchConfiguration(params).promise();
+    let createLaunchConfigurationPromise = this._awsAutoScalingClient.createLaunchConfiguration(params).promise();
 
     return createLaunchConfigurationPromise;
   }
 
-  /**
+
+
+  createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
+    return this.getAutoScalingGroupArn(name).then(autoScalingGroupArn => {
+      if(!autoScalingGroupArn) {
+        return this._createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+      } else {
+        this.logMessage(`AutoScalingGroup already exists. No Action taken. [AutoScalingGroupName: ${name}] [AutoScalingGroupArn: ${autoScalingGroupArn}]`);
+      }
+    });
+  }
+
+    /**
    *
    * @param environment
    * @param name (Required)
@@ -67,7 +109,7 @@ class AutoScalingClient {
    * @param vpcSubnets This is a CSV of subnets where the instances will be launched into
    * @return {Promise<D>}
    */
-  createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
+  _createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
 
 
     let formattedTargetGroupArns = targetGroupArns;
@@ -109,10 +151,48 @@ class AutoScalingClient {
       VPCZoneIdentifier: vpcSubnets
     };
 
-    let createAutoScalingGroupPromise = this.autoScalingClient.createAutoScalingGroup(params).promise();
+    let createAutoScalingGroupPromise = this._awsAutoScalingClient.createAutoScalingGroup(params).promise();
 
 
     return createAutoScalingGroupPromise;
+  }
+
+  /**
+   *
+   * @param launchConfigurationName
+   * @return {Promise.<TResult>}
+   */
+  getLaunchConfigurationArn(launchConfigurationName) {
+    let params = {
+      LaunchConfigurationNames: [ launchConfigurationName ]
+    };
+
+    let describeLaunchConfigurationPromise = this._awsAutoScalingClient.describeLaunchConfigurations(params).promise();
+
+    return describeLaunchConfigurationPromise.then(result => {
+      if(result.LaunchConfigurations && result.LaunchConfigurations.length > 0) {
+        return result.LaunchConfigurations[0].LaunchConfigurationARN;
+      } else {
+        return '';
+      }
+    });
+
+  }
+
+  getAutoScalingGroupArn(autoScalingGroupName) {
+    let params = {
+      AutoScalingGroupNames: [ autoScalingGroupName ]
+    };
+
+    let describeAutoScalingGroupsPromise = this._awsAutoScalingClient.describeAutoScalingGroups(params).promise();
+
+    return describeAutoScalingGroupsPromise.then(result => {
+      if(result.AutoScalingGroups && result.AutoScalingGroups.length > 0) {
+        return result.AutoScalingGroups[0].AutoScalingGroupARN;
+      } else {
+        return '';
+      }
+    });
   }
 
   /**

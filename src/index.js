@@ -151,12 +151,12 @@ class Deployer {
     });
   }
 
-  deploy(serviceConfig, taskConfig) {
-    // then(() => {
-    //   //CreateOrUpdate Task Definition
-    // }).then(() => {
-    //   //CreateOrUpdate Service
-    // });
+  deploy(serviceConfig, taskDefintionConfig) {
+
+    return this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions).then(() => {
+
+      return this._createECSService(serviceConfig);
+    });
 
   }
 
@@ -191,7 +191,10 @@ class Deployer {
     return this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName).then(vpcId => {
       return this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
     }).then(securityGroupId => {
-      return this._autoScalingClient.createLaunchConfiguration(launchConfigurationConfig.name, launchConfigurationConfig.baseImageId, securityGroupId, launchConfigurationConfig.instanceType, null, ecsClusterName);
+      launchConfigurationConfig.ecsClusterName = ecsClusterName;
+      launchConfigurationConfig.securityGroupId = securityGroupId;
+
+      return this._autoScalingClient.createLaunchConfigurationFromConfig(launchConfigurationConfig);
     });
   }
 
@@ -265,6 +268,14 @@ class Deployer {
       return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfig.protocol, listenerConfig.port);
     });
 
+  }
+
+  _createECSService(serviceConfig) {
+
+    return this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName).then(targetGroupArn => {
+
+      return this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
+    });
   }
 }
 
@@ -418,9 +429,77 @@ let autoScalingClient = new AutoScaling();
 //Create Application Auto Scaling for Task
 
 
+
+
+
+
+
+// ecsClient.registerTaskDefinition('Richard-Test-Task', 'bridge', 'arn:aws:iam::***REMOVED***:role/ecsTaskRole', containerDefinitions).then(result => {
+//   console.log(`Register Task Definition: ${JSON.stringify(result)}`);
+// });
+
+//Create Task
+let containerDefinitions = [{
+  name: '***REMOVED***-API-Container',
+  image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/***REMOVED***-api:beta1',
+  disableNetworking: false,
+  privileged: false,
+  readonlyRootFilesystem: true,
+  memory: '300',
+  memoryReservation: '300',
+  essential: true,
+  portMappings: [
+    {
+      containerPort: 8080,
+      hostPort: 0,
+      protocol: 'tcp'
+    }
+  ],
+  command: [],
+  cpu: 0,
+  dnsSearchDomains: [],
+  dnsServers: [],
+  dockerLabels: {},
+  dockerSecurityOptions: [],
+  entryPoint: [],
+  environment: [],
+  extraHosts: [],
+  hostname: null,
+  links: [],
+  logConfiguration: {
+    logDriver: 'json-file'
+  },
+  mountPoints: [],
+  ulimits: [],
+  user: null,
+  volumesFrom: [],
+  workingDirectory: null
+}];
+
+let taskDefinition = {
+  taskName: '***REMOVED***-API-Task',
+  networkMode: 'bridge',
+  taskRoleArn: 'arn:aws:iam::***REMOVED***:role/ecsTaskRole',
+  containerDefintions: containerDefinitions
+};
+
+let serviceDefinition = {
+  clusterName: infrastructureDefinition.ecsClusterName,
+  serviceName: '***REMOVED***-ECS-Service',
+  taskName: taskDefinition.taskName,
+  desiredCount: 2,
+  containerName: containerDefinitions[0].name,
+  containerPort: 8080,
+  targetGroupName: targetGroupDefinition.name
+};
+
 let deployer = new Deployer('us-west-2');
 
-deployer.createInfrastructure(infrastructureDefinition);
+deployer.createInfrastructure(infrastructureDefinition).then(() => {
+  return deployer.deploy(serviceDefinition, taskDefinition);
+}).then(result => {
+  console.log(`Done: ${JSON.stringify(result)}`);
+});
 
 
 module.exports = function() {

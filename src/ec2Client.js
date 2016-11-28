@@ -33,10 +33,10 @@ class Ec2Client {
   createSecurityGroupFromConfig(environment, securityGroupConfig) {
 
     //Check if security group exists before creating
-    return this.doesSecurityGroupExists(securityGroupConfig.name, securityGroupConfig.vpcId).then(result => {
-      if(result) {
+    return this.getSecurityGroupIdFromName(securityGroupConfig.name, securityGroupConfig.vpcId).then(createdSecurityGroupId => {
+      if(createdSecurityGroupId) {
         this.logMessage(`Security group exist. No action taken. [SecurityGroupName: ${securityGroupConfig.name}] [VpcId: ${securityGroupConfig.vpcId}]`);
-        return;
+        return createdSecurityGroupId;
       }
       else {
         return this._createSecurityGroup(environment, securityGroupConfig.name, securityGroupConfig.description, securityGroupConfig.vpcId, securityGroupConfig.rules);
@@ -44,6 +44,16 @@ class Ec2Client {
     });
   }
 
+  /**
+   *
+   * @param environment
+   * @param sgName
+   * @param description
+   * @param vpcId
+   * @param rules
+   * @return {Promise.<TResult>}
+   * @private
+   */
   _createSecurityGroup(environment, sgName, description = '', vpcId = null, rules = []) {
 
     let params = {
@@ -72,25 +82,37 @@ class Ec2Client {
       return this._createTags(securityGroupId, tags);
 
     }).then(() => {
-      let securityGroupRulePromises = [];
-
-      let lookupSecurityGroupIdFromName = (ruleObject) => {
-        return this.getSecurityGroupIdFromName(ruleObject.allowedSecurityGroupName, vpcId).then(allowedSecurityGroupId => {
-
-          return this._authorizeSecurityGroup(securityGroupId, ruleObject.egress, ruleObject.protocol, ruleObject.fromPort, ruleObject.toPort, ruleObject.allowedIpCidrBlock, allowedSecurityGroupId);
-        });
-      };
-
-      for(let ruleIndex = 0; ruleIndex < rules.length; ruleIndex++) {
-        let ruleObject = rules[ruleIndex];
-        securityGroupRulePromises.push(lookupSecurityGroupIdFromName(ruleObject));
-      }
-
-      return BlueBirdPromise.all(securityGroupRulePromises);
+      return this._createSecurityGroupRules(securityGroupId, vpcId, rules);
 
     }).then(() => {
       return securityGroupId;
     });
+  }
+
+  /**
+   * Helper method for creating authorizations (rules) on a security group
+   * @param securityGroupId
+   * @param vpcId
+   * @param securityGroupRules
+   * @return {*}
+   * @private
+   */
+  _createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules) {
+    let securityGroupRulePromises = [];
+
+    let lookupSecurityGroupIdFromName = (ruleObject) => {
+      return this.getSecurityGroupIdFromName(ruleObject.allowedSecurityGroupName, vpcId).then(allowedSecurityGroupId => {
+
+        return this._authorizeSecurityGroup(securityGroupId, ruleObject.egress, ruleObject.protocol, ruleObject.fromPort, ruleObject.toPort, ruleObject.allowedIpCidrBlock, allowedSecurityGroupId);
+      });
+    };
+
+    for(let ruleIndex = 0; ruleIndex < securityGroupRules.length; ruleIndex++) {
+      let ruleObject = securityGroupRules[ruleIndex];
+      securityGroupRulePromises.push(lookupSecurityGroupIdFromName(ruleObject));
+    }
+
+    return BlueBirdPromise.all(securityGroupRulePromises);
   }
 
   /**
@@ -138,14 +160,12 @@ class Ec2Client {
     }
   }
 
-  doesSecurityGroupExists(securityGroupName, vpcId = null) {
-    return this.getSecurityGroupIdFromName(securityGroupName, vpcId).then(result => {
-      let exists = result !== '';
-      this.logMessage(`Security Group Existence Check. [SecurityGroupName: ${securityGroupName}] [VpcId: ${vpcId}] [SecurityGroupExists: ${exists}]`);
-      return exists;
-    });
-  }
-
+  /**
+   * Retrieves the SecurityGroupId based on the Name and VpcId
+   * @param securityGroupName
+   * @param vpcId
+   * @return {Promise.<TResult>}
+   */
   getSecurityGroupIdFromName(securityGroupName, vpcId = null) {
 
     this.logMessage(`Looking up security group id from name. [SecurityGroupName: ${securityGroupName}] [VpcId: ${vpcId}]`);
@@ -172,7 +192,7 @@ class Ec2Client {
     let describeSecurityGroupsPromise = this._awsEc2Client.describeSecurityGroups(params).promise();
 
     return describeSecurityGroupsPromise.then(result => {
-      if(result.SecurityGroups && result.SecurityGroups.length > 0) {
+      if(result && result.SecurityGroups && result.SecurityGroups.length > 0) {
         return result.SecurityGroups[0].GroupId;
       }
       else {
@@ -191,18 +211,23 @@ class Ec2Client {
    */
   _createTags(resourceId, tags, addCreatedTag = true) {
 
+    let localTags = tags;
+    if(!__.isArray(localTags)) {
+      localTags = [];
+    }
+
     if(addCreatedTag) {
-      tags.push({ Key: 'Created', Value:  moment().format()});
+      localTags.push({ Key: 'Created', Value:  moment().format()});
     }
 
     //assign tags
     let createTagParams = {
       Resources: [ resourceId ],
-      Tags: tags,
+      Tags: localTags,
       DryRun: false
     };
 
-    this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(tags)}]`);
+    this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(localTags)}]`);
     return this._awsEc2Client.createTags(createTagParams).promise();
   }
 

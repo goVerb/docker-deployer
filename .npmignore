@@ -1,0 +1,8 @@
+tests/**
+gulpfile.js
+gulpfile.babel.js
+README.md
+wallaby.js
+.npmrc
+.babelrc
+.editorconfig

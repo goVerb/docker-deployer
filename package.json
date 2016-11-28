@@ -1,5 +1,5 @@
 {
-  "name": "docker-deployer",
+  "name": "@go***REMOVED***/docker-deployer",
   "version": "1.0.0",
   "description": "docker deployer utils",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://reedyrm@github.com/reedyrm/docker-deployer.git"
+    "url": "git+https://reedyrm@github.com/go***REMOVED***/docker-deployer.git"
   },
   "author": "Verb Dev Team",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/reedyrm/docker-deployer/issues"
+    "url": "https://github.com/go***REMOVED***/docker-deployer/issues"
   },
-  "homepage": "https://github.com/reedyrm/docker-deployer#readme",
+  "homepage": "https://github.com/go***REMOVED***/docker-deployer#readme",
   "dependencies": {
     "aws-sdk": "^2.7.4",
     "base-64": "^0.1.0",

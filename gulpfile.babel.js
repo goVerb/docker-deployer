@@ -23,7 +23,7 @@ gulp.task('build', (callback) => {
 });
 
 gulp.task('build:clean', () => {
-  return del([`build/**/*`, `build/**/*`]);
+  return del(['build/**/*']);
 });
 
 gulp.task('build:lint', () => {

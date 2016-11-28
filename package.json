@@ -2,7 +2,7 @@
   "name": "@go***REMOVED***/docker-deployer",
   "version": "1.0.3",
   "description": "docker deployer utils",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "gulp build"

@@ -8,6 +8,11 @@ let fs = require('fs');
 let mocha = require('gulp-spawn-mocha');
 let util = require('util');
 
+gulp.task('npmrc', () => {
+  let npmKey = process.env.NPM_KEY;
+  fs.writeFileSync('.npmrc', npmKey);
+});
+
 
 gulp.task('build', (callback) => {
   return runSequence(

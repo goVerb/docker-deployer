@@ -27,6 +27,12 @@ class EcsClient {
     });
   }
 
+  /**
+   *
+   * @param clusterName
+   * @return {Promise<D>}
+   * @private
+   */
   _createCluster(clusterName) {
     let params = {
       clusterName: clusterName
@@ -61,6 +67,17 @@ class EcsClient {
     return registerTaskDefinitionPromise;
   }
 
+  /**
+   *
+   * @param clusterName
+   * @param serviceName
+   * @param taskDefinition
+   * @param desiredCount
+   * @param containerName
+   * @param containerPort
+   * @param targetGroupArn
+   * @return {Promise.<TResult>}
+   */
   createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn) {
     return this.getServiceArn(clusterName, serviceName).then(serviceArn => {
       if(serviceArn) {
@@ -134,6 +151,12 @@ class EcsClient {
     return updateServicePromise;
   }
 
+  /**
+   *
+   * @param clusterName
+   * @param serviceName
+   * @return {Promise.<TResult>}
+   */
   getServiceArn(clusterName, serviceName) {
     let params = {
       services: [ serviceName ],
@@ -145,16 +168,24 @@ class EcsClient {
 
     return describeServicesPromise.then(result => {
       this.logMessage(`DescribeServices Results: ${JSON.stringify(result)}`);
+      let returnServiceArn = '';
       if(result.services && result.services.length > 0) {
-        let service = result.services[0];
-        return service.status === "ACTiVE" && service.serviceArn;
-      } else {
-        return '';
+        let service = __.filter(result.services, {status: 'ACTIVE'});
+        if(service[0]) {
+          returnServiceArn = service[0].serviceArn;
+        }
       }
+
+      return returnServiceArn;
     });
 
   }
 
+  /**
+   *
+   * @param name
+   * @return {Promise.<TResult>}
+   */
   getClusterArn(name) {
     let params = {
       clusters: [ name ]
@@ -165,12 +196,15 @@ class EcsClient {
 
     return describeClustersPromise.then(result => {
       this.logMessage(`DescribeCluster Results: ${JSON.stringify(result)}`);
-      if(result.clusters && result.clusters.length > 0) {
-        let cluster = result.clusters[0];
-        return cluster.status === "ACTIVE" ? cluster.clusterArn : '';
-      } else {
-        return '';
+      let returnClusterArn = '';
+      if(result && result.clusters && result.clusters.length > 0) {
+        let cluster = __.filter(result.clusters, {status: 'ACTIVE'});
+        if(cluster[0]) {
+          return cluster[0].clusterArn;
+        }
       }
+
+      return returnClusterArn;
     });
   }
 

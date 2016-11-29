@@ -192,11 +192,5 @@ class Deployer {
 
 
 module.exports = function() {
-  return {
-    VpcClient: VPC,
-    EcsClient: ECS,
-    Ec2Client: EC2,
-    ElbClient: ELB,
-    AutoScalingClient: AutoScaling
-  };
+  return Deployer;
 }();

@@ -1,14 +1,11 @@
 {
   "name": "@go***REMOVED***/docker-deployer",
-  "version": "1.0.7",
+  "version": "1.0.6",
   "description": "docker deployer utils",
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "gulp build",
-    "bump:patch": "npm version patch --no-git-tag-version",
-    "bump:minor": "npm version minor --no-git-tag-version",
-    "bump:major": "npm version major --no-git-tag-version"
+    "prepublish": "gulp build"
   },
   "repository": {
     "type": "git",

@@ -86,7 +86,18 @@ class AutoScalingClient {
   }
 
 
-
+  /**
+   *
+   * @param environment
+   * @param name
+   * @param launchConfigurationName
+   * @param minSize
+   * @param maxSize
+   * @param desiredCapacity
+   * @param targetGroupArns
+   * @param vpcSubnets
+   * @return {Promise.<TResult>|*}
+   */
   createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
     return this.getAutoScalingGroupArn(name).then(autoScalingGroupArn => {
       if(!autoScalingGroupArn) {
@@ -170,7 +181,7 @@ class AutoScalingClient {
     let describeLaunchConfigurationPromise = this._awsAutoScalingClient.describeLaunchConfigurations(params).promise();
 
     return describeLaunchConfigurationPromise.then(result => {
-      if(result.LaunchConfigurations && result.LaunchConfigurations.length > 0) {
+      if(result && result.LaunchConfigurations && result.LaunchConfigurations.length > 0) {
         return result.LaunchConfigurations[0].LaunchConfigurationARN;
       } else {
         return '';
@@ -187,7 +198,7 @@ class AutoScalingClient {
     let describeAutoScalingGroupsPromise = this._awsAutoScalingClient.describeAutoScalingGroups(params).promise();
 
     return describeAutoScalingGroupsPromise.then(result => {
-      if(result.AutoScalingGroups && result.AutoScalingGroups.length > 0) {
+      if(result && result.AutoScalingGroups && result.AutoScalingGroups.length > 0) {
         return result.AutoScalingGroups[0].AutoScalingGroupARN;
       } else {
         return '';

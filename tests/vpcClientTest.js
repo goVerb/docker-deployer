@@ -33,47 +33,878 @@ describe('VPC Client', function() {
 
   describe('createVpcFromConfig', () => {
     it('should pass config.name to getVpcIdFromName', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('vpc-test123');
+      vpcClientService.createVpc = sandbox.stub().resolves({});
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.getVpcIdFromName.args[0][0]).to.be.equal(vpcConfig.name);
+      });
     });
 
     it('should return existingVpcId if vpc already exists', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let existingVpcId = 'vpc-test123';
+
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves(existingVpcId);
+      vpcClientService.createVpc = sandbox.stub().resolves({});
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(foundVpcId => {
+        expect(foundVpcId).to.be.equal(existingVpcId);
+      });
     });
 
     it('should pass config.name, environment, and config.cidrBlock to createVpc', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+
+        expect(vpcClientService.createVpc.args[0][0]).to.be.equal(vpcConfig.name);
+        expect(vpcClientService.createVpc.args[0][1]).to.be.equal('environmentTest');
+        expect(vpcClientService.createVpc.args[0][2]).to.be.equal(vpcConfig.cidrBlock);
+      });
+    });
+
+    it('should pass vpcId, name, environment, and rules parameter to createNetworkAclWithRules', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+
+        expect(vpcClientService.createNetworkAclWithRules.args[0][0]).to.be.equal(newlyCreatedVpcId);
+        expect(vpcClientService.createNetworkAclWithRules.args[0][1]).to.be.equal(vpcConfig.networkAcls[0].name);
+        expect(vpcClientService.createNetworkAclWithRules.args[0][2]).to.be.equal('environmentTest');
+        expect(vpcClientService.createNetworkAclWithRules.args[0][3].length).to.be.equal(vpcConfig.networkAcls[0].rules.length);
+      });
     });
 
     it('should call createNetworkAclWithRules for each networkAcl', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createNetworkAclWithRules.callCount).to.be.equal(1);
+      });
+    });
+
+    it('should pass vpcId, name, environment, cidrBlock, availabileZone, mapPublicIpOnLaunch parameter to createVpcSubnet', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createVpcSubnet.args[0][0]).to.be.equal(newlyCreatedVpcId);
+        expect(vpcClientService.createVpcSubnet.args[0][1]).to.be.equal(instanceSubnet1.name);
+        expect(vpcClientService.createVpcSubnet.args[0][2]).to.be.equal('environmentTest');
+        expect(vpcClientService.createVpcSubnet.args[0][3]).to.be.equal(instanceSubnet1.cidrBlock);
+        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal(instanceSubnet1.availabilityZone);
+        expect(vpcClientService.createVpcSubnet.args[0][5]).to.be.equal(instanceSubnet1.mapPublicIpOnLaunch);
+
+      });
     });
 
     it('should call createVpcSubnet for each subnet', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createVpcSubnet.callCount).to.be.equal(vpcConfig.subnets.length);
+      });
+    });
+
+    it('should pass networkAclId and subnetId to replaceNetworkAclAssociation', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.replaceNetworkAclAssociation.args[0][0]).to.be.equal(createdNetworkAclId);
+        expect(vpcClientService.replaceNetworkAclAssociation.args[0][1]).to.be.equal(createdSubnetId);
+      });
     });
 
     it('should call replaceNetworkAclAssociation for each subnet', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.replaceNetworkAclAssociation.callCount).to.be.equal(vpcConfig.subnets.length);
+      });
+    });
+
+    it('should pass vpcId, name, and environment to createAndAttachInternetGateway', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createAndAttachInternetGateway.args[0][0]).to.be.equal(newlyCreatedVpcId);
+        expect(vpcClientService.createAndAttachInternetGateway.args[0][1]).to.be.equal(`${vpcConfig.name} - Internet Gateway`);
+        expect(vpcClientService.createAndAttachInternetGateway.args[0][2]).to.be.equal('environmentTest');
+      });
     });
 
     it('should call createAndAttachInternetGateway once', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createAndAttachInternetGateway.callCount).to.be.equal(1);
+      });
+    });
+
+    it('should pass vpcId, name, and environment to createRouteTable', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createRouteTable.args[0][0]).to.be.equal(newlyCreatedVpcId);
+        expect(vpcClientService.createRouteTable.args[0][1]).to.be.equal(`${vpcConfig.name} - Route Table`);
+        expect(vpcClientService.createRouteTable.args[0][2]).to.be.equal('environmentTest');
+      });
     });
 
     it('should call createRouteTable once', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createRouteTable.callCount).to.be.equal(1);
+      });
+    });
+
+    it('should pass internetGatewayId and routeTableId to addInternetGatewayToRouteTable', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.addInternetGatewayToRouteTable.args[0][0]).to.be.equal(createdInternetGatewayId);
+        expect(vpcClientService.addInternetGatewayToRouteTable.args[0][1]).to.be.equal(createdRouteTableId);
+      });
     });
 
     it('should call addInternetGatewayToRouteTable once', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.addInternetGatewayToRouteTable.callCount).to.be.equal(1);
+      });
+    });
+
+    it('should pass routeTableId and subnetId to associateSubnetWithRouteTable', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.associateSubnetWithRouteTable.args[0][0]).to.be.equal(createdRouteTableId);
+        expect(vpcClientService.associateSubnetWithRouteTable.args[0][1]).to.be.equal(createdSubnetId);
+      });
     });
 
     it('should call associateSubnetWithRouteTable for each subnet', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.associateSubnetWithRouteTable.callCount).to.be.equal(vpcConfig.subnets.length);
+      });
     });
 
     it('should return newly created vpcId', () => {
+      //Arrange
 
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(createdVpcId => {
+        expect(createdVpcId).to.be.equal(newlyCreatedVpcId);
+      });
     });
   });
 

@@ -128,7 +128,7 @@ class Ec2Client {
   _authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock = null, allowedSecurityGroupId = null) {
 
     if(!allowedIpCidrBlock && !allowedSecurityGroupId) {
-      throw new Error(`There is no valid allowed scope. [SecurityGroupId: ${securityGroupId}] [AllowedIpCidrBlock: ${allowedIpCidrBlock}] [AllowedSecurityGroupId: ${allowedSecurityGroupId}]`);
+      return BlueBirdPromise.reject(new Error(`There is no valid allowed scope. [SecurityGroupId: ${securityGroupId}] [AllowedIpCidrBlock: ${allowedIpCidrBlock}] [AllowedSecurityGroupId: ${allowedSecurityGroupId}]`));
     }
 
     let baseIpPermission = {

@@ -24,6 +24,7 @@ describe('EC2 Client', function() {
     mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
+
   afterEach(() => {
     mockery.disable();
     mockery.deregisterAll();
@@ -797,10 +798,917 @@ describe('EC2 Client', function() {
   });
 
   describe('_createSecurityGroupRules', () => {
+    it('should pass securityGroupId to _authorizeSecurityGroup', () => {
+      //Arrange
 
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = 'vpc-123abc';
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedIpCidrBlock: '0.0.0.0/0'
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[0]).to.be.equal(securityGroupId);
+      });
+    });
+
+    it('should pass rule.egress parameter to _authorizeSecurityGroup', () => {
+      //Arrange
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = 'vpc-123abc';
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedIpCidrBlock: '0.0.0.0/0'
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[1]).to.be.equal(singleRule.egress);
+      });
+    });
+
+
+    it('should pass rule.protocol parameter to _authorizeSecurityGroup', () => {
+      //Arrange
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = 'vpc-123abc';
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedIpCidrBlock: '0.0.0.0/0'
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[2]).to.be.equal(singleRule.protocol);
+      });
+    });
+
+    it('should pass rule.fromPort parameter to _authorizeSecurityGroup', () => {
+      //Arrange
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = 'vpc-123abc';
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedIpCidrBlock: '0.0.0.0/0'
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[3]).to.be.equal(singleRule.fromPort);
+      });
+    });
+
+    it('should pass rule.toPort parameter to _authorizeSecurityGroup', () => {
+      //Arrange
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = 'vpc-123abc';
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedIpCidrBlock: '0.0.0.0/0'
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[4]).to.be.equal(singleRule.toPort);
+      });
+    });
+
+    it('should pass rule.allowedIpCidrBlock parameter to _authorizeSecurityGroup', () => {
+      //Arrange
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = 'vpc-123abc';
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedIpCidrBlock: '0.0.0.0/0'
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[5]).to.be.equal(singleRule.allowedIpCidrBlock);
+      });
+    });
+
+    it('should pass rule.allowedSecurityGroupId parameter to _authorizeSecurityGroup', () => {
+      //Arrange
+
+      let linkedSecurityGroupId = 'sg-apple';
+      let linkedSecurityGroupName = 'linkedName';
+      let sharedVpcId = 'vpc-123abc';
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().withArgs(linkedSecurityGroupName, sharedVpcId).resolves(linkedSecurityGroupId);
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = sharedVpcId;
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedSecurityGroupName: linkedSecurityGroupName
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = ec2ClientService._authorizeSecurityGroup.args[0];
+
+        expect(params[6]).to.be.equal(linkedSecurityGroupId);
+      });
+    });
+
+    it('should call getSecurityGroupIdFromName', () => {
+      //Arrange
+      let linkedSecurityGroupName = 'linkedName';
+      let sharedVpcId = 'vpc-123abc';
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+      ec2ClientService._authorizeSecurityGroup = sandbox.stub().resolves({});
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
+
+
+      const securityGroupId = 'sg1';
+      const vpcId = sharedVpcId;
+      const securityGroupRules = [];
+      const singleRule = {
+        egress: true,
+        protocol: 'TCP',
+        fromPort: 123,
+        toPort: 456,
+        allowedSecurityGroupName: linkedSecurityGroupName
+      };
+      securityGroupRules.push(singleRule);
+
+      //Act
+      let resultPromise = ec2ClientService._createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(ec2ClientService.getSecurityGroupIdFromName.calledOnce).to.be.true;
+      });
+    });
   });
 
   describe('_authorizeSecurityGroup', () => {
+    it('should pass securityGroupId in params to authorizeSecurityGroupEgress', () => {
+
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupEgressParams = awsEc2ClientMock.authorizeSecurityGroupEgress.args[0][0];
+
+
+        expect(authorizeSecurityGroupEgressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupEgressParams).to.have.property('GroupId', securityGroupId);
+      });
+    });
+
+    it('should pass protocol in params to authorizeSecurityGroupEgress', () => {
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupEgressParams = awsEc2ClientMock.authorizeSecurityGroupEgress.args[0][0];
+
+
+        expect(authorizeSecurityGroupEgressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupEgressParams.IpPermissions[0]).to.have.property('IpProtocol', protocol);
+      });
+    });
+
+    it('should pass fromPort in params to authorizeSecurityGroupEgress', () => {
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupEgressParams = awsEc2ClientMock.authorizeSecurityGroupEgress.args[0][0];
+
+
+        expect(authorizeSecurityGroupEgressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupEgressParams.IpPermissions[0]).to.have.property('FromPort', fromPort);
+      });
+    });
+
+    it('should pass toPort in params to authorizeSecurityGroupEgress', () => {
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupEgressParams = awsEc2ClientMock.authorizeSecurityGroupEgress.args[0][0];
+
+
+        expect(authorizeSecurityGroupEgressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupEgressParams.IpPermissions[0]).to.have.property('ToPort', toPort);
+      });
+    });
+
+    it('should pass allowedIpCidrBlock to authorizeSecurityGroupEgress', () => {
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupEgressParams = awsEc2ClientMock.authorizeSecurityGroupEgress.args[0][0];
+
+
+        expect(authorizeSecurityGroupEgressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupEgressParams.IpPermissions[0].IpRanges[0]).to.have.property('CidrIp', allowedIpCidrBlock);
+      });
+    });
+
+    it('should pass allowedSecurityGroupId to authorizeSecurityGroupEgress', () => {
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = null;
+      const allowedSecurityGroupId = 'allowed-sg2';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock, allowedSecurityGroupId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupEgressParams = awsEc2ClientMock.authorizeSecurityGroupEgress.args[0][0];
+
+
+        expect(authorizeSecurityGroupEgressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupEgressParams.IpPermissions[0].UserIdGroupPairs[0]).to.have.property('GroupId', allowedSecurityGroupId);
+      });
+    });
+
+    it('should call authorizeSecurityGroupEgress when egress is true', () => {
+      //Arrange
+      let authorizeSecurityGroupEgressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = true;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = null;
+      const allowedSecurityGroupId = 'allowed-sg2';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock, allowedSecurityGroupId);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsEc2ClientMock.authorizeSecurityGroupEgress.calledOnce).to.be.true;
+      });
+    });
+
+    it('should pass securityGroupId in params to authorizeSecurityGroupIngress', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupIngressParams = awsEc2ClientMock.authorizeSecurityGroupIngress.args[0][0];
+
+
+        expect(authorizeSecurityGroupIngressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupIngressParams).to.have.property('GroupId', securityGroupId);
+      });
+    });
+
+    it('should pass protocol in params to authorizeSecurityGroupIngress', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupIngressParams = awsEc2ClientMock.authorizeSecurityGroupIngress.args[0][0];
+
+
+        expect(authorizeSecurityGroupIngressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupIngressParams.IpPermissions[0]).to.have.property('IpProtocol', protocol);
+      });
+    });
+
+    it('should pass fromPort in params to authorizeSecurityGroupIngress', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupIngressParams = awsEc2ClientMock.authorizeSecurityGroupIngress.args[0][0];
+
+
+        expect(authorizeSecurityGroupIngressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupIngressParams.IpPermissions[0]).to.have.property('FromPort', fromPort);
+      });
+    });
+
+    it('should pass toPort in params to authorizeSecurityGroupIngress', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupIngressParams = awsEc2ClientMock.authorizeSecurityGroupIngress.args[0][0];
+
+
+        expect(authorizeSecurityGroupIngressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupIngressParams.IpPermissions[0]).to.have.property('ToPort', toPort);
+      });
+    });
+
+    it('should pass allowedIpCidrBlock to authorizeSecurityGroupIngress', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = '0.0.0.0/0';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupIngressParams = awsEc2ClientMock.authorizeSecurityGroupIngress.args[0][0];
+
+
+        expect(authorizeSecurityGroupIngressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupIngressParams.IpPermissions[0].IpRanges[0]).to.have.property('CidrIp', allowedIpCidrBlock);
+      });
+    });
+
+    it('should pass allowedSecurityGroupId to authorizeSecurityGroupIngress', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = null;
+      const allowedSecurityGroupId = 'allowed-sg2';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock, allowedSecurityGroupId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let authorizeSecurityGroupIngressParams = awsEc2ClientMock.authorizeSecurityGroupIngress.args[0][0];
+
+
+        expect(authorizeSecurityGroupIngressParams.DryRun).to.be.false;
+        expect(authorizeSecurityGroupIngressParams.IpPermissions[0].UserIdGroupPairs[0]).to.have.property('GroupId', allowedSecurityGroupId);
+      });
+    });
+
+    it('should call authorizeSecurityGroupIngress when egress is false', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = null;
+      const allowedSecurityGroupId = 'allowed-sg2';
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock, allowedSecurityGroupId);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsEc2ClientMock.authorizeSecurityGroupIngress.calledOnce).to.be.true;
+      });
+    });
+
+    it('should throw an error if allowedIpCidrBlock and allowedSecurityGroupId are null', () => {
+      //Arrange
+      let authorizeSecurityGroupIngressResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up EC2 clients
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2();
+
+
+      const securityGroupId = 'sg1';
+      const egress = false;
+      const protocol = 'TCP';
+      const fromPort = 123;
+      const toPort = 456;
+      const allowedIpCidrBlock = null;
+      const allowedSecurityGroupId = null;
+
+      //Act
+      let resultPromise = ec2ClientService._authorizeSecurityGroup(securityGroupId, egress, protocol, fromPort, toPort, allowedIpCidrBlock, allowedSecurityGroupId);
+
+      //Assert
+      return resultPromise.catch(err => {
+        console.log(err.message);
+        expect(err.message).to.equal(`There is no valid allowed scope. [SecurityGroupId: ${securityGroupId}] [AllowedIpCidrBlock: null] [AllowedSecurityGroupId: null]`)
+      });
+    });
+
 
   });
 

@@ -8,7 +8,7 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 class VpcClient {
 
   constructor(region = 'us-west-2') {
-    this.ec2Client = new AWS.EC2({apiVersion: '2016-09-15', region: region});
+    this._awsEc2Client = new AWS.EC2({apiVersion: '2016-09-15', region: region});
   }
 
   /**
@@ -160,7 +160,7 @@ class VpcClient {
     };
 
     this.logMessage('Creating VPC');
-    let createVpcPromise = this.ec2Client.createVpc(params).promise();
+    let createVpcPromise = this._awsEc2Client.createVpc(params).promise();
 
     let vpcId = '';
     return createVpcPromise
@@ -172,7 +172,7 @@ class VpcClient {
           VpcIds: [vpcId]
         };
 
-        return this.ec2Client.waitFor('vpcAvailable', vpcAvailableParams).promise();
+        return this._awsEc2Client.waitFor('vpcAvailable', vpcAvailableParams).promise();
       }).then(() => {
         //assign tags
         let tags = [
@@ -207,8 +207,8 @@ class VpcClient {
     };
 
     this.logMessage(`Looking up VPC by name. [Vpc Name: ${name}]`);
-    return this.ec2Client.describeVpcs(params).promise().then(result => {
-      if(result.Vpcs && result.Vpcs.length > 0) {
+    return this._awsEc2Client.describeVpcs(params).promise().then(result => {
+      if(result && result.Vpcs && result.Vpcs.length > 0) {
         return result.Vpcs[0].VpcId;
       } else {
         return '';
@@ -244,28 +244,16 @@ class VpcClient {
     };
 
     this.logMessage(`Looking up Subnets by name. [VpcId: ${vpcId}] [SubnetName Lookup Values: ${JSON.stringify(lookupValues)}]`);
-    return this.ec2Client.describeSubnets(params).promise().then(result => {
-      if(result.Subnets && result.Subnets.length > 0) {
+    return this._awsEc2Client.describeSubnets(params).promise().then(result => {
+      if(result && result.Subnets && result.Subnets.length > 0) {
         let subnetIds = [];
         for(let itemIndex = 0; itemIndex < result.Subnets.length; itemIndex++) {
           subnetIds.push(result.Subnets[itemIndex].SubnetId);
         }
         return subnetIds;
       } else {
-        return '';
+        return [];
       }
-    });
-  }
-
-  /**
-   * Returns true if a VPC exists for the given name
-   * @param name VpcName
-   */
-  doesVpcExists(name) {
-    return this.getVpcIdFromName(name).then(result => {
-      let exists = result !== '';
-      this.logMessage(`Vpc Existence Check. [VpcName: ${name}] [VpcExists: ${exists}]`);
-      return exists;
     });
   }
 
@@ -287,7 +275,7 @@ class VpcClient {
       VpcId: vpcId,
       DryRun: false
     };
-    let createSubnetPromise = this.ec2Client.createSubnet(params).promise();
+    let createSubnetPromise = this._awsEc2Client.createSubnet(params).promise();
 
     let subnetId = '';
     return createSubnetPromise.then(result => {
@@ -317,7 +305,7 @@ class VpcClient {
     let params = {};
 
     this.logMessage(`Creating Internet Gateway. [VpcId: ${vpcId}]`);
-    let createInternetGatewayPromise = this.ec2Client.createInternetGateway(params).promise();
+    let createInternetGatewayPromise = this._awsEc2Client.createInternetGateway(params).promise();
 
     let internetGatewayId = '';
     return createInternetGatewayPromise.then(result => {
@@ -335,7 +323,7 @@ class VpcClient {
         InternetGatewayId: internetGatewayId,
         VpcId: vpcId
       };
-      return this.ec2Client.attachInternetGateway(params).promise();
+      return this._awsEc2Client.attachInternetGateway(params).promise();
     }).then(() => {
       return internetGatewayId;
     });
@@ -354,7 +342,7 @@ class VpcClient {
     };
 
     this.logMessage(`Creating RouteTable. [VpcId: ${vpcId}] [RouteTableName: ${name}]`);
-    let createRouteTablePromise = this.ec2Client.createRouteTable(params).promise();
+    let createRouteTablePromise = this._awsEc2Client.createRouteTable(params).promise();
 
     let routeTableId = '';
     return createRouteTablePromise.then(result => {
@@ -384,7 +372,7 @@ class VpcClient {
       GatewayId: internetGatewayId,
       RouteTableId: routeTableId
     };
-    let createRoutePromise = this.ec2Client.createRoute(params).promise();
+    let createRoutePromise = this._awsEc2Client.createRoute(params).promise();
 
     this.logMessage(`Adding Internet Gateway to RouteTable. [RouteTableId: ${routeTableId}] [InternetGatewayId: ${internetGatewayId}]`);
     return createRoutePromise;
@@ -404,7 +392,7 @@ class VpcClient {
     };
 
     this.logMessage(`Associating Subnet with RouteTable. [RouteTableId: ${routeTableId}] [SubnetId: ${subnetId}]`);
-    let associateRouteTablePromise = this.ec2Client.associateRouteTable(params).promise();
+    let associateRouteTablePromise = this._awsEc2Client.associateRouteTable(params).promise();
 
     return associateRouteTablePromise;
   }
@@ -423,7 +411,7 @@ class VpcClient {
     };
 
     this.logMessage(`Creating NetworkAcl. [VpcId: ${vpcId}] [Name: ${name}]`);
-    let createNetworkAclPromise = this.ec2Client.createNetworkAcl(params).promise();
+    let createNetworkAclPromise = this._awsEc2Client.createNetworkAcl(params).promise();
 
     let networkAclId = '';
     return createNetworkAclPromise.then(result => {
@@ -480,7 +468,7 @@ class VpcClient {
       }
     };
 
-    return this.ec2Client.createNetworkAclEntry(params).promise();
+    return this._awsEc2Client.createNetworkAclEntry(params).promise();
   }
 
   /**
@@ -501,7 +489,7 @@ class VpcClient {
       };
 
       this.logMessage(`Replacing NetworkAcl Association for Subnet. [SubnetId: ${subnetId}] [AssociationId: ${associationId}] [New NetworkAclId: ${networkAclId}]`);
-      return this.ec2Client.replaceNetworkAclAssociation(params).promise();
+      return this._awsEc2Client.replaceNetworkAclAssociation(params).promise();
     });
 
 
@@ -524,14 +512,22 @@ class VpcClient {
       ]
     };
 
-    let describeNetworkAclsPromise = this.ec2Client.describeNetworkAcls(params).promise();
+    let describeNetworkAclsPromise = this._awsEc2Client.describeNetworkAcls(params).promise();
 
     this.logMessage(`Looking up NetworkAclAssociationId for Subnet. [SubnetId: ${subnetId}]`);
     return describeNetworkAclsPromise.then(result => {
+
+      let returnValue = '';
       this.logMessage(`Subnet NetworkAcls Lookup. [Result: ${JSON.stringify(result)}]`);
-      let networkAclAssociations = result.NetworkAcls[0].Associations;
-      let subnetAssociationObject = __.find(networkAclAssociations, {'SubnetId': subnetId});
-      return subnetAssociationObject.NetworkAclAssociationId;
+      if(result && result.NetworkAcls && result.NetworkAcls.length > 0) {
+        let networkAclAssociations = result.NetworkAcls[0].Associations;
+        let subnetAssociationObject = __.find(networkAclAssociations, {'SubnetId': subnetId});
+        if(subnetAssociationObject) {
+          returnValue = subnetAssociationObject.NetworkAclAssociationId;
+        }
+      }
+
+      return returnValue;
     });
 
   }
@@ -551,7 +547,7 @@ class VpcClient {
       }
     };
 
-    let modifySubnetAttributePromise = this.ec2Client.modifySubnetAttribute(params).promise();
+    let modifySubnetAttributePromise = this._awsEc2Client.modifySubnetAttribute(params).promise();
 
     return modifySubnetAttributePromise;
   }
@@ -581,8 +577,8 @@ class VpcClient {
 
 
     this.logMessage(`Setting VPC Attributes. [VpcId: ${vpcId}] [EnableDnsHostnames: ${enableDnsHostnames}] [EnableDnsSupport: ${enableDnsSupport}]`);
-    let modifyDnsHostnamesPromise = this.ec2Client.modifyVpcAttribute(enableDnsHostnamesParams).promise();
-    let modifyDnsSupportPromise = this.ec2Client.modifyVpcAttribute(enableDnsSupportParams).promise();
+    let modifyDnsHostnamesPromise = this._awsEc2Client.modifyVpcAttribute(enableDnsHostnamesParams).promise();
+    let modifyDnsSupportPromise = this._awsEc2Client.modifyVpcAttribute(enableDnsSupportParams).promise();
 
     return BlueBirdPromise.all([modifyDnsHostnamesPromise, modifyDnsSupportPromise]);
   }
@@ -597,19 +593,24 @@ class VpcClient {
    */
   _createTags(resourceId, tags, addCreatedTag = true) {
 
+    let localTags = tags;
+    if(!__.isArray(localTags)) {
+      localTags = [];
+    }
+
     if(addCreatedTag) {
-      tags.push({ Key: 'Created', Value:  moment().format()});
+      localTags.push({ Key: 'Created', Value:  moment().format()});
     }
 
     //assign tags
     let createTagParams = {
       Resources: [ resourceId ],
-      Tags: tags,
+      Tags: localTags,
       DryRun: false
     };
 
-    this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(tags)}]`);
-    return this.ec2Client.createTags(createTagParams).promise();
+    this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(localTags)}]`);
+    return this._awsEc2Client.createTags(createTagParams).promise();
   }
 
   /**

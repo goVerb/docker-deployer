@@ -5,11 +5,14 @@
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "gulp build"
+    "prepublish": "gulp build",
+    "bump:patch": "npm version patch --no-git-tag-version",
+    "bump:minor": "npm version minor --no-git-tag-version",
+    "bump:major": "npm version major --no-git-tag-version"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://reedyrm@github.com/go***REMOVED***/docker-deployer.git"
+    "url": "git+https://go***REMOVED***@github.com/go***REMOVED***/docker-deployer.git"
   },
   "author": "Verb Dev Team",
   "license": "ISC",

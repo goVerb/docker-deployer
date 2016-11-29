@@ -12,6 +12,15 @@ class ElbClient {
     this._awsElbv2Client = new AWS.ELBv2({apiVersion: '2015-12-01', region: region});
   }
 
+  /**
+   *
+   * @param environment
+   * @param appElbName
+   * @param subnetIds
+   * @param scheme
+   * @param securityGroupIds
+   * @return {Promise.<TResult>}
+   */
   createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
     return this.getApplicationLoadBalancerArnFromName(appElbName).then(applicationLoadBalancerArn => {
       if(!applicationLoadBalancerArn) {
@@ -23,7 +32,7 @@ class ElbClient {
   }
 
   /**
-   *
+   * Returns the created Application Load Balancer Arn
    * @param environment
    * @param appElbName
    * @param subnetIds
@@ -46,8 +55,8 @@ class ElbClient {
     let createAppLoadBalancerPromise = this._awsElbv2Client.createLoadBalancer(params).promise();
 
     return createAppLoadBalancerPromise.then(result => {
-      if(result.LoadBalancers && result.LoadBalancers.length > 0) {
-        return result.LoadBalancers[0].LoadBalancerName;
+      if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
+        return result.LoadBalancers[0].LoadBalancerArn;
       } else {
         return '';
       }
@@ -76,9 +85,20 @@ class ElbClient {
 
   }
 
+  /**
+   *
+   * @param environment
+   * @param name
+   * @param port
+   * @param protocol
+   * @param vpcId
+   * @param healthCheckSettingOverrides
+   * @return {*}
+   * @private
+   */
   _createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
     if(protocol.toLocaleUpperCase() !== 'HTTP' && protocol.toLocaleUpperCase() !== 'HTTPS') {
-      throw new Error(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`);
+      return BlueBirdPromise.reject(new Error(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`));
     }
 
     let params = {
@@ -149,6 +169,14 @@ class ElbClient {
     });
   }
 
+  /**
+   *
+   * @param loadBalancerArn
+   * @param targetGroupArn
+   * @param protocol
+   * @param port
+   * @return {Promise.<TResult>}
+   */
   createListener(loadBalancerArn, targetGroupArn, protocol, port) {
     return this.getListenerArn(loadBalancerArn, protocol, port).then(listenerArn => {
       if(!listenerArn) {
@@ -207,6 +235,11 @@ class ElbClient {
     });
   }
 
+  /**
+   *
+   * @param loadBalancerName
+   * @return {Promise.<TResult>}
+   */
   getApplicationLoadBalancerArnFromName(loadBalancerName) {
     let params = {
       Names: [ loadBalancerName ]
@@ -215,7 +248,7 @@ class ElbClient {
     let describeLoadBalancersPromise = this._awsElbv2Client.describeLoadBalancers(params).promise();
 
     return describeLoadBalancersPromise.then(result => {
-      if(result.LoadBalancers && result.LoadBalancers.length > 0) {
+      if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
         return result.LoadBalancers[0].LoadBalancerArn;
       } else {
         return '';
@@ -233,36 +266,62 @@ class ElbClient {
    */
   _createTagsForElbV2(resourceId, tags, addCreatedTag = true) {
 
+    let localTags = tags;
+    if(!__.isArray(localTags)) {
+      localTags = [];
+    }
+
     if(addCreatedTag) {
-      tags.push({ Key: 'Created', Value:  moment().format()});
+      localTags.push({ Key: 'Created', Value:  moment().format()});
     }
 
     //assign tags
     let createTagParams = {
       Resources: [ resourceId ],
-      Tags: tags,
+      Tags: localTags,
       DryRun: false
     };
 
-    this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(tags)}]`);
+    this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(localTags)}]`);
     return this._awsElbv2Client.createTags(createTagParams).promise();
   }
 
+  /**
+   *
+   * @param targetGroupArn
+   * @param tags
+   * @param addCreatedTag
+   * @return {Promise<D>}
+   * @private
+   */
   _createTagsForTargetGroup(targetGroupArn, tags, addCreatedTag = true) {
+
+    let localTags = tags;
+    if(!__.isArray(localTags)) {
+      localTags = [];
+    }
+
     if(addCreatedTag) {
-      tags.push({ Key: 'Created', Value:  moment().format()});
+      localTags.push({ Key: 'Created', Value:  moment().format()});
     }
 
     //assign tags
     let addTagParams = {
       ResourceArns: [ targetGroupArn ],
-      Tags: tags
+      Tags: localTags
     };
 
-    this.logMessage(`Assigning Tags to ResourceArns. [ResourceArn: ${targetGroupArn}] [Tags: ${JSON.stringify(tags)}]`);
+    this.logMessage(`Assigning Tags to ResourceArns. [ResourceArn: ${targetGroupArn}] [Tags: ${JSON.stringify(localTags)}]`);
     return this._awsElbv2Client.addTags(addTagParams).promise();
   }
 
+  /**
+   *
+   * @param applicationLoadBalancerArn
+   * @param protocol
+   * @param port
+   * @return {Promise.<TResult>}
+   */
   getListenerArn(applicationLoadBalancerArn, protocol, port) {
     let params = {
       LoadBalancerArn: applicationLoadBalancerArn
@@ -275,8 +334,8 @@ class ElbClient {
 
       this.logMessage(`Looking up result for ListenerArn. [Results: ${JSON.stringify(result)}]`);
       let matchingEntry = __.filter(result.Listeners, { Port: port, Protocol: protocol });
-      if(matchingEntry) {
-        return matchingEntry.ListenerArn;
+      if(matchingEntry && matchingEntry.length > 0) {
+        return matchingEntry[0].ListenerArn;
       }
       else {
         return '';

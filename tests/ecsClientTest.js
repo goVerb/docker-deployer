@@ -31,6 +31,120 @@ describe('ECS Client', function() {
     sandbox.restore();
   });
 
+  describe('getter _awsEcsClient', () => {
+    it('should pass accessKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ECS: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ECS clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ECS = require('../src/ecsClient');
+      const ecsClientService = new ECS(accessKey, secretKey, region);
+
+
+      //Act
+      ecsClientService._awsEcsClient;
+
+      //Assert
+      let params = mockAwsSdk.ECS.args[0][0];
+      expect(params).to.have.property('accessKeyId', accessKey);
+    });
+
+    it('should pass secretKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ECS: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ECS clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ECS = require('../src/ecsClient');
+      const ecsClientService = new ECS(accessKey, secretKey, region);
+
+
+      //Act
+      ecsClientService._awsEcsClient;
+
+      //Assert
+      let params = mockAwsSdk.ECS.args[0][0];
+      expect(params).to.have.property('secretAccessKey', secretKey);
+    });
+
+    it('should pass region to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ECS: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ECS clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ECS = require('../src/ecsClient');
+      const ecsClientService = new ECS(accessKey, secretKey, region);
+
+
+      //Act
+      ecsClientService._awsEcsClient;
+
+      //Assert
+      let params = mockAwsSdk.ECS.args[0][0];
+      expect(params).to.have.property('region', region);
+    });
+
+    it('should pass default region of us-west-2 if none specified', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ECS: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ECS clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ECS = require('../src/ecsClient');
+      const ecsClientService = new ECS(accessKey, secretKey);
+
+
+      //Act
+      ecsClientService._awsEcsClient;
+
+      //Assert
+      let params = mockAwsSdk.ECS.args[0][0];
+      expect(params).to.have.property('region', 'us-west-2');
+    });
+  });
+
   describe('createCluster', () => {
     it('should pass clusterName to getClusterArn', () => {
       //Arrange

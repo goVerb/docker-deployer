@@ -11,12 +11,27 @@ const BlueBirdPromise = require('bluebird');
 
 class Deployer {
 
-  constructor(region) {
-    this._vpcClient = new VPC(region);
-    this._ecsClient = new ECS(region);
-    this._ec2Client = new EC2(region);
-    this._elbClient = new ELB(region);
-    this._autoScalingClient = new AutoScaling(region);
+  /**
+   *
+   * @param options
+   *  accessKey: <AWS Access Key Id>
+   *  secretKey: <AWS Secret Access Key>
+   *  region: <AWS Region>
+   */
+  constructor(options) {
+
+    let opts = options || {};
+
+
+    this._accessKey = opts.accessKey || '';
+    this._secretKey = opts.secretKey || '';
+    this._region = opts.region || '';
+
+    this._vpcClient = new VPC(this._accessKey, this._secretKey, this._region);
+    this._ecsClient = new ECS(this._accessKey, this._secretKey, this._region);
+    this._ec2Client = new EC2(this._accessKey, this._secretKey, this._region);
+    this._elbClient = new ELB(this._accessKey, this._secretKey, this._region);
+    this._autoScalingClient = new AutoScaling(this._accessKey, this._secretKey, this._region);
   }
 
 

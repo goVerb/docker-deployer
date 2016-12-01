@@ -7,8 +7,26 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 
 class VpcClient {
 
-  constructor(region = 'us-west-2') {
-    this._awsEc2Client = new AWS.EC2({apiVersion: '2016-09-15', region: region});
+  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
+
+    this._accessKey = accessKey;
+    this._secretKey = secretKey;
+    this._region = region;
+  }
+
+  get _awsEc2Client() {
+
+    if(!this._internalEc2Client) {
+      let params = {
+        accessKeyId: this._accessKey,
+        secretAccessKey: this._secretKey,
+        apiVersion: '2016-09-15',
+        region: this._region
+      };
+      this._internalEc2Client = new AWS.EC2(params);
+    }
+
+    return this._internalEc2Client;
   }
 
   /**

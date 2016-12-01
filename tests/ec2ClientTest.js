@@ -31,6 +31,119 @@ describe('EC2 Client', function() {
     sandbox.restore();
   });
 
+  describe('getter _awsEc2Client', () => {
+    it('should pass accessKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up EC2 clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2(accessKey, secretKey, region);
+
+
+      //Act
+      ec2ClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('accessKeyId', accessKey);
+    });
+
+    it('should pass secretKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up EC2 clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2(accessKey, secretKey, region);
+
+
+      //Act
+      ec2ClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('secretAccessKey', secretKey);
+    });
+
+    it('should pass region to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up EC2 clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2(accessKey, secretKey, region);
+
+
+      //Act
+      ec2ClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('region', region);
+    });
+
+    it('should pass default region of us-west-2 if none specified', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up EC2 clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const EC2 = require('../src/ec2Client');
+      const ec2ClientService = new EC2(accessKey, secretKey);
+
+
+      //Act
+      ec2ClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('region', 'us-west-2');
+    });
+  });
 
   describe('createSecurityGroupFromConfig', () => {
     const ENVIRONMENT = 'testenv';

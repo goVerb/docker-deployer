@@ -31,6 +31,120 @@ describe('VPC Client', function() {
     sandbox.restore();
   });
 
+  describe('getter _awsEc2Client', () => {
+    it('should pass accessKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up VPC clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC(accessKey, secretKey, region);
+
+
+      //Act
+      vpcClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('accessKeyId', accessKey);
+    });
+
+    it('should pass secretKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up VPC clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC(accessKey, secretKey, region);
+
+
+      //Act
+      vpcClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('secretAccessKey', secretKey);
+    });
+
+    it('should pass region to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up VPC clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC(accessKey, secretKey, region);
+
+
+      //Act
+      vpcClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('region', region);
+    });
+
+    it('should pass default region of us-west-2 if none specified', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up VPC clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC(accessKey, secretKey);
+
+
+      //Act
+      vpcClientService._awsEc2Client;
+
+      //Assert
+      let params = mockAwsSdk.EC2.args[0][0];
+      expect(params).to.have.property('region', 'us-west-2');
+    });
+  });
+
   describe('createVpcFromConfig', () => {
     it('should pass config.name to getVpcIdFromName', () => {
       //Arrange

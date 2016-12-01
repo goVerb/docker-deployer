@@ -32,6 +32,121 @@ describe('Auto Scaling Client', function() {
     sandbox.restore();
   });
 
+  describe('getter _awsAutoScalingClient', () => {
+    it('should pass accessKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        AutoScaling: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up AutoScaling clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const AutoScaling = require('../src/autoScalingClient');
+      const autoScalingClientService = new AutoScaling(accessKey, secretKey, region);
+
+
+      //Act
+      autoScalingClientService._awsAutoScalingClient;
+
+      //Assert
+      let params = mockAwsSdk.AutoScaling.args[0][0];
+      expect(params).to.have.property('accessKeyId', accessKey);
+    });
+
+    it('should pass secretKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        AutoScaling: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up AutoScaling clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const AutoScaling = require('../src/autoScalingClient');
+      const autoScalingClientService = new AutoScaling(accessKey, secretKey, region);
+
+
+      //Act
+      autoScalingClientService._awsAutoScalingClient;
+
+      //Assert
+      let params = mockAwsSdk.AutoScaling.args[0][0];
+      expect(params).to.have.property('secretAccessKey', secretKey);
+    });
+
+    it('should pass region to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        AutoScaling: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up AutoScaling clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const AutoScaling = require('../src/autoScalingClient');
+      const autoScalingClientService = new AutoScaling(accessKey, secretKey, region);
+
+
+      //Act
+      autoScalingClientService._awsAutoScalingClient;
+
+      //Assert
+      let params = mockAwsSdk.AutoScaling.args[0][0];
+      expect(params).to.have.property('region', region);
+    });
+
+    it('should pass default region of us-west-2 if none specified', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        AutoScaling: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up AutoScaling clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const AutoScaling = require('../src/autoScalingClient');
+      const autoScalingClientService = new AutoScaling(accessKey, secretKey);
+
+
+      //Act
+      autoScalingClientService._awsAutoScalingClient;
+
+      //Assert
+      let params = mockAwsSdk.AutoScaling.args[0][0];
+      expect(params).to.have.property('region', 'us-west-2');
+    });
+  });
+
+
   describe('createLaunchConfigurationFromConfig', () => {
     it('should pass name to getLaunchConfigurationArn method', () => {
       //Arrange

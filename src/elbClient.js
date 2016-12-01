@@ -8,8 +8,25 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 
 class ElbClient {
 
-  constructor(region = 'us-west-2') {
-    this._awsElbv2Client = new AWS.ELBv2({apiVersion: '2015-12-01', region: region});
+  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
+
+    this._accessKey = accessKey;
+    this._secretKey = secretKey;
+    this._region = region;
+  }
+
+  get _awsElbv2Client() {
+    if(!this._internalElbv2Client) {
+      let params = {
+        accessKeyId: this._accessKey,
+        secretAccessKey: this._secretKey,
+        apiVersion: '2015-12-01',
+        region: this._region
+      };
+      this._internalElbv2Client = new AWS.ELBv2(params);
+    }
+
+    return this._internalElbv2Client;
   }
 
   /**

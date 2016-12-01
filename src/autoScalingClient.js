@@ -9,8 +9,26 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 
 class AutoScalingClient {
 
-  constructor(region = 'us-west-2') {
-    this._awsAutoScalingClient = new AWS.AutoScaling({apiVersion: '2015-12-01', region: region});
+  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
+
+    this._accessKey = accessKey;
+    this._secretKey = secretKey;
+    this._region = region;
+  }
+
+  get _awsAutoScalingClient() {
+
+    if(!this._internalAutoScalingClient) {
+      let params = {
+        accessKeyId: this._accessKey,
+        secretAccessKey: this._secretKey,
+        apiVersion: '2016-09-15',
+        region: this._region
+      };
+      this._internalAutoScalingClient = new AWS.AutoScaling(params);
+    }
+
+    return this._internalAutoScalingClient;
   }
 
   //TODO: Create a createOrUpdate method for AutoScalingGroup and LaunchConfiguration

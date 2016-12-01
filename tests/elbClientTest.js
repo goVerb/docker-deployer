@@ -31,6 +31,120 @@ describe('ELB Client', function() {
     sandbox.restore();
   });
 
+  describe('getter _awsElbv2Client', () => {
+    it('should pass accessKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ELB clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ELB = require('../src/elbClient');
+      const elbClientService = new ELB(accessKey, secretKey, region);
+
+
+      //Act
+      elbClientService._awsElbv2Client;
+
+      //Assert
+      let params = mockAwsSdk.ELBv2.args[0][0];
+      expect(params).to.have.property('accessKeyId', accessKey);
+    });
+
+    it('should pass secretKey to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ELB clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ELB = require('../src/elbClient');
+      const elbClientService = new ELB(accessKey, secretKey, region);
+
+
+      //Act
+      elbClientService._awsElbv2Client;
+
+      //Assert
+      let params = mockAwsSdk.ELBv2.args[0][0];
+      expect(params).to.have.property('secretAccessKey', secretKey);
+    });
+
+    it('should pass region to client', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ELB clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ELB = require('../src/elbClient');
+      const elbClientService = new ELB(accessKey, secretKey, region);
+
+
+      //Act
+      elbClientService._awsElbv2Client;
+
+      //Assert
+      let params = mockAwsSdk.ELBv2.args[0][0];
+      expect(params).to.have.property('region', region);
+    });
+
+    it('should pass default region of us-west-2 if none specified', () => {
+      //Arrange
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: sandbox.stub()
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up ELB clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const ELB = require('../src/elbClient');
+      const elbClientService = new ELB(accessKey, secretKey);
+
+
+      //Act
+      elbClientService._awsElbv2Client;
+
+      //Assert
+      let params = mockAwsSdk.ELBv2.args[0][0];
+      expect(params).to.have.property('region', 'us-west-2');
+    });
+  });
+
   describe('createApplicationLoadBalancer', () => {
     it('should pass name to getApplicationLoadBalancerArnFromName method', () => {
       //Arrange

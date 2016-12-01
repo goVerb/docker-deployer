@@ -8,8 +8,25 @@ AWS.config.setPromisesDependency(BlueBirdPromise);
 
 class EcsClient {
 
-  constructor(region = 'us-west-2') {
-    this._awsEcsClient = new AWS.ECS({apiVersion: '2014-11-13', region: region});
+  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
+
+    this._accessKey = accessKey;
+    this._secretKey = secretKey;
+    this._region = region;
+  }
+
+  get _awsEcsClient() {
+    if(!this._internalEcsClient) {
+      let params = {
+        accessKeyId: this._accessKey,
+        secretAccessKey: this._secretKey,
+        apiVersion: '2014-11-13',
+        region: this._region
+      };
+      this._internalEcsClient = new AWS.ECS(params);
+    }
+
+    return this._internalEcsClient;
   }
 
   /**

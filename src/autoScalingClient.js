@@ -22,7 +22,7 @@ class AutoScalingClient {
       let params = {
         accessKeyId: this._accessKey,
         secretAccessKey: this._secretKey,
-        apiVersion: '2016-09-15',
+        apiVersion: '2011-01-01',
         region: this._region
       };
       this._internalAutoScalingClient = new AWS.AutoScaling(params);

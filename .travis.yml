@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+- 6.9.1
+branches:
+  only:
+  - master
+install:
+- npm install
+before_script:
+- npm install -g gulp
+script:
+- gulp test
+- gulp npmrc
+after_success:
+- npm publish
+env:
+  global:
+    secure: d+knndvcBC2wJcqpHt5Nu+CVuPbxxH6oauibRYlizisebkp6mO3p3SQV21q9GjDVKuIuPbIGjEe/jd/J0fMXXJ3EWDcbKXsHu7QvRpB+9TOf5bZd8GeW3vICkhAhwVHRWRB+HG+e1eU0Kf8o96qP1SIVWj+f7iWODCVNqMeeP9HpXCC82xwWayRbF35MON3og3XrFBaCcYcti3oFcJ71DrhhWc4eF2sr6ndiF31pcJ2Ef3HnL+DA7ob7KqYl4lzVbCFVByvRom+TgYe1fEl3L67cmGL+RCjXNaUAJID4pyexl5KMOi9BZfxWpORHKp9CXlNAKNy0gf17FIHeL457m5ExvFD6tUiqxoLrv7kT51N5PpvIxRnuOA06sgRotzLR3z/icj9xXX33CpLDT5CGRazaFEIIAXwqgzlh3TWo2XK1PdxCrTmBVo0rE33/XQbTKT30mqcMAgql3ikNroFNgpyubOERV9w2/MtRyf9gJZ0Zw5CCdsWHkOLLVnlDDP20K4gASXw2O/gGe7wCoGGgFxgJyzyWLtzSkNUvZTZMQ6CtPuar8G2US8CDMDAQINUgOcc+2de+VLipUPpb3VIw9dnwkkCflq8r1OeK2zNionh7EsQEWIoFDxhS6YZakZ2J/xgao/xkjDH8HcHze9oFWCqgwg8GF1d6mZyoUG8pOhc=

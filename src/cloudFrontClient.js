@@ -1,6 +1,6 @@
 'use strict';
 
-let AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 const __ = require('lodash');
 const uuid = require('uuid');
 const Promise = require('bluebird');
@@ -19,7 +19,7 @@ class CloudFrontClient {
     this._cloudfrontClient = new AWS.CloudFront(cloudfrontParams);
   }
 
-  createCloudFrontDistribution(params, callback) {
+  createCloudFrontDistribution(params) {
     console.log('Creating Cloud Front Distribution');
     const cloudFrontParams = {
       DistributionConfig: { /* required */
@@ -256,9 +256,7 @@ class CloudFrontClient {
     };
 
     console.log(`Params: ${JSON.stringify(params)}`);
-    return this._cloudfrontClient.updateDistribution(params)
-      .promise()
-      .asCallback(callback);
+    return this._cloudfrontClient.updateDistribution(params).promise();
   }
 }
 

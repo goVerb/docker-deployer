@@ -92,8 +92,7 @@ class AutoScalingClient {
     }
 
     if(ecsClusterName) {
-      let ec2StartupScript = `#!/bin/bash
-echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
+      let ec2StartupScript = `#!/bin/bash\necho ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
 
       params.UserData = base64.encode(ec2StartupScript);
     }

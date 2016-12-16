@@ -3,11 +3,21 @@ const ECS = require('./ecsClient.js');
 const ELB = require('./elbClient.js');
 const EC2 = require('./ec2Client.js');
 const AutoScaling = require('./autoScalingClient.js');
+const Route53 = require('./route53Client.js');
 const BlueBirdPromise = require('bluebird');
 
 
 
-
+// const  route53Client = new Route53();
+// const  elbClient = new ELB();
+//
+// console.log('doing something');
+// elbClient.getApplicationLoadBalancerDNSInfoFromName('***REMOVED***-ECS-App-Load-Balancer').then(dnsInfo => {
+//   route53Client.associateDomainWithApplicationLoadBalancer('***REMOVED***api.dev-internal.***REMOVED***.net', dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId).then(result => {
+//   });
+// });
+//
+//
 
 class Deployer {
 
@@ -32,6 +42,7 @@ class Deployer {
     this._ec2Client = new EC2(this._accessKey, this._secretKey, this._region);
     this._elbClient = new ELB(this._accessKey, this._secretKey, this._region);
     this._autoScalingClient = new AutoScaling(this._accessKey, this._secretKey, this._region);
+    this._route53Client = new Route53(this._accessKey, this._secretKey, this._region);
   }
 
 
@@ -68,6 +79,9 @@ class Deployer {
       //Create Listener (Application LB to Target Group Association)
 
       return this._createApplicationLoadBalancerListener(config.appListener);
+    }).then(() => {
+      //associate Load balancer with DNS Entry
+      return this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
     }).then(() => {
       //Create ECS Cluster
 
@@ -196,11 +210,31 @@ class Deployer {
 
   }
 
+  /**
+   *
+   * @param serviceConfig
+   * @return {Promise.<TResult>}
+   * @private
+   */
   _createECSService(serviceConfig) {
 
     return this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName).then(targetGroupArn => {
 
       return this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
+    });
+  }
+
+  /**
+   *
+   * @param environment
+   * @param applicationLoadBalancerName
+   * @param dnsHostname
+   * @private
+   */
+  _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
+
+    return this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName).then(dnsInfo => {
+      return this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
     });
   }
 }

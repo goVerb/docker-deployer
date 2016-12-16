@@ -258,6 +258,40 @@ class ElbClient {
    * @return {Promise.<TResult>}
    */
   getApplicationLoadBalancerArnFromName(loadBalancerName) {
+    return this._getApplicationLoadBalancerAttribute(loadBalancerName, 'LoadBalancerArn');
+  }
+
+  /**
+   *
+   * @param loadBalancerName
+   * @return {Promise.<TResult>|*} Returns an object that contains the DNSName and CanonicalHostedZoneId of the Load Balancer
+   */
+  getApplicationLoadBalancerDNSInfoFromName(loadBalancerName) {
+    let params = {
+      Names: [ loadBalancerName ]
+    };
+
+    this.logMessage(`Looking up DNS Info for Application Load Balancer. [Name: ${loadBalancerName}]`);
+    let describeLoadBalancersPromise = this._awsElbv2Client.describeLoadBalancers(params).promise();
+
+    return describeLoadBalancersPromise.then(result => {
+
+      let returnObject = {
+        DNSName: '',
+        CanonicalHostedZoneId: ''
+      };
+
+      if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
+        this.logMessage(`Found Application Load Balancer with matching name. [Name: ${loadBalancerName}]`);
+        returnObject.DNSName = result.LoadBalancers[0].DNSName;
+        returnObject.CanonicalHostedZoneId = result.LoadBalancers[0].CanonicalHostedZoneId;
+      }
+
+      return returnObject;
+    });
+  }
+
+  _getApplicationLoadBalancerAttribute(loadBalancerName, attributeName) {
     let params = {
       Names: [ loadBalancerName ]
     };
@@ -266,7 +300,7 @@ class ElbClient {
 
     return describeLoadBalancersPromise.then(result => {
       if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
-        return result.LoadBalancers[0].LoadBalancerArn;
+        return result.LoadBalancers[0][attributeName];
       } else {
         return '';
       }

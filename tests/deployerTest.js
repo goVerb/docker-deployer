@@ -162,5 +162,31 @@ describe('Deployer', function() {
       expect(autoScalingClientStub.args[0][1]).to.be.equal(secretKey);
       expect(autoScalingClientStub.args[0][2]).to.be.equal(region);
     });
+
+    it('should pass accessKey, secretKey, and region to Route53 client', () => {
+      //Arrange
+      let route53ClientMock = sandbox.stub();
+      mockery.registerMock('./route53Client.js', route53ClientMock);
+
+      //Setting up Deployer clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      //Act
+      const deployerInstance = new Deployer(deployerParams);
+
+      //Assert
+      expect(route53ClientMock.args[0][0]).to.be.equal(accessKey);
+      expect(route53ClientMock.args[0][1]).to.be.equal(secretKey);
+      expect(route53ClientMock.args[0][2]).to.be.equal(region);
+    });
   });
 });

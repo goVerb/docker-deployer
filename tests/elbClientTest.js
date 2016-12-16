@@ -2404,6 +2404,116 @@ describe('ELB Client', function() {
     });
   });
 
+  describe('getApplicationLoadBalancerDNSInfoFromName', () => {
+    it('should pass application load balancer name to describeLoadBalancers method', () => {
+      //Arrange
+      let describeLoadBalancersResponse = { };
+
+      //setting up ec2Client Mock
+      let awsElbv2ClientMock = {
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: () => {
+          return awsElbv2ClientMock;
+        }
+      });
+
+      const appLBName = 'testUniqueName';
+
+      //Setting up VPC clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+
+      let resultPromise = elbClientService.getApplicationLoadBalancerDNSInfoFromName(appLBName);
+
+      return resultPromise.then(() => {
+        let params = awsElbv2ClientMock.describeLoadBalancers.args[0][0];
+
+        expect(params.Names[0]).to.be.equal(appLBName);
+      });
+    });
+
+    it('should return object containing DNSName and CanonicalHostedZoneId if found', () => {
+      //Arrange
+      let describeLoadBalancersResponse = {
+        LoadBalancers: [
+          {
+            DNSName: 'Test-Load-Balancer-sdafdafa12312312.us-west-5.elb.amazonaws.com',
+            CanonicalHostedZoneId: 'Z1H1FL5HABSF5'
+          }
+        ]
+      };
+
+      //setting up ec2Client Mock
+      let awsElbv2ClientMock = {
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: () => {
+          return awsElbv2ClientMock;
+        }
+      });
+
+      const appLBName = 'testUniqueName';
+
+      //Setting up VPC clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+
+      //Act
+      let resultPromise = elbClientService.getApplicationLoadBalancerDNSInfoFromName(appLBName);
+
+      //Assert
+      return resultPromise.then(obj => {
+        expect(obj.DNSName).to.be.equal(describeLoadBalancersResponse.LoadBalancers[0].DNSName);
+        expect(obj.CanonicalHostedZoneId).to.be.equal(describeLoadBalancersResponse.LoadBalancers[0].CanonicalHostedZoneId);
+      });
+    });
+
+    it('should return empty string if not found', () => {
+      //Arrange
+      let describeLoadBalancersResponse = { };
+
+      //setting up ec2Client Mock
+      let awsElbv2ClientMock = {
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: () => {
+          return awsElbv2ClientMock;
+        }
+      });
+
+      const appLBName = 'testUniqueName';
+
+      //Setting up VPC clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+
+      //Act
+      let resultPromise = elbClientService.getApplicationLoadBalancerDNSInfoFromName(appLBName);
+
+      //Assert
+      return resultPromise.then(obj => {
+        expect(obj).to.have.property('DNSName', '');
+        expect(obj).to.have.property('CanonicalHostedZoneId', '');
+      });
+    });
+  });
+
   describe('_createTagsForElbV2', () => {
     it('should not throw error if tags parameter is not an array', () => {
       //Arrange

@@ -70,6 +70,7 @@ let applicationLoadBalancerDefinition = {
 
 let infrastructureDefinition = {
   environment: 'Dev',
+  dnsHostname: '***REMOVED***api.dev-internal.***REMOVED***.net',
   ecsClusterName: '***REMOVED***-Cluster',
   vpc: vpcDefinition,
   securityGroups: [elbSecurityGroupDefinition, ec2SecurityGroupDefinition],

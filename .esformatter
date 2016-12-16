@@ -1,0 +1,18 @@
+{
+  "plugins": [
+    "esformatter-dot-notation",
+    "esformatter-quotes"
+  ],
+  "quotes": {
+    "type": "single",
+    "avoidEscape": true
+  },
+  "indent": {
+    "value": "  "
+  },
+  "whiteSpace": {
+    "before": {
+      "IfStatementConditionalOpening": 0
+    }
+  }
+}

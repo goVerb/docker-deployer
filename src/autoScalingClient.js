@@ -92,7 +92,8 @@ class AutoScalingClient {
     }
 
     if(ecsClusterName) {
-      let ec2StartupScript = `#!/bin/bash\necho ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
+      let ec2StartupScript = `#!/bin/bash
+echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
 
       params.UserData = base64.encode(ec2StartupScript);
     }
@@ -126,7 +127,7 @@ class AutoScalingClient {
     });
   }
 
-    /**
+  /**
    *
    * @param environment
    * @param name (Required)
@@ -193,7 +194,7 @@ class AutoScalingClient {
    */
   getLaunchConfigurationArn(launchConfigurationName) {
     let params = {
-      LaunchConfigurationNames: [ launchConfigurationName ]
+      LaunchConfigurationNames: [launchConfigurationName]
     };
 
     let describeLaunchConfigurationPromise = this._awsAutoScalingClient.describeLaunchConfigurations(params).promise();
@@ -210,7 +211,7 @@ class AutoScalingClient {
 
   getAutoScalingGroupArn(autoScalingGroupName) {
     let params = {
-      AutoScalingGroupNames: [ autoScalingGroupName ]
+      AutoScalingGroupNames: [autoScalingGroupName]
     };
 
     let describeAutoScalingGroupsPromise = this._awsAutoScalingClient.describeAutoScalingGroups(params).promise();

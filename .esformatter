@@ -1,7 +1,8 @@
 {
   "plugins": [
     "esformatter-dot-notation",
-    "esformatter-quotes"
+    "esformatter-quotes",
+    "esformatter-ignore"
   ],
   "quotes": {
     "type": "single",

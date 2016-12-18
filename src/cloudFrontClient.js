@@ -3,9 +3,9 @@
 const AWS = require('aws-sdk');
 const __ = require('lodash');
 const uuid = require('uuid');
-const Promise = require('bluebird');
+const BPromise = require('bluebird');
 
-AWS.config.setPromisesDependency(Promise);
+AWS.config.setPromisesDependency(BPromise);
 
 class CloudFrontClient {
   constructor(accessKey = '', secretKey = '') {
@@ -21,10 +21,11 @@ class CloudFrontClient {
 
   createCloudFrontDistribution(params) {
     console.log('Creating Cloud Front Distribution');
+    const {callerReference, cname, comment, originName, apiGatewayId, gatewayPathRegex} = params;
     const cloudFrontParams = {
       DistributionConfig: { /* required */
-        CallerReference: params.callerReference, /* required */
-        Comment: params.comment, /* required */
+        CallerReference: callerReference, /* required */
+        Comment: comment, /* required */
         DefaultCacheBehavior: { /* required */
           ForwardedValues: { /* required */
             Cookies: { /* required */
@@ -46,7 +47,7 @@ class CloudFrontClient {
             }
           },
           MinTTL: 0, /* required */
-          TargetOriginId: params.originName, /* required */
+          TargetOriginId: originName, /* required */
           TrustedSigners: { /* required */
             Enabled: false, /* required */
             Quantity: 0, /* required */
@@ -83,8 +84,8 @@ class CloudFrontClient {
           Quantity: 1, /* required */
           Items: [
             {
-              DomainName: `${params.apiGatewayId}.execute-api.us-west-2.amazonaws.com`, /* required */
-              Id: params.originName, /* required */
+              DomainName: `${apiGatewayId}.execute-api.us-west-2.amazonaws.com`, /* required */
+              Id: originName, /* required */
               CustomHeaders: {
                 Quantity: 0, /* required */
                 Items: []
@@ -102,14 +103,14 @@ class CloudFrontClient {
                   Quantity: 3 /* required */
                 }
               },
-              OriginPath: params.gatewayPathRegex
+              OriginPath: gatewayPathRegex
             }
           ]
         },
         Aliases: {
           Quantity: 1, /* required */
           Items: [
-            params.cname
+            cname
           ]
         },
         CacheBehaviors: {
@@ -131,8 +132,8 @@ class CloudFrontClient {
                 }
               },
               MinTTL: 0, /* required */
-              PathPattern: params.gatewayPathRegex, /* required */
-              TargetOriginId: params.originName, /* required */
+              PathPattern: gatewayPathRegex, /* required */
+              TargetOriginId: originName, /* required */
               TrustedSigners: { /* required */
                 Enabled: false, /* required */
                 Quantity: 0, /* required */
@@ -177,20 +178,22 @@ class CloudFrontClient {
     console.log('Executing getDistributionByCName.');
     const params = {};
 
+    let distribution;
+    
     return this._cloudfrontClient.listDistributions(params).promise().then(data => {
       const distributionList = data.DistributionList.Items;
       const distribution = distributionList.find(obj => {
         return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
       });
       return distribution;
-    }).then(distribution => {
+    }).then(dist => {
+      distribution = dist;
       if(!distribution) {
         console.log(`Distribution not found! [CNAME: ${cname}]`);
       } else {
         console.log(`Distribution found! [CNAME: ${cname}]`);
       }
-      return distribution;
-    }).then(distribution => {
+    }).then(() => {
       if(!distribution) {
         return;
       }
@@ -199,7 +202,7 @@ class CloudFrontClient {
       }).promise();
     }).then(data => {
       data.DistributionConfig.Id = distribution.Id;
-      data.DistributionConfig.ETag = data.ETag;
+      data.DistributionConfig.ETag = distribution.ETag;
       return data.DistributionConfig;
     });
   }
@@ -226,7 +229,7 @@ class CloudFrontClient {
     const originExists = doesOriginAlreadyExists(distribution, newOrigin);
     const behaviorExists = doesCacheBehaviorAlreadyExists(distribution, newCacheBehavior);
     if(originExists && behaviorExists) {
-      return Promise.resolve({
+      return BPromise.resolve({
         message: 'Origin and Cache Behavior already exists in cloudfront.  No Action taken.'
       });
     } else {
@@ -289,4 +292,4 @@ let doesCacheBehaviorAlreadyExists = function(distribution, newCacheBehavior) {
   return Boolean(result);
 };
 
-module.exports = CloudFrontService;
+module.exports = CloudFrontClient;

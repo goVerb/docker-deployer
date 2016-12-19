@@ -531,6 +531,7 @@ describe('Deployer', function() {
       let elbClientStub;
       let autoScaleClientStub;
       let route53ClientStub;
+      let cloudfrontClientStub;
       beforeEach(() => {
 
         vpcClientStub = sandbox.stub();
@@ -543,11 +544,13 @@ describe('Deployer', function() {
         };
         autoScaleClientStub = sandbox.stub();
         route53ClientStub = sandbox.stub();
+        cloudfrontClientStub = sandbox.stub();
 
         mockery.registerMock('./vpcClient.js', vpcClientStub);
         mockery.registerMock('./elbClient.js', () => {
           return elbClientStub;
         });
+        mockery.registerMock('./cloudfrontClient.js', cloudfrontClientStub);
         mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
         mockery.registerMock('./ec2Client.js', ec2ClientStub);
         mockery.registerMock('./ecsClient.js', ecsClientStub);

@@ -32,7 +32,7 @@ describe('CloudFront Client', function() {
   });
 
 
-  describe('getter _awsCloudfrontClient', () => {
+  describe('getter _awsCloudFrontClient', () => {
     it('should pass accessKey and secretKey to Cloudfront client', () => {
       //Arrange
       let mockAwsSdk = {
@@ -54,7 +54,7 @@ describe('CloudFront Client', function() {
 
 
       //Act
-      cloudFrontClientService._awsCloudfrontClient;
+      cloudFrontClientService._awsCloudFrontClient;
 
       //Assert
       let params = mockAwsSdk.CloudFront.args[0][0];

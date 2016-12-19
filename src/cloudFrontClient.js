@@ -14,18 +14,18 @@ class CloudFrontClient {
     this._secretKey = secretKey;
   }
 
-  get _awsCloudfrontClient() {
+  get _awsCloudFrontClient() {
 
-    if(!this._internalCloudfrontClient) {
+    if(!this._internalCloudFrontClient) {
       const cloudfrontParams = {
         apiVersion: '2016-01-28',
         accessKeyId: this._accessKey,
         secretAccessKey: this._secretKey
       };
-      this._internalCloudfrontClient = new AWS.CloudFront(cloudfrontParams);
+      this._internalCloudFrontClient = new AWS.CloudFront(cloudfrontParams);
     }
 
-    return this._internalCloudfrontClient;
+    return this._internalCloudFrontClient;
   }
 
   /**
@@ -202,20 +202,22 @@ class CloudFrontClient {
       }
     };
 
-    let createDistributionPromise = this._awsCloudfrontClient.createDistribution(cloudFrontParams).promise();
-
-    let distributionId;
+    
+    let distribution;
+    let createDistributionPromise = this._awsCloudFrontClient.createDistribution(cloudFrontParams).promise();
     return createDistributionPromise.then(result => {
-
-      distributionId = result.Distribution.Id;
+      
+      distribution = result.Distribution;
+      
       const waitForParams = {
-        Id: distributionId
+        Id: distribution.Id
       };
 
-      this.logMessage(`Waiting for Cloudfront Distribution to deploy. [CloudFront Id: ${distributionId}] [Cname: ${params.cname}]`);
-      return this._awsCloudfrontClient.waitFor('distributionDeployed', waitForParams).promise();
+      this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
+      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
     }).then(() => {
-      this.logMessage(`Distribution deployed! [CloudFront Id: ${distributionId}] [Cname: ${params.cname}]`);
+      this.logMessage(`Distribution deployed! [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
+      return distribution;
     });
   }
 
@@ -229,7 +231,7 @@ class CloudFrontClient {
     this.logMessage(`Executing getDistributionByCName. [Cname: ${cname}]`);
     const params = {};
 
-    let listDistributionsPromise = this._awsCloudfrontClient.listDistributions(params).promise();
+    let listDistributionsPromise = this._awsCloudFrontClient.listDistributions(params).promise();
 
     return listDistributionsPromise.then(data => {
       let distribution = {};

@@ -93,12 +93,15 @@ class Deployer {
   }
 
   /**
-   *
+   * Creates a CloudFront Client and associates it to a hosted zone
    * @param cloudfrontConfig
    * @return {Promise.<D>}
    */
-  createCloudfront(cloudfrontConfig) {
-    return this._cloudFrontClient.createCloudFrontDistribution(cloudfrontConfig);
+  createCloudfront(cloudFrontConfig) {
+    const cname = cloudFrontConfig.cname;
+    return this._cloudFrontClient.createCloudFrontDistribution(cloudFrontConfig).then(distribution => {
+      return this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
+    });
   }
 
   /**

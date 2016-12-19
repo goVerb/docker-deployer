@@ -87,6 +87,68 @@ class Route53Client {
     });
 
   }
+  
+  /**
+   *
+   * @param domainName
+   * @param dnsName
+   * @param hostedZoneId
+   * @return {Promise.<TResult>}
+   */
+  associateDomainWithCloudFront(domainName, cloudFrontDNSName) {
+    
+    // This is a hardcoded AWS CloudFront Value
+    const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
+
+    //get hostedZoneID from domainName
+    return this._getHostedZoneIdFromDomainName(domainName).then(domainHostedZoneId => {
+      let params = {
+        HostedZoneId: domainHostedZoneId,
+        ChangeBatch: {
+          Changes: [
+            {
+              Action: 'UPSERT',
+              ResourceRecordSet: {
+                Name: domainName,
+                Type: 'A',
+                AliasTarget: {
+                  DNSName: cloudFrontDNSName,
+                  EvaluateTargetHealth: false,
+                  HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
+                }
+              }
+            },
+            {
+              Action: 'UPSERT',
+              ResourceRecordSet: {
+                Name: domainName,
+                Type: 'AAAA',
+                AliasTarget: {
+                  DNSName: cloudFrontDNSName,
+                  EvaluateTargetHealth: false,
+                  HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
+                }
+              }
+            }
+          ]
+        }
+      };
+
+      this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}]`);
+      return this._awsRoute53Client.changeResourceRecordSets(params).promise();
+    }).then(result => {
+      this.logMessage(`Result: ${JSON.stringify(result)}`);
+      let params = {
+        Id: result.ChangeInfo.Id
+      };
+
+      this.logMessage('Waiting for Route53 change to propagate');
+      return this._awsRoute53Client.waitFor('resourceRecordSetsChanged', params).promise();
+    }).then(() => {
+      this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
+    });
+
+  }
 
   /**
    *

@@ -4,7 +4,7 @@ const ELB = require('./elbClient.js');
 const EC2 = require('./ec2Client.js');
 const AutoScaling = require('./autoScalingClient.js');
 const Route53 = require('./route53Client.js');
-const CloudFront = require('./cloudfrontClient.js');
+const CloudFront = require('./cloudFrontClient.js');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 

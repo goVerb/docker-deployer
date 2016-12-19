@@ -192,12 +192,13 @@ class ElbClient {
    * @param targetGroupArn
    * @param protocol
    * @param port
+   * @param certificates
    * @return {Promise.<TResult>}
    */
-  createListener(loadBalancerArn, targetGroupArn, protocol, port) {
+  createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates) {
     return this.getListenerArn(loadBalancerArn, protocol, port).then(listenerArn => {
       if(!listenerArn) {
-        return this._createListener(loadBalancerArn, targetGroupArn, protocol, port);
+        return this._createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates);
       } else {
         this.logMessage(`Listener already exist. No action taken. [LoadBalancerArn: ${loadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
       }
@@ -210,9 +211,10 @@ class ElbClient {
    * @param targetGroupArn (Required)
    * @param protocol (Required)  Possible Values: HTTP | HTTPS
    * @param port
+   * @param certificates
    * @return {Promise<D>}
    */
-  _createListener(loadBalancerArn, targetGroupArn, protocol, port) {
+  _createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates) {
     let params = {
       DefaultActions: [ /* required */
         {
@@ -224,6 +226,10 @@ class ElbClient {
       Port: port, /* required */
       Protocol: protocol, /* required */
     };
+
+    if(!__.isEmpty(certificates)) {
+      params.Certificates = certificates;
+    }
 
     let createListenerPromise = this._awsElbv2Client.createListener(params).promise();
 
@@ -291,6 +297,13 @@ class ElbClient {
     });
   }
 
+  /**
+   *
+   * @param loadBalancerName
+   * @param attributeName
+   * @return {Promise.<TResult>|*}
+   * @private
+   */
   _getApplicationLoadBalancerAttribute(loadBalancerName, attributeName) {
     let params = {
       Names: [ loadBalancerName ]

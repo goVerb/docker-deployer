@@ -5,19 +5,9 @@ const EC2 = require('./ec2Client.js');
 const AutoScaling = require('./autoScalingClient.js');
 const Route53 = require('./route53Client.js');
 const BlueBirdPromise = require('bluebird');
+const __ = require('lodash');
 
 
-
-// const  route53Client = new Route53();
-// const  elbClient = new ELB();
-//
-// console.log('doing something');
-// elbClient.getApplicationLoadBalancerDNSInfoFromName('***REMOVED***-ECS-App-Load-Balancer').then(dnsInfo => {
-//   route53Client.associateDomainWithApplicationLoadBalancer('***REMOVED***api.dev-internal.***REMOVED***.net', dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId).then(result => {
-//   });
-// });
-//
-//
 
 class Deployer {
 
@@ -201,13 +191,38 @@ class Deployer {
    */
   _createApplicationLoadBalancerListener(listenerConfig) {
 
-    return BlueBirdPromise.all([
-      this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfig.loadBalancerName),
-      this._elbClient.getTargetGroupArnFromName(listenerConfig.targetGroupName)
-    ]).spread((loadBalancerArn, targetGroupArn) => {
-      return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfig.protocol, listenerConfig.port);
-    });
+    let listenerConfigs = listenerConfig;
+    if(!__.isArray(listenerConfigs)) {
+      listenerConfigs = [listenerConfig];
+    }
 
+    let promiseArray = [];
+
+    for(let configIndex = 0; configIndex < listenerConfigs.length; configIndex++) {
+      let listenerConfigObject = listenerConfigs[configIndex];
+
+
+      //convert certificateArn to an array
+      let certificateArnArray = [];
+      if(listenerConfigObject.certificateArn) {
+        certificateArnArray = [
+          {CertificateArn: listenerConfigObject.certificateArn}
+        ];
+      }
+
+      let newPromise = BlueBirdPromise.all([
+        this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName),
+        this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName)
+      ]).spread((loadBalancerArn, targetGroupArn) => {
+        return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
+      });
+
+      promiseArray.push(newPromise);
+    }
+
+
+
+    return BlueBirdPromise.all(promiseArray);
   }
 
   /**

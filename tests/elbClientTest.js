@@ -1946,7 +1946,7 @@ describe('ELB Client', function() {
       });
     });
 
-    it('should pass parameters to _createListener', () => {
+    it('should pass parameters without certificates to _createListener', () => {
       //Arrange
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn';
@@ -1969,6 +1969,65 @@ describe('ELB Client', function() {
         expect(elbClientService._createListener.args[0][1]).to.be.equal(targetGroupArn);
         expect(elbClientService._createListener.args[0][2]).to.be.equal(protocol);
         expect(elbClientService._createListener.args[0][3]).to.be.equal(port);
+        expect(elbClientService._createListener.args[0][4]).to.be.undefined;
+      });
+    });
+
+    it('should pass parameters without certificates(as []) to _createListener', () => {
+      //Arrange
+      const applicationLoadBalancerArn = 'complicatedArn';
+      const targetGroupArn = 'targetGroupArn';
+      const protocol = 'HTTP';
+      const port = 80;
+
+      //Setting up VPC clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+      elbClientService.getListenerArn = sandbox.stub().resolves('');
+      elbClientService._createListener = sandbox.stub().resolves('');
+
+
+      //Act
+      let resultPromise = elbClientService.createListener(applicationLoadBalancerArn, targetGroupArn, protocol, port, []);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(elbClientService._createListener.args[0][0]).to.be.equal(applicationLoadBalancerArn);
+        expect(elbClientService._createListener.args[0][1]).to.be.equal(targetGroupArn);
+        expect(elbClientService._createListener.args[0][2]).to.be.equal(protocol);
+        expect(elbClientService._createListener.args[0][3]).to.be.equal(port);
+        expect(elbClientService._createListener.args[0][4]).to.be.deep.equal([]);
+      });
+    });
+
+    it('should pass parameters with certificates to _createListener', () => {
+      //Arrange
+      const applicationLoadBalancerArn = 'complicatedArn';
+      const targetGroupArn = 'targetGroupArn';
+      const protocol = 'HTTP';
+      const port = 80;
+      const certificates = [
+        {CertificateArn: 'appleSauce'}
+      ];
+
+
+      //Setting up ELB clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+      elbClientService.getListenerArn = sandbox.stub().resolves('');
+      elbClientService._createListener = sandbox.stub().resolves('');
+
+
+      //Act
+      let resultPromise = elbClientService.createListener(applicationLoadBalancerArn, targetGroupArn, protocol, port, certificates);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(elbClientService._createListener.args[0][0]).to.be.equal(applicationLoadBalancerArn);
+        expect(elbClientService._createListener.args[0][1]).to.be.equal(targetGroupArn);
+        expect(elbClientService._createListener.args[0][2]).to.be.equal(protocol);
+        expect(elbClientService._createListener.args[0][3]).to.be.equal(port);
+        expect(elbClientService._createListener.args[0][4]).to.be.deep.equal(certificates);
       });
     });
 
@@ -1979,7 +2038,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('');
@@ -2020,7 +2079,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2059,7 +2118,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2099,7 +2158,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2138,7 +2197,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2151,6 +2210,88 @@ describe('ELB Client', function() {
         let params = awsElbv2ClientMock.createListener.args[0][0];
 
         expect(params).to.have.property('Port', port);
+      });
+    });
+
+    it('should pass certificates to createListener method', () => {
+      //Arrange
+      let createListenerResponse = { };
+
+      //setting up ec2Client Mock
+      let awsElbv2ClientMock = {
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: () => {
+          return awsElbv2ClientMock;
+        }
+      });
+
+      const applicationLoadBalancerArn = 'complicatedArn';
+      const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
+      const protocol = 'HTTP';
+      const port = 80;
+      const certificates = [
+        {CertificateArn: 'appleSauce'}
+      ];
+
+      //Setting up ELB clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+
+
+      //Act
+      let resultPromise = elbClientService._createListener(applicationLoadBalancerArn, targetGroupArn, protocol, port, certificates);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsElbv2ClientMock.createListener.args[0][0];
+
+        expect(params).to.have.deep.property('Certificates', certificates);
+      });
+    });
+
+    it('should NOT pass certificates to createListener method when given []', () => {
+      //Arrange
+      let createListenerResponse = { };
+
+      //setting up ec2Client Mock
+      let awsElbv2ClientMock = {
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        ELBv2: () => {
+          return awsElbv2ClientMock;
+        }
+      });
+
+      const applicationLoadBalancerArn = 'complicatedArn';
+      const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
+      const protocol = 'HTTP';
+      const port = 80;
+      const certificates = [];
+
+      //Setting up ELB clients
+      const ELB = require('../src/elbClient.js');
+      const elbClientService = new ELB();
+
+
+      //Act
+      let resultPromise = elbClientService._createListener(applicationLoadBalancerArn, targetGroupArn, protocol, port, certificates);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsElbv2ClientMock.createListener.args[0][0];
+
+        expect(params.Certificates).to.be.undefined;
       });
     });
 
@@ -2177,7 +2318,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2219,7 +2360,7 @@ describe('ELB Client', function() {
 
       const targetGroupName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2258,7 +2399,7 @@ describe('ELB Client', function() {
 
       const targetGroupName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2289,7 +2430,7 @@ describe('ELB Client', function() {
 
       const targetGroupName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2322,7 +2463,7 @@ describe('ELB Client', function() {
 
       const appLBName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2361,7 +2502,7 @@ describe('ELB Client', function() {
 
       const appLBName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2392,7 +2533,7 @@ describe('ELB Client', function() {
 
       const appLBName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2425,7 +2566,7 @@ describe('ELB Client', function() {
 
       const appLBName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2465,7 +2606,7 @@ describe('ELB Client', function() {
 
       const appLBName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2499,7 +2640,7 @@ describe('ELB Client', function() {
 
       const appLBName = 'testUniqueName';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2535,7 +2676,7 @@ describe('ELB Client', function() {
 
       const resourceId = 'elb-ajkfd91';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2569,7 +2710,7 @@ describe('ELB Client', function() {
 
       const resourceId = 'elb-ajkfd91';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2605,7 +2746,7 @@ describe('ELB Client', function() {
         {Key: 'Name', Value: 'stuff'}
       ];
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2641,7 +2782,7 @@ describe('ELB Client', function() {
         {Key: 'Name', Value: 'stuff'}
       ];
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2685,7 +2826,7 @@ describe('ELB Client', function() {
         {Key: 'Name', Value: 'stuff'}
       ];
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2704,7 +2845,6 @@ describe('ELB Client', function() {
   });
 
   describe('_createTagsForTargetGroup', () => {
-
 
     it('should not throw error if tags parameter is not an array', () => {
       //Arrange
@@ -2726,7 +2866,7 @@ describe('ELB Client', function() {
 
       const targetGroupArn = 'complicatedArn';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2760,7 +2900,7 @@ describe('ELB Client', function() {
 
       const targetGroupArn = 'complicatedArn';
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2796,7 +2936,7 @@ describe('ELB Client', function() {
         {Key: 'Name', Value: 'stuff'}
       ];
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2832,7 +2972,7 @@ describe('ELB Client', function() {
         {Key: 'Name', Value: 'stuff'}
       ];
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2876,7 +3016,7 @@ describe('ELB Client', function() {
         {Key: 'Name', Value: 'stuff'}
       ];
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2919,7 +3059,7 @@ describe('ELB Client', function() {
       const protocol = 'HTTP';
       const port = 80;
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -2966,7 +3106,7 @@ describe('ELB Client', function() {
         }
       });
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 
@@ -3012,7 +3152,7 @@ describe('ELB Client', function() {
         }
       });
 
-      //Setting up VPC clients
+      //Setting up ELB clients
       const ELB = require('../src/elbClient.js');
       const elbClientService = new ELB();
 

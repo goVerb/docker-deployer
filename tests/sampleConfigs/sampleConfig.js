@@ -1,8 +1,3 @@
-# docker-deployer
-
-
-Sample
-```
 let vpcDefinition = {
   name: '***REMOVED*** VPC',
   cidrBlock: '10.0.0.0/16',
@@ -91,71 +86,8 @@ let infrastructureDefinition = {
     loadBalancerName: applicationLoadBalancerDefinition.name,
     targetGroupName: targetGroupDefinition.name,
     protocol: 'HTTP',
-    certificateArn: '',
     port: 80
   }
 };
 
-let containerDefinitions = [{
-  name: '***REMOVED***-API-Container',
-  image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/***REMOVED***-api:beta1',
-  disableNetworking: false,
-  privileged: false,
-  readonlyRootFilesystem: true,
-  memory: '300',
-  memoryReservation: '300',
-  essential: true,
-  portMappings: [
-    {
-      containerPort: 8080,
-      hostPort: 0,
-      protocol: 'tcp'
-    }
-  ],
-  command: [],
-  cpu: 0,
-  dnsSearchDomains: [],
-  dnsServers: [],
-  dockerLabels: {},
-  dockerSecurityOptions: [],
-  entryPoint: [],
-  environment: [],
-  extraHosts: [],
-  hostname: null,
-  links: [],
-  logConfiguration: {
-    logDriver: 'json-file'
-  },
-  mountPoints: [],
-  ulimits: [],
-  user: null,
-  volumesFrom: [],
-  workingDirectory: null
-}];
-
-let taskDefinition = {
-  taskName: '***REMOVED***-API-Task',
-  networkMode: 'bridge',
-  taskRoleArn: 'arn:aws:iam::***REMOVED***:role/ecsTaskRole',
-  containerDefintions: containerDefinitions
-};
-
-let serviceDefinition = {
-  clusterName: infrastructureDefinition.ecsClusterName,
-  serviceName: '***REMOVED***-ECS-Service',
-  taskName: taskDefinition.taskName,
-  desiredCount: 2,
-  containerName: containerDefinitions[0].name,
-  containerPort: 8080,
-  targetGroupName: targetGroupDefinition.name
-};
-
-let deployer = new Deployer('us-west-2');
-
-deployer.createInfrastructure(infrastructureDefinition).then(() => {
-  return deployer.deploy(serviceDefinition, taskDefinition);
-}).then(result => {
-  console.log(`Done: ${JSON.stringify(result)}`);
-});
-
-```
+module.exports = infrastructureDefinition;

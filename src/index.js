@@ -197,7 +197,16 @@ class Deployer {
     }
 
     //create promise function
-    let createPromiseForListenerConfigCreation = (listenerConfigObject, certificateArnArray) => {
+    let createPromiseForListenerConfigCreation = (listenerConfigObject) => {
+
+      //convert certificateArn to an array
+      let certificateArnArray = [];
+      if(listenerConfigObject.certificateArn) {
+        certificateArnArray = [
+          {CertificateArn: listenerConfigObject.certificateArn}
+        ];
+      }
+
       return BlueBirdPromise.all([
         this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName),
         this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName)
@@ -211,16 +220,7 @@ class Deployer {
     for(let configIndex = 0; configIndex < listenerConfigs.length; configIndex++) {
       let listenerConfigObject = listenerConfigs[configIndex];
 
-
-      //convert certificateArn to an array
-      let certificateArnArray = [];
-      if(listenerConfigObject.certificateArn) {
-        certificateArnArray = [
-          {CertificateArn: listenerConfigObject.certificateArn}
-        ];
-      }
-
-      let newPromise = createPromiseForListenerConfigCreation(listenerConfigObject, certificateArnArray);
+      let newPromise = createPromiseForListenerConfigCreation(listenerConfigObject);
 
       promiseArray.push(newPromise);
     }

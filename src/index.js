@@ -196,6 +196,16 @@ class Deployer {
       listenerConfigs = [listenerConfig];
     }
 
+    //create promise function
+    let createPromiseForListenerConfigCreation = (listenerConfigObject, certificateArnArray) => {
+      return BlueBirdPromise.all([
+        this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName),
+        this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName)
+      ]).spread((loadBalancerArn, targetGroupArn) => {
+        return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
+      });
+    };
+
     let promiseArray = [];
 
     for(let configIndex = 0; configIndex < listenerConfigs.length; configIndex++) {
@@ -210,12 +220,7 @@ class Deployer {
         ];
       }
 
-      let newPromise = BlueBirdPromise.all([
-        this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName),
-        this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName)
-      ]).spread((loadBalancerArn, targetGroupArn) => {
-        return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
-      });
+      let newPromise = createPromiseForListenerConfigCreation(listenerConfigObject, certificateArnArray);
 
       promiseArray.push(newPromise);
     }

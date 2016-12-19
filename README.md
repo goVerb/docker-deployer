@@ -91,7 +91,7 @@ let infrastructureDefinition = {
     loadBalancerName: applicationLoadBalancerDefinition.name,
     targetGroupName: targetGroupDefinition.name,
     protocol: 'HTTP',
-    certificateArn: '',
+    certificateArn: '',  /* Optional */
     port: 80
   }
 };

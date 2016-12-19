@@ -1,7 +1,8 @@
 # docker-deployer
 
 
-Sample
+## Create Infrastructure / Deploy
+This is the sample JSON configs required to create infrastructure
 ```
 let vpcDefinition = {
   name: '***REMOVED*** VPC',
@@ -158,4 +159,19 @@ deployer.createInfrastructure(infrastructureDefinition).then(() => {
   console.log(`Done: ${JSON.stringify(result)}`);
 });
 
+```
+
+
+## createCloudfront
+
+Input
+```
+{
+  callerReference: '',
+  cname: 'api.dev.***REMOVED***.net',
+  comment: 'title',
+  originName: '***REMOVED*** API Gateway - Dev',
+  originDomainName: '***REMOVED***.execute-api.us-west-2.amazonaws.com',
+  originPath: '/'
+}
 ```

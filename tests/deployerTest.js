@@ -185,6 +185,31 @@ describe('Deployer', function() {
       expect(route53ClientMock.args[0][1]).to.be.equal(secretKey);
       expect(route53ClientMock.args[0][2]).to.be.equal(region);
     });
+
+    it('should pass accessKey and secretKey to CloudFront client', () => {
+      //Arrange
+      let cloudFrontClientMock = sandbox.stub();
+      mockery.registerMock('./cloudfrontClient.js', cloudFrontClientMock);
+
+      //Setting up Deployer clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-4';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      //Act
+      const deployerInstance = new Deployer(deployerParams);
+
+      //Assert
+      expect(cloudFrontClientMock.args[0][0]).to.be.equal(accessKey);
+      expect(cloudFrontClientMock.args[0][1]).to.be.equal(secretKey);
+    });
   });
 
 

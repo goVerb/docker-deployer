@@ -1,27 +1,58 @@
 'use strict';
-
 const AWS = require('aws-sdk');
 const __ = require('lodash');
 const uuid = require('uuid');
-const BPromise = require('bluebird');
+const BluebirdPromise = require('bluebird');
 
-AWS.config.setPromisesDependency(BPromise);
+AWS.config.setPromisesDependency(BluebirdPromise);
 
 class CloudFrontClient {
+
   constructor(accessKey = '', secretKey = '') {
 
-    const cloudfrontParams = {
-      apiVersion: '2016-01-28',
-      accessKeyId: accessKey,
-      secretAccessKey: secretKey
-    };
-
-    this._cloudfrontClient = new AWS.CloudFront(cloudfrontParams);
+    this._accessKey = accessKey;
+    this._secretKey = secretKey;
   }
 
+  get _awsCloudfrontClient() {
+
+    if(!this._internalCloudfrontClient) {
+      const cloudfrontParams = {
+        apiVersion: '2016-01-28',
+        accessKeyId: this._accessKey,
+        secretAccessKey: this._secretKey
+      };
+      this._internalCloudfrontClient = new AWS.CloudFront(cloudfrontParams);
+    }
+
+    return this._internalCloudfrontClient;
+  }
+
+  /**
+   *
+   * @param params
+   * @return {Promise.<D>}
+   */
   createCloudFrontDistribution(params) {
-    console.log('Creating Cloud Front Distribution');
-    const {callerReference, cname, comment, originName, apiGatewayId, gatewayPathRegex} = params;
+    return this._getDistributionByCName(params.cname).then(distribution => {
+      if(!__.isEmpty(distribution) && !__.isNil(distribution)) {
+        this.logMessage(`CloudFront Distribution already exist. No action taken. [Cname: ${params.cname}]`);
+        return;
+      } else {
+        return this._createCloudFrontDistribution(params);
+      }
+    });
+  }
+
+  /**
+   *
+   * @param params
+   * @return {Promise<D>}
+   * @private
+   */
+  _createCloudFrontDistribution(params) {
+    this.logMessage(`Creating Cloud Front Distribution. [Cname: ${params.cname}]`);
+    const {callerReference, cname, comment, originName, originDomainName, originPath} = params;
     const cloudFrontParams = {
       DistributionConfig: { /* required */
         CallerReference: callerReference, /* required */
@@ -84,7 +115,7 @@ class CloudFrontClient {
           Quantity: 1, /* required */
           Items: [
             {
-              DomainName: `${apiGatewayId}.execute-api.us-west-2.amazonaws.com`, /* required */
+              DomainName: originDomainName, /* required */
               Id: originName, /* required */
               CustomHeaders: {
                 Quantity: 0, /* required */
@@ -103,7 +134,7 @@ class CloudFrontClient {
                   Quantity: 3 /* required */
                 }
               },
-              OriginPath: gatewayPathRegex
+              OriginPath: originPath
             }
           ]
         },
@@ -132,7 +163,7 @@ class CloudFrontClient {
                 }
               },
               MinTTL: 0, /* required */
-              PathPattern: gatewayPathRegex, /* required */
+              PathPattern: originPath, /* required */
               TargetOriginId: originName, /* required */
               TrustedSigners: { /* required */
                 Enabled: false, /* required */
@@ -171,125 +202,61 @@ class CloudFrontClient {
       }
     };
 
-    return this._cloudfrontClient.createDistribution(cloudFrontParams).promise();
-  }
+    let createDistributionPromise = this._awsCloudfrontClient.createDistribution(cloudFrontParams).promise();
 
-  getDistributionByCName(cname) {
-    console.log('Executing getDistributionByCName.');
-    const params = {};
+    let distributionId;
+    return createDistributionPromise.then(result => {
 
-    let distribution;
-    
-    return this._cloudfrontClient.listDistributions(params).promise().then(data => {
-      const distributionList = data.DistributionList.Items;
-      const distribution = distributionList.find(obj => {
-        return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
-      });
-      return distribution;
-    }).then(dist => {
-      distribution = dist;
-      if(!distribution) {
-        console.log(`Distribution not found! [CNAME: ${cname}]`);
-      } else {
-        console.log(`Distribution found! [CNAME: ${cname}]`);
-      }
+      distributionId = result.Distribution.Id;
+      const waitForParams = {
+        Id: distributionId
+      };
+
+      this.logMessage(`Waiting for Cloudfront Distribution to deploy. [CloudFront Id: ${distributionId}] [Cname: ${params.cname}]`);
+      return this._awsCloudfrontClient.waitFor('distributionDeployed', waitForParams).promise();
     }).then(() => {
-      if(!distribution) {
-        return;
-      }
-      return this._cloudfrontClient.getDistributionConfig({
-        Id: distribution.Id
-      }).promise();
-    }).then(data => {
-      data.DistributionConfig.Id = distribution.Id;
-      data.DistributionConfig.ETag = distribution.ETag;
-      return data.DistributionConfig;
+      this.logMessage(`Distribution deployed! [CloudFront Id: ${distributionId}] [Cname: ${params.cname}]`);
     });
   }
 
-  createOriginAndCacheBehavior(distribution, newOrigin, newCacheBehavior) {
-    console.log('Executing createOriginAndCacheBehavior.');
+  /**
+   *
+   * @param cname
+   * @return {Promise.<CloudFrontDistribution>}
+   * @private
+   */
+  _getDistributionByCName(cname) {
+    this.logMessage(`Executing getDistributionByCName. [Cname: ${cname}]`);
+    const params = {};
 
-    if(!distribution.Origins) {
-      distribution.Origins = {
-        Items: [],
-        Quantity: 0
-      };
-    }
+    let listDistributionsPromise = this._awsCloudfrontClient.listDistributions(params).promise();
 
-    if(!distribution.CacheBehaviors) {
-      distribution.CacheBehaviors = {
-        Items: [],
-        Quantity: 0
-      };
-    }
+    return listDistributionsPromise.then(data => {
+      let distribution = {};
+      if(data && data.DistributionList && data.DistributionList.Items && data.DistributionList.Items.length > 0) {
+        const distributionList = data.DistributionList.Items;
+        distribution = distributionList.find(obj => {
+          return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
+        });
+      }
 
-    console.log('Checking if origin and cacheBehavior already exists.');
+      if(!__.isNil(distribution) && !__.isEmpty(distribution)) {
+        this.logMessage(`Distribution found! [Cname: ${cname}]`);
+        return distribution;
+      } else {
+        this.logMessage(`Distribution not found! [Cname: ${cname}]`);
+        return {};
+      }
+    });
+  }
 
-    const originExists = doesOriginAlreadyExists(distribution, newOrigin);
-    const behaviorExists = doesCacheBehaviorAlreadyExists(distribution, newCacheBehavior);
-    if(originExists && behaviorExists) {
-      return BPromise.resolve({
-        message: 'Origin and Cache Behavior already exists in cloudfront.  No Action taken.'
-      });
-    } else {
-      console.log('Origin and CacheBehavior dont exist.');
-    }
-
-    distribution.Origins.Items.push(newOrigin);
-    distribution.Origins.Quantity++;
-
-
-    distribution.CacheBehaviors.Items.push(newCacheBehavior);
-    distribution.CacheBehaviors.Quantity++;
-
-    console.log('Removing unnecessary items from distribution.');
-    let distributionId = distribution.Id;
-    let distributionETag = distribution.ETag;
-    delete distribution.Id;
-    delete distribution.Status;
-    delete distribution.LastModifiedTime;
-    delete distribution.DomainName;
-    delete distribution.ETag;
-
-    let params = {
-      'Id': distributionId,
-      'DistributionConfig': distribution,
-      'IfMatch': distributionETag
-    };
-
-    console.log(`Params: ${JSON.stringify(params)}`);
-    return this._cloudfrontClient.updateDistribution(params).promise();
+  /**
+   * Logs messages
+   * @param msg
+   */
+  logMessage(msg) {
+    console.log(msg);
   }
 }
-
-let doesOriginAlreadyExists = function(distribution, newOrigin) {
-
-  if(distribution.Origins.Items.length <= 0) {
-    return false;
-  }
-
-  const result = distribution.Origins.Items.find(obj => {
-    return obj.DomainName === newOrigin.DomainName &&
-      obj.OriginPath === newOrigin.OriginPath &&
-      obj.Id === newOrigin.Id;
-  });
-
-  return Boolean(result);
-};
-
-let doesCacheBehaviorAlreadyExists = function(distribution, newCacheBehavior) {
-
-  if(distribution.CacheBehaviors.Items.length <= 0) {
-    return false;
-  }
-
-  const result = distribution.CacheBehaviors.Items.find(obj => {
-    return obj.PathPattern === newCacheBehavior.PathPattern &&
-      obj.TargetOriginId === newCacheBehavior.TargetOriginId;
-  });
-
-  return Boolean(result);
-};
 
 module.exports = CloudFrontClient;

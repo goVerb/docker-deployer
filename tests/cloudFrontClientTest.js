@@ -570,6 +570,60 @@ describe('CloudFront Client', function() {
         expect(params.DistributionConfig.CacheBehaviors.Items[0].PathPattern).to.be.equal(cloudFrontDistributionParams.originPath);
       });
     });
+    
+    it('should add a ViewerCertificate if acmCertArn is provided', () => {
+      //Arrange
+      let createDistributionResponse = {
+        Distribution: {
+          Id: 'abc123'
+        }
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        createDistribution: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createDistributionResponse)} }),
+        waitFor: sandbox.stub().returns({ promise: () => { return BluebirdPromise.resolve({}) } })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      const cloudFrontDistributionParams = {
+        callerReference: 'testAndUnique1',
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        apiGatewayId: 'ajkfdljsfkdal',
+        originPath: '/',
+        acmCertArn: "myCertArn"
+      };
+      
+      //Act
+      const resultPromise = cloudFrontClientService._createCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        const params = awsCloudFrontServiceMock.createDistribution.args[0][0];
+        expect(params.DistributionConfig.ViewerCertificate).to.deep.equal({
+          ACMCertificateArn: cloudFrontDistributionParams.acmCertArn,
+          CertificateSource: 'acm',
+          MinimumProtocolVersion: 'TLSv1',
+          SSLSupportMethod: 'sni-only'
+        });
+      });
+    });
 
     it('should pass distributionId to waitFor method', () => {
       //Arrange

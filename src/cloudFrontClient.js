@@ -52,7 +52,7 @@ class CloudFrontClient {
    */
   _createCloudFrontDistribution(params) {
     this.logMessage(`Creating Cloud Front Distribution. [Cname: ${params.cname}]`);
-    const {callerReference, cname, comment, originName, originDomainName, originPath} = params;
+    const {callerReference, cname, acmCertArn, comment, originName, originDomainName, originPath} = params;
     const cloudFrontParams = {
       DistributionConfig: { /* required */
         CallerReference: callerReference, /* required */
@@ -202,13 +202,22 @@ class CloudFrontClient {
       }
     };
 
-    
+    if(acmCertArn) {
+      cloudFrontParams.DistributionConfig.ViewerCertificate = {
+        ACMCertificateArn: acmCertArn,
+        CertificateSource: 'acm',
+        MinimumProtocolVersion: 'TLSv1',
+        SSLSupportMethod: 'sni-only'
+      }
+    }
+
+
     let distribution;
     let createDistributionPromise = this._awsCloudFrontClient.createDistribution(cloudFrontParams).promise();
     return createDistributionPromise.then(result => {
-      
+
       distribution = result.Distribution;
-      
+
       const waitForParams = {
         Id: distribution.Id
       };

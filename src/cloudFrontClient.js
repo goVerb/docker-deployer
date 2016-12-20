@@ -37,7 +37,7 @@ class CloudFrontClient {
     return this._getDistributionByCName(params.cname).then(distribution => {
       if(!__.isEmpty(distribution) && !__.isNil(distribution)) {
         this.logMessage(`CloudFront Distribution already exist. No action taken. [Cname: ${params.cname}]`);
-        return;
+        return distribution;
       } else {
         return this._createCloudFrontDistribution(params);
       }
@@ -52,10 +52,10 @@ class CloudFrontClient {
    */
   _createCloudFrontDistribution(params) {
     this.logMessage(`Creating Cloud Front Distribution. [Cname: ${params.cname}]`);
-    const {callerReference, cname, acmCertArn, comment, originName, originDomainName, originPath} = params;
+    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern} = params;
     const cloudFrontParams = {
       DistributionConfig: { /* required */
-        CallerReference: callerReference, /* required */
+        CallerReference: uuid(), /* required */
         Comment: comment, /* required */
         DefaultCacheBehavior: { /* required */
           ForwardedValues: { /* required */
@@ -163,7 +163,7 @@ class CloudFrontClient {
                 }
               },
               MinTTL: 0, /* required */
-              PathPattern: originPath, /* required */
+              PathPattern: pathPattern, /* required */
               TargetOriginId: originName, /* required */
               TrustedSigners: { /* required */
                 Enabled: false, /* required */
@@ -191,7 +191,7 @@ class CloudFrontClient {
                   Quantity: 3 /* required */
                 }
               },
-              Compress: false,
+              Compress: true,
               DefaultTTL: 0,
               MaxTTL: 0,
               SmoothStreaming: false
@@ -208,7 +208,7 @@ class CloudFrontClient {
         CertificateSource: 'acm',
         MinimumProtocolVersion: 'TLSv1',
         SSLSupportMethod: 'sni-only'
-      }
+      };
     }
 
 
@@ -223,7 +223,10 @@ class CloudFrontClient {
       };
 
       this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
-      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise().catch(err => {
+        this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
+        return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+      });
     }).then(() => {
       this.logMessage(`Distribution deployed! [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
       return distribution;

@@ -49,7 +49,7 @@ class Deployer {
       //Create security groups
 
       let securityGroupPromises = [];
-      for(let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
+      for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
         let securityGroupConfig = config.securityGroups[sgIndex];
         securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
       }
@@ -152,7 +152,9 @@ class Deployer {
   _createTargetGroup(environment, targetGroupConfig) {
     //convert vpcName to vpcId
     return this._vpcClient.getVpcIdFromName(targetGroupConfig.vpcName).then(vpcId => {
-      return this._elbClient.createTargetGroup(environment, targetGroupConfig.name, targetGroupConfig.port, targetGroupConfig.protocol, vpcId, {HealthCheckPath: '/health'});
+      return this._elbClient.createTargetGroup(environment, targetGroupConfig.name, targetGroupConfig.port, targetGroupConfig.protocol, vpcId, {
+        HealthCheckPath: '/health'
+      });
     });
   }
 
@@ -217,7 +219,9 @@ class Deployer {
       let certificateArnArray = [];
       if(listenerConfigObject.certificateArn) {
         certificateArnArray = [
-          {CertificateArn: listenerConfigObject.certificateArn}
+          {
+            CertificateArn: listenerConfigObject.certificateArn
+          }
         ];
       }
 
@@ -231,7 +235,7 @@ class Deployer {
 
     let promiseArray = [];
 
-    for(let configIndex = 0; configIndex < listenerConfigs.length; configIndex++) {
+    for (let configIndex = 0; configIndex < listenerConfigs.length; configIndex++) {
       let listenerConfigObject = listenerConfigs[configIndex];
 
       let newPromise = createPromiseForListenerConfigCreation(listenerConfigObject);

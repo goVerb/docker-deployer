@@ -3,17 +3,11 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
+const BaseClient = require('./baseClient');
+
 AWS.config.setPromisesDependency(BlueBirdPromise);
 
-
-class ElbClient {
-
-  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
-
-    this._accessKey = accessKey;
-    this._secretKey = secretKey;
-    this._region = region;
-  }
+class ElbClient extends BaseClient {
 
   get _awsElbv2Client() {
     if(!this._internalElbv2Client) {
@@ -407,13 +401,6 @@ class ElbClient {
     });
   }
 
-  /**
-   * Logs messages
-   * @param msg
-   */
-  logMessage(msg) {
-    console.log(msg);
-  }
 }
 
 

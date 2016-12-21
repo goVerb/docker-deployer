@@ -3,16 +3,11 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
+const BaseClient = require('./baseClient');
+
 AWS.config.setPromisesDependency(BlueBirdPromise);
 
-class Route53Client {
-
-  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
-
-    this._accessKey = accessKey;
-    this._secretKey = secretKey;
-    this._region = region;
-  }
+class Route53Client extends BaseClient {
 
   get _awsRoute53Client() {
 
@@ -200,14 +195,6 @@ class Route53Client {
     let hostAndTld = __.slice(domainNameSplit, domainNameSplit.length - 2, domainNameSplit.length);
 
     return hostAndTld.join('.');
-  }
-
-  /**
-   * Logs messages
-   * @param msg
-   */
-  logMessage(msg) {
-    console.log(msg);
   }
 
 }

@@ -3,16 +3,11 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
+const BaseClient = require('./baseClient');
+
 AWS.config.setPromisesDependency(BlueBirdPromise);
 
-class VpcClient {
-
-  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
-
-    this._accessKey = accessKey;
-    this._secretKey = secretKey;
-    this._region = region;
-  }
+class VpcClient extends BaseClient {
 
   get _awsEc2Client() {
 
@@ -631,13 +626,6 @@ class VpcClient {
     return this._awsEc2Client.createTags(createTagParams).promise();
   }
 
-  /**
-   * Logs messages
-   * @param msg
-   */
-  logMessage(msg) {
-    console.log(msg);
-  }
 }
 
 

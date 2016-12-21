@@ -4,17 +4,12 @@ const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const base64 = require('base-64');
 
+const BaseClient = require('./baseClient');
+
 AWS.config.setPromisesDependency(BlueBirdPromise);
 
 
-class AutoScalingClient {
-
-  constructor(accessKey = '', secretKey = '', region = 'us-west-2') {
-
-    this._accessKey = accessKey;
-    this._secretKey = secretKey;
-    this._region = region;
-  }
+class AutoScalingClient extends BaseClient {
 
   get _awsAutoScalingClient() {
 
@@ -224,14 +219,6 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
         return '';
       }
     });
-  }
-
-  /**
-   * Logs messages
-   * @param msg
-   */
-  logMessage(msg) {
-    console.log(msg);
   }
 }
 

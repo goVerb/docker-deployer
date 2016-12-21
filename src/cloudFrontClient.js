@@ -4,14 +4,15 @@ const __ = require('lodash');
 const uuid = require('uuid');
 const BluebirdPromise = require('bluebird');
 
+const BaseClient = require('./baseClient');
+
 AWS.config.setPromisesDependency(BluebirdPromise);
 
-class CloudFrontClient {
+class CloudFrontClient extends BaseClient {
 
   constructor(accessKey = '', secretKey = '') {
-
-    this._accessKey = accessKey;
-    this._secretKey = secretKey;
+    // Calls super and sets the region to null
+    super(accessKey, secretKey, null);
   }
 
   get _awsCloudFrontClient() {
@@ -262,14 +263,6 @@ class CloudFrontClient {
         return {};
       }
     });
-  }
-
-  /**
-   * Logs messages
-   * @param msg
-   */
-  logMessage(msg) {
-    console.log(msg);
   }
 }
 

@@ -5,6 +5,7 @@ const EC2 = require('./ec2Client.js');
 const AutoScaling = require('./autoScalingClient.js');
 const Route53 = require('./route53Client.js');
 const CloudFront = require('./cloudFrontClient.js');
+const APIGateway = require('./apiGatewayClient');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
@@ -24,9 +25,9 @@ class Deployer {
     let opts = options || {};
 
 
-    this._accessKey = opts.accessKey || '';
-    this._secretKey = opts.secretKey || '';
-    this._region = opts.region || '';
+    this._accessKey = opts.accessKey;
+    this._secretKey = opts.secretKey;
+    this._region = opts.region;
 
     this._vpcClient = new VPC(this._accessKey, this._secretKey, this._region);
     this._ecsClient = new ECS(this._accessKey, this._secretKey, this._region);
@@ -35,6 +36,7 @@ class Deployer {
     this._autoScalingClient = new AutoScaling(this._accessKey, this._secretKey, this._region);
     this._route53Client = new Route53(this._accessKey, this._secretKey, this._region);
     this._cloudFrontClient = new CloudFront(this._accessKey, this._secretKey);
+    this._apiGatewayClient = new APIGateway(this._accessKey, this._secretKey, this._region);
   }
 
 
@@ -84,12 +86,20 @@ class Deployer {
   }
 
   deploy(serviceConfig, taskDefintionConfig) {
-
     return this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions).then(() => {
-
       return this._createECSService(serviceConfig);
     });
 
+  }
+
+  /**
+   * Looks up an API Gateway URL using the apiName and the StageName
+   * @param apiName
+   * @param StageName
+   * @return {Promise.<D>}
+   */
+  lookupApiGatewayURL(apiName, stageName) {
+    return this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
   }
 
   /**
@@ -276,7 +286,6 @@ class Deployer {
     });
   }
 }
-
 
 module.exports = function() {
   return Deployer;

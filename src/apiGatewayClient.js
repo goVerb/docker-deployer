@@ -77,7 +77,7 @@ class APIGatewayClient extends BaseClient {
         return null;
       }
       return this._getDomainName(api.id);
-    })
+    });
   }
 
 }

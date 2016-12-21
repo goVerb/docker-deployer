@@ -29,13 +29,14 @@ describe('APIGateway Client', function() {
     mockery.deregisterAll();
     sandbox.restore();
   });
-  
+
   describe('getter _apiGatewayClient', () => {
     it('should pass accessKey to client', () => {
       //Arrange
       let mockAwsSdk = {
         config: {
-          setPromisesDependency: (promise) => {}
+          setPromisesDependency: (promise) => {
+          }
         },
         APIGateway: sandbox.stub()
 
@@ -63,7 +64,8 @@ describe('APIGateway Client', function() {
       //Arrange
       let mockAwsSdk = {
         config: {
-          setPromisesDependency: (promise) => {}
+          setPromisesDependency: (promise) => {
+          }
         },
         APIGateway: sandbox.stub()
 
@@ -91,7 +93,8 @@ describe('APIGateway Client', function() {
       //Arrange
       let mockAwsSdk = {
         config: {
-          setPromisesDependency: (promise) => {}
+          setPromisesDependency: (promise) => {
+          }
         },
         APIGateway: sandbox.stub()
 
@@ -119,7 +122,8 @@ describe('APIGateway Client', function() {
       //Arrange
       let mockAwsSdk = {
         config: {
-          setPromisesDependency: (promise) => {}
+          setPromisesDependency: (promise) => {
+          }
         },
         APIGateway: sandbox.stub()
 
@@ -144,6 +148,183 @@ describe('APIGateway Client', function() {
     });
   });
 
-  
-  
+
+  describe('lookupApiGatewayURL', () => {
+    it('should pass accessKey to client', (done) => {
+      //Arrange
+      const getRestApisResponse = {
+        items: [{
+          id: 'ciqzr3g5ti',
+          name: 'Platform API'
+        }, {
+          id: 'my***REMOVED***Id',
+          name: 'Test API',
+          version: 'v1'
+        }]
+      };
+
+      const getStageResponse = {
+        someStageKey: 'someStageValue'
+      };
+
+      const APIGatewayMock = {
+
+        getRestApis: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getRestApisResponse)
+        }),
+
+        getStage: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getStageResponse)
+        })
+      }
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up APIGateway clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+
+      const APIGateway = require('../src/apiGatewayClient');
+      const apiGatewayService = new APIGateway(accessKey, secretKey);
+
+
+      //Act
+      const getPromise = apiGatewayService.lookupApiGatewayURL('Test API', 'SomeStage');
+
+      //Assert
+      getPromise.then(url => {
+        expect(url).to.be.equal('https://my***REMOVED***Id.execute-api.us-west-2.amazonaws.com/SomeStage');
+        done();
+      });
+      
+    });
+    
+    it('should return nothing if api is not found', (done) => {
+      //Arrange
+      const getRestApisResponse = {
+        items: [{
+          id: 'ciqzr3g5ti',
+          name: 'Platform API'
+        }, {
+          id: 'my***REMOVED***Id',
+          name: 'NOT MY TEST API',
+          version: 'v1'
+        }]
+      };
+
+      const getStageResponse = {
+        someStageKey: 'someStageValue'
+      };
+
+      const APIGatewayMock = {
+
+        getRestApis: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getRestApisResponse)
+        }),
+
+        getStage: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getStageResponse)
+        })
+      }
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up APIGateway clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+
+      const APIGateway = require('../src/apiGatewayClient');
+      const apiGatewayService = new APIGateway(accessKey, secretKey);
+
+
+      //Act
+      const getPromise = apiGatewayService.lookupApiGatewayURL('Test API', 'SomeStage');
+
+      //Assert
+      getPromise.then(url => {
+        expect(url).to.be.null;
+        done();
+      });
+      
+    });
+    
+    
+    it('should return nothing if stage is not found', (done) => {
+      //Arrange
+      const getRestApisResponse = {
+        items: [{
+          id: 'ciqzr3g5ti',
+          name: 'Platform API'
+        }, {
+          id: 'my***REMOVED***Id',
+          name: 'Test API',
+          version: 'v1'
+        }]
+      };
+
+      const getStageResponse = null;
+
+      const APIGatewayMock = {
+
+        getRestApis: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getRestApisResponse)
+        }),
+
+        getStage: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getStageResponse)
+        })
+      }
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up APIGateway clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+
+      const APIGateway = require('../src/apiGatewayClient');
+      const apiGatewayService = new APIGateway(accessKey, secretKey);
+
+
+      //Act
+      const getPromise = apiGatewayService.lookupApiGatewayURL('Test API', 'SomeStage');
+
+      //Assert
+      getPromise.then(url => {
+        expect(url).to.be.null;
+        done();
+      });
+      
+    });
+  });
+
 });

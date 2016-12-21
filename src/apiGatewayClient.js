@@ -31,6 +31,11 @@ class APIGatewayClient extends BaseClient {
     return `https://${restApiId}.execute-api.${region}.amazonaws.com/${stageName}`;
   }
   
+  _getDomainName(restApiId) {
+    const region = this._region;
+    return `${restApiId}.execute-api.${region}.amazonaws.com`;
+  }
+  
   lookupApiGatewayByName(name) {
     const params = {};
     return this._apiGatewayClient.getRestApis(params).promise().then(data => {
@@ -63,6 +68,16 @@ class APIGatewayClient extends BaseClient {
       }
       return this._getInvokeUrl(restApiId, stageName);
     });
+  }
+  
+  lookupApiGatewayDomainName(apiName) {
+    return this.lookupApiGatewayByName(apiName).then(api => {
+      if(!api) {
+        this.logMessage(`No API avaialble for [RestAPI Name ${apiName}]`);
+        return null;
+      }
+      return this._getDomainName(api.id);
+    })
   }
 
 }

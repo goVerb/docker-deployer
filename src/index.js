@@ -101,6 +101,15 @@ class Deployer {
   lookupApiGatewayURL(apiName, stageName) {
     return this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
   }
+  
+  /**
+   * Looks up an API Gateway Domain Name
+   * @param apiName
+   * @return {Promise.<D>}
+   */
+  lookupApiGatewayDomainName(apiName) {
+    return this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
+  }
 
   /**
    * Creates a CloudFront Client and associates it to a hosted zone

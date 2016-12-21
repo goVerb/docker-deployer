@@ -147,10 +147,116 @@ describe('APIGateway Client', function() {
       expect(params).to.have.property('region', 'us-west-2');
     });
   });
+  
+  describe('lookupApiGatewayDomainName', () => {
+    it('should return the correct domain name', (done) => {
+      //Arrange
+      const getRestApisResponse = {
+        items: [{
+          id: 'ciqzr3g5ti',
+          name: 'Platform API'
+        }, {
+          id: 'my***REMOVED***Id',
+          name: 'Test API',
+          version: 'v1'
+        }]
+      };
+
+      const APIGatewayMock = {
+
+        getRestApis: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getRestApisResponse)
+        })
+      }
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up APIGateway clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+
+      const APIGateway = require('../src/apiGatewayClient');
+      const apiGatewayService = new APIGateway(accessKey, secretKey);
+
+
+      //Act
+      const getPromise = apiGatewayService.lookupApiGatewayDomainName('Test API');
+
+      //Assert
+      getPromise.then(url => {
+        console.log(url);
+        expect(url).to.be.equal('my***REMOVED***Id.execute-api.us-west-2.amazonaws.com');
+        done();
+      });
+      
+    });
+    
+    it('should return nothing if no API is found', (done) => {
+      //Arrange
+      const getRestApisResponse = {
+        items: [{
+          id: 'ciqzr3g5ti',
+          name: 'Platform API'
+        }, {
+          id: 'my***REMOVED***Id',
+          name: 'CLEARLY NOT MY API!',
+          version: 'v1'
+        }]
+      };
+
+      const APIGatewayMock = {
+
+        getRestApis: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve(getRestApisResponse)
+        })
+      }
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up APIGateway clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+
+      const APIGateway = require('../src/apiGatewayClient');
+      const apiGatewayService = new APIGateway(accessKey, secretKey);
+
+
+      //Act
+      const getPromise = apiGatewayService.lookupApiGatewayDomainName('Test API');
+
+      //Assert
+      getPromise.then(url => {
+        expect(url).to.be.null;
+        done();
+      });
+      
+    });
+    
+  });
 
 
   describe('lookupApiGatewayURL', () => {
-    it('should pass accessKey to client', (done) => {
+    it('should return the correct url', (done) => {
       //Arrange
       const getRestApisResponse = {
         items: [{

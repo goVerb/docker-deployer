@@ -369,9 +369,8 @@ class CloudFrontClient extends BaseClient {
           Quantity: 0, /* required */
           Items: []
         },
-        WebACLId: '',
-        PriceClass: 'PriceClass_All',
         DefaultRootObject: '',
+        HttpVersion: 'http2',
         IsIPV6Enabled: true,
         Logging: {
           Bucket: '', /* required */
@@ -379,6 +378,8 @@ class CloudFrontClient extends BaseClient {
           IncludeCookies: false, /* required */
           Prefix: '' /* required */
         },
+        PriceClass: 'PriceClass_All',
+        WebACLId: ''
       }
     };
 

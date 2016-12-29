@@ -365,7 +365,12 @@ class CloudFrontClient extends BaseClient {
             }
           ]
         },
+        CustomErrorResponses: {
+          Quantity: 0, /* required */
+          Items: []
+        },
         PriceClass: 'PriceClass_All',
+        DefaultRootObject: '',
         IsIPV6Enabled: true,
         Logging: {
           Bucket: '', /* required */

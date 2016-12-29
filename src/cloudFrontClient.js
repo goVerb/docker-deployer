@@ -365,7 +365,14 @@ class CloudFrontClient extends BaseClient {
             }
           ]
         },
-        PriceClass: 'PriceClass_All'
+        PriceClass: 'PriceClass_All',
+        IsIPV6Enabled: true,
+        Logging: {
+          Bucket: '', /* required */
+          Enabled: false, /* required */
+          IncludeCookies: false, /* required */
+          Prefix: '' /* required */
+        },
       }
     };
 

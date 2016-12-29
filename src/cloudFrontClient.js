@@ -369,6 +369,7 @@ class CloudFrontClient extends BaseClient {
           Quantity: 0, /* required */
           Items: []
         },
+        WebACLId: '',
         PriceClass: 'PriceClass_All',
         DefaultRootObject: '',
         IsIPV6Enabled: true,

@@ -34,11 +34,16 @@ class CloudFrontClient extends BaseClient {
    * @param params
    * @return {Promise.<D>}
    */
-  createCloudFrontDistribution(params) {
+  createOrUpdateCloudFrontDistribution(params) {
     return this._getDistributionByCName(params.cname).then(distribution => {
       if(!__.isEmpty(distribution) && !__.isNil(distribution)) {
-        this.logMessage(`CloudFront Distribution already exist. No action taken. [Cname: ${params.cname}]`);
-        return distribution;
+        if(!this._isDistributionOutOfDate(distribution, params)) {
+          this.logMessage(`CloudFront Distribution already exist. No action taken. [Cname: ${params.cname}]`);
+          return distribution;
+        } else {
+          this.logMessage(`CloudFront distribution already exist, but out of date.  Updating Cloudfront. [Cname: ${params.cname}]`);
+          return this._updateCloudFrontDistribution(params);
+        }
       } else {
         return this._createCloudFrontDistribution(params);
       }
@@ -53,7 +58,168 @@ class CloudFrontClient extends BaseClient {
    */
   _createCloudFrontDistribution(params) {
     this.logMessage(`Creating Cloud Front Distribution. [Cname: ${params.cname}]`);
-    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern} = params;
+
+    const cloudFrontParams = this._buildDistributionConfig(params);
+
+
+    let distribution;
+    let createDistributionPromise = this._awsCloudFrontClient.createDistribution(cloudFrontParams).promise();
+    return createDistributionPromise.then(result => {
+
+      distribution = result.Distribution;
+
+      const waitForParams = {
+        Id: distribution.Id
+      };
+
+      this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
+      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise().catch(err => {
+        this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
+        return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+      });
+    }).then(() => {
+      this.logMessage(`Distribution deployed! [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
+      return distribution;
+    });
+  }
+
+  /**
+   *
+   * @param distribution
+   * @param params
+   * @return {Promise.<TResult>}
+   * @private
+   */
+  _updateCloudFrontDistribution(distribution, params) {
+    this.logMessage(`Updating Cloud Front Distribution. [Cname: ${params.cname}]`);
+
+    let cloudFrontParams = this._buildDistributionConfig(params);
+    cloudFrontParams.Id = distribution.Id;
+    cloudFrontParams.ETag = distribution.ETag;
+
+    let updatedDistribution;
+    let updateDistributionPromise = this._awsCloudFrontClient.updateDistribution(cloudFrontParams).promise();
+    return updateDistributionPromise.then(result => {
+
+      updatedDistribution = result.Distribution;
+
+      const waitForParams = {
+        Id: updatedDistribution.Id
+      };
+
+      this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${updatedDistribution.Id}] [Cname: ${params.cname}]`);
+      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise().catch(err => {
+        this.logMessage(`First waitFor failed for [CloudFront Id: ${updatedDistribution.Id}] TRYING AGAIN!`);
+        return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+      });
+    }).then(() => {
+      this.logMessage(`Distribution deployed! [CloudFront Id: ${updatedDistribution.Id}] [Cname: ${params.cname}]`);
+      return updatedDistribution;
+    });
+  }
+
+  /**
+   *
+   * @param cname
+   * @return {Promise.<CloudFrontDistribution>}
+   * @private
+   */
+  _getDistributionByCName(cname) {
+    this.logMessage(`Executing getDistributionByCName. [Cname: ${cname}]`);
+    const params = {};
+
+    let listDistributionsPromise = this._awsCloudFrontClient.listDistributions(params).promise();
+
+    return listDistributionsPromise.then(data => {
+      let distribution = {};
+      if(data && data.DistributionList && data.DistributionList.Items && data.DistributionList.Items.length > 0) {
+        const distributionList = data.DistributionList.Items;
+        distribution = distributionList.find(obj => {
+          return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
+        });
+      }
+
+      if(!__.isNil(distribution) && !__.isEmpty(distribution)) {
+        this.logMessage(`Distribution found! [Cname: ${cname}]`);
+        let getDistributionParams = {
+          Id: distribution.Id
+        };
+
+        let getDistributionPromise = this._awsCloudFrontClient.getDistribution(getDistributionParams).promise();
+
+        return getDistributionPromise.then(getDistributionResult => {
+
+          //we add the ETag to the distribution
+          let localDistribution = getDistributionResult.Distribution;
+          localDistribution.ETag = getDistributionResult.ETag;
+          return localDistribution;
+        });
+      } else {
+        this.logMessage(`Distribution not found! [Cname: ${cname}]`);
+        return {};
+      }
+    });
+  }
+
+  /**
+   *
+   * @param distribution
+   * @param params
+   * @return {boolean}
+   * @private
+   */
+  _isDistributionOutOfDate(distribution, params) {
+
+    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy} = params;
+
+    let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
+
+    //cname
+    let foundAliasIndex = __.indexOf(distribution.DistributionConfig.Aliases.Items, cname);
+    if(foundAliasIndex < 0) {
+      return true;
+    }
+
+    //acmCertArn
+    if(distribution.DistributionConfig.ViewerCertificate.ACMCertificateArn !== acmCertArn) {
+      return true;
+    }
+
+    //comment
+    if(distribution.DistributionConfig.Comment !== comment) {
+      return true;
+    }
+
+
+    //originName
+
+    //originDomainName
+    let foundOrigin = __.find(distribution.DistributionConfig.Origins.Items, {Id: originName});
+    if(!foundOrigin || foundOrigin.DomainName !== originDomainName) {
+      return true;
+    }
+
+
+    //originPath
+    if(!foundOrigin || foundOrigin.OriginPath !== originPath) {
+      return true;
+    }
+
+    //originProtocolPolicy
+    if(!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== computedOriginProtocolPolicy) {
+      return true;
+    }
+
+    //pathPattern
+
+    return false;
+  }
+
+  _buildDistributionConfig(params) {
+    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy} = params;
+
+    let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
+
     const cloudFrontParams = {
       DistributionConfig: { /* required */
         CallerReference: uuid(), /* required */
@@ -125,7 +291,7 @@ class CloudFrontClient extends BaseClient {
               CustomOriginConfig: {
                 HTTPPort: 80, /* required */
                 HTTPSPort: 443, /* required */
-                OriginProtocolPolicy: 'match-viewer', /* required */
+                OriginProtocolPolicy: computedOriginProtocolPolicy, /* required */
                 OriginSslProtocols: {
                   Items: [ /* required */
                     'TLSv1',
@@ -212,57 +378,7 @@ class CloudFrontClient extends BaseClient {
       };
     }
 
-
-    let distribution;
-    let createDistributionPromise = this._awsCloudFrontClient.createDistribution(cloudFrontParams).promise();
-    return createDistributionPromise.then(result => {
-
-      distribution = result.Distribution;
-
-      const waitForParams = {
-        Id: distribution.Id
-      };
-
-      this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
-      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise().catch(err => {
-        this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
-        return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
-      });
-    }).then(() => {
-      this.logMessage(`Distribution deployed! [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
-      return distribution;
-    });
-  }
-
-  /**
-   *
-   * @param cname
-   * @return {Promise.<CloudFrontDistribution>}
-   * @private
-   */
-  _getDistributionByCName(cname) {
-    this.logMessage(`Executing getDistributionByCName. [Cname: ${cname}]`);
-    const params = {};
-
-    let listDistributionsPromise = this._awsCloudFrontClient.listDistributions(params).promise();
-
-    return listDistributionsPromise.then(data => {
-      let distribution = {};
-      if(data && data.DistributionList && data.DistributionList.Items && data.DistributionList.Items.length > 0) {
-        const distributionList = data.DistributionList.Items;
-        distribution = distributionList.find(obj => {
-          return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
-        });
-      }
-
-      if(!__.isNil(distribution) && !__.isEmpty(distribution)) {
-        this.logMessage(`Distribution found! [Cname: ${cname}]`);
-        return distribution;
-      } else {
-        this.logMessage(`Distribution not found! [Cname: ${cname}]`);
-        return {};
-      }
-    });
+    return cloudFrontParams;
   }
 }
 

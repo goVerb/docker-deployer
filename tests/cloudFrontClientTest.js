@@ -63,40 +63,23 @@ describe('CloudFront Client', function() {
     });
   });
 
-  describe('createCloudFrontDistribution', () => {
+  describe('createOrUpdateCloudFrontDistribution', () => {
     it('should call _getDistributionByCName once', () => {
       //Arrange
-      let listDistributionsResponse = {};
-
-      //setting up autoScalingClient Mock
-      let awsCloudFrontServiceMock = {
-        listDistributions: sandbox.stub().returns({
-          promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
-          }
-        })
-      };
-
-      let mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {
-          }
-        },
-        CloudFront: () => {
-          return awsCloudFrontServiceMock;
-        }
-      };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up CF clients
       const CloudFront = require('../src/cloudFrontClient');
       const cloudFrontClientService = new CloudFront();
 
       let createdDistribution = {
-        Id: 'something'
+        Id: 'something',
+        DistributionConfig: {
+          Aliases: {}
+        }
       };
       cloudFrontClientService._getDistributionByCName = sandbox.stub().resolves(createdDistribution);
       cloudFrontClientService._createCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._updateCloudFrontDistribution = sandbox.stub().resolves();
 
       let cloudFrontDistributionParams = {
         cname: 'test.example.com',
@@ -107,7 +90,7 @@ describe('CloudFront Client', function() {
       };
 
       //Act
-      let resultPromise = cloudFrontClientService.createCloudFrontDistribution(cloudFrontDistributionParams);
+      let resultPromise = cloudFrontClientService.createOrUpdateCloudFrontDistribution(cloudFrontDistributionParams);
 
       //Assert
       return resultPromise.then(() => {
@@ -117,37 +100,21 @@ describe('CloudFront Client', function() {
 
     it('should NOT call _createCloudFrontDistribution when distribution exist', () => {
       //Arrange
-      let listDistributionsResponse = {};
-
-      //setting up autoScalingClient Mock
-      let awsCloudFrontServiceMock = {
-        listDistributions: sandbox.stub().returns({
-          promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
-          }
-        })
-      };
-
-      let mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {
-          }
-        },
-        CloudFront: () => {
-          return awsCloudFrontServiceMock;
-        }
-      };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up CF clients
       const CloudFront = require('../src/cloudFrontClient');
       const cloudFrontClientService = new CloudFront();
 
       let createdDistribution = {
-        Id: 'something'
+        Id: 'something',
+        DistributionConfig: {
+          Aliases: {}
+        }
       };
       cloudFrontClientService._getDistributionByCName = sandbox.stub().resolves(createdDistribution);
       cloudFrontClientService._createCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._updateCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._isDistributionOutOfDate = sandbox.stub().returns(false);
 
       let cloudFrontDistributionParams = {
         cname: 'test.example.com',
@@ -158,7 +125,7 @@ describe('CloudFront Client', function() {
       };
 
       //Act
-      let resultPromise = cloudFrontClientService.createCloudFrontDistribution(cloudFrontDistributionParams);
+      let resultPromise = cloudFrontClientService.createOrUpdateCloudFrontDistribution(cloudFrontDistributionParams);
 
       //Assert
       return resultPromise.then(() => {
@@ -168,27 +135,6 @@ describe('CloudFront Client', function() {
 
     it('should call _createCloudFrontDistribution once when distribution doesnt exist', () => {
       //Arrange
-      let listDistributionsResponse = {};
-
-      //setting up autoScalingClient Mock
-      let awsCloudFrontServiceMock = {
-        listDistributions: sandbox.stub().returns({
-          promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
-          }
-        })
-      };
-
-      let mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {
-          }
-        },
-        CloudFront: () => {
-          return awsCloudFrontServiceMock;
-        }
-      };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up CF clients
       const CloudFront = require('../src/cloudFrontClient');
@@ -207,7 +153,7 @@ describe('CloudFront Client', function() {
       };
 
       //Act
-      let resultPromise = cloudFrontClientService.createCloudFrontDistribution(cloudFrontDistributionParams);
+      let resultPromise = cloudFrontClientService.createOrUpdateCloudFrontDistribution(cloudFrontDistributionParams);
 
       //Assert
       return resultPromise.then(() => {
@@ -217,27 +163,6 @@ describe('CloudFront Client', function() {
 
     it('should pass parameters to _createCloudFrontDistribution when distribution doesnt exist', () => {
       //Arrange
-      let listDistributionsResponse = {};
-
-      //setting up autoScalingClient Mock
-      let awsCloudFrontServiceMock = {
-        listDistributions: sandbox.stub().returns({
-          promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
-          }
-        })
-      };
-
-      let mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {
-          }
-        },
-        CloudFront: () => {
-          return awsCloudFrontServiceMock;
-        }
-      };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up CF clients
       const CloudFront = require('../src/cloudFrontClient');
@@ -251,15 +176,51 @@ describe('CloudFront Client', function() {
         comment: 'something cool',
         originName: 'testOriginName',
         originDomainName: 'ajkfdljsfkdal',
-        originPath: '/'
+        originPath: '/',
+        originProtocolPolicy: 'http-only'
       };
 
       //Act
-      let resultPromise = cloudFrontClientService.createCloudFrontDistribution(cloudFrontDistributionParams);
+      let resultPromise = cloudFrontClientService.createOrUpdateCloudFrontDistribution(cloudFrontDistributionParams);
 
       //Assert
       return resultPromise.then(() => {
         expect(cloudFrontClientService._createCloudFrontDistribution.args[0][0]).to.be.deep.equal(cloudFrontDistributionParams);
+      });
+    });
+
+    it('should call _updateCloudFrontDistribution if cloudfront exist and needs to be updated', () => {
+      //Arrange
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let createdDistribution = {
+        Id: 'something',
+        DistributionConfig: {
+          Aliases: {}
+        }
+      };
+      cloudFrontClientService._getDistributionByCName = sandbox.stub().resolves(createdDistribution);
+      cloudFrontClientService._createCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._updateCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._isDistributionOutOfDate = sandbox.stub().returns(true);
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService.createOrUpdateCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(cloudFrontClientService._updateCloudFrontDistribution.callCount).to.be.equal(1);
       });
     });
   });
@@ -548,8 +509,7 @@ describe('CloudFront Client', function() {
 
       });
     });
-    
-    
+
     it('pass params.pathPattern to createDistribution method', () => {
       //Arrange
       let createDistributionResponse = {
@@ -605,6 +565,119 @@ describe('CloudFront Client', function() {
 
         expect(params.DistributionConfig.CacheBehaviors.Items[0].PathPattern).to.be.equal(cloudFrontDistributionParams.pathPattern);
 
+      });
+    });
+
+    it('should pass params.originProtocolPolicy to createDistribution method', () => {
+      //Arrange
+      let createDistributionResponse = {
+        Distribution: {
+          Id: 'abc123'
+        }
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        createDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/',
+        originProtocolPolicy: 'https-only'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._createCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.createDistribution.args[0][0];
+
+        expect(params.DistributionConfig.Origins.Items[0].CustomOriginConfig.OriginProtocolPolicy).to.be.equal(cloudFrontDistributionParams.originProtocolPolicy);
+      });
+    });
+
+    it('should originProtocolPolicy to match-viewer when not passed in', () => {
+      //Arrange
+      let createDistributionResponse = {
+        Distribution: {
+          Id: 'abc123'
+        }
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        createDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._createCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.createDistribution.args[0][0];
+
+        expect(params.DistributionConfig.Origins.Items[0].CustomOriginConfig.OriginProtocolPolicy).to.be.equal('match-viewer');
       });
     });
 
@@ -830,6 +903,956 @@ describe('CloudFront Client', function() {
         expect(awsCloudFrontServiceMock.waitFor.calledOnce).to.be.true;
       });
     });
+
+    it('should call waitFor twice if first timesout', () => {
+      //Arrange
+      let createDistributionResponse = {
+        Distribution: {
+          Id: 'abc123'
+        }
+      };
+
+      let waitForStub = sandbox.stub();
+      waitForStub.onCall(0).returns({
+        promise: () => {
+          return BluebirdPromise.reject({})
+        }
+      });
+      waitForStub.onCall(1).returns({
+        promise: () => {
+          return BluebirdPromise.resolve({})
+        }
+      });
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        createDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createDistributionResponse)
+          }
+        }),
+        waitFor: waitForStub
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._createCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsCloudFrontServiceMock.waitFor.callCount).to.be.equal(2);
+      });
+    });
+  });
+
+  describe('_updateCloudFrontDistribution', () => {
+    it('pass params.cname to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+        expect(params.DistributionConfig.Aliases.Items[0]).to.be.equal(cloudFrontDistributionParams.cname);
+      });
+    });
+
+    it('pass params.comment to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+        expect(params.DistributionConfig.Comment).to.be.equal(cloudFrontDistributionParams.comment);
+      });
+    });
+
+    it('pass params.originName to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.DistributionConfig.DefaultCacheBehavior.TargetOriginId).to.be.equal(cloudFrontDistributionParams.originName);
+
+        expect(params.DistributionConfig.Origins.Items[0].Id).to.be.equal(cloudFrontDistributionParams.originName);
+
+        expect(params.DistributionConfig.CacheBehaviors.Items[0].TargetOriginId).to.be.equal(cloudFrontDistributionParams.originName);
+      });
+    });
+
+    it('pass params.originDomainName to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.DistributionConfig.Origins.Items[0].DomainName).to.be.equal(cloudFrontDistributionParams.originDomainName);
+      });
+    });
+
+    it('pass params.originPath to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.DistributionConfig.Origins.Items[0].OriginPath).to.be.equal(cloudFrontDistributionParams.originPath);
+
+      });
+    });
+
+    it('pass params.pathPattern to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '',
+        pathPattern: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.DistributionConfig.CacheBehaviors.Items[0].PathPattern).to.be.equal(cloudFrontDistributionParams.pathPattern);
+
+      });
+    });
+
+    it('pass distributionId to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '',
+        pathPattern: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.Id).to.be.equal(distribution.Id);
+      });
+    });
+
+    it('pass ETag to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123',
+        ETag: 'uniqueETag'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '',
+        pathPattern: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.ETag).to.be.equal(distribution.ETag);
+      });
+    });
+
+    it('should pass params.originProtocolPolicy to updateDistribution method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/',
+        originProtocolPolicy: 'https-only'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.DistributionConfig.Origins.Items[0].CustomOriginConfig.OriginProtocolPolicy).to.be.equal(cloudFrontDistributionParams.originProtocolPolicy);
+      });
+    });
+
+    it('should originProtocolPolicy to match-viewer when not passed in', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+
+        expect(params.DistributionConfig.Origins.Items[0].CustomOriginConfig.OriginProtocolPolicy).to.be.equal('match-viewer');
+      });
+    });
+
+    it('should add a ViewerCertificate if acmCertArn is provided', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      const cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '',
+        acmCertArn: 'myCertArn'
+      };
+
+      //Act
+      const resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        const params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
+        expect(params.DistributionConfig.ViewerCertificate).to.deep.equal({
+          ACMCertificateArn: cloudFrontDistributionParams.acmCertArn,
+          CertificateSource: 'acm',
+          MinimumProtocolVersion: 'TLSv1',
+          SSLSupportMethod: 'sni-only'
+        });
+      });
+    });
+
+    it('should pass distributionId to waitFor method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsCloudFrontServiceMock.waitFor.args[0][1].Id).to.be.equal(updateDistributionResponse.Distribution.Id);
+      });
+    });
+
+    it('should pass resourceWaiter to waitFor method', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsCloudFrontServiceMock.waitFor.args[0][0]).to.be.equal('distributionDeployed');
+      });
+    });
+
+    it('should call waitFor once', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsCloudFrontServiceMock.waitFor.calledOnce).to.be.true;
+      });
+    });
+
+    it('should call waitFor twice if first timesout', () => {
+      //Arrange
+      let distribution = {
+        Id: '123'
+      };
+
+      let updateDistributionResponse = {
+        Distribution: distribution
+      };
+
+      let waitForStub = sandbox.stub();
+      waitForStub.onCall(0).returns({
+        promise: () => {
+          return BluebirdPromise.reject({})
+        }
+      });
+      waitForStub.onCall(1).returns({
+        promise: () => {
+          return BluebirdPromise.resolve({})
+        }
+      });
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        updateDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(updateDistributionResponse)
+          }
+        }),
+        waitFor: waitForStub
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService._updateCloudFrontDistribution(distribution, cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(awsCloudFrontServiceMock.waitFor.callCount).to.be.equal(2);
+      });
+    });
   });
 
   describe('_getDistributionByCName', () => {
@@ -982,8 +2005,8 @@ describe('CloudFront Client', function() {
               'WebACLId': ''
             },
             {
-              'Id': 'fdsa',
-              'ARN': 'arn:aws:cloudfront::***REMOVED***:distribution/REREF',
+              'Id': 'E21EM2OH01LPLB',
+              'ARN': 'arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB',
               'Status': 'Deployed',
               'LastModifiedTime': '2013-08-05T17:52:03.220Z',
               'DomainName': 'd23lkb2zft31e.cloudfront.net',
@@ -1185,11 +2208,19 @@ describe('CloudFront Client', function() {
         }
       };
 
+      let getDistributionResult = {Distribution:{"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":['example.com']},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":"***REMOVED*** API Gateway - Dev","DomainName":"xvb2ov8vai.execute-api.us-west-2.amazonaws.com","OriginPath":"/Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"match-viewer","OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":"The Dev Environment for the ***REMOVED*** API","Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":'applesauceArn',"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true}}, "ETag":"EM6TN7UQZMM3Z"};
+
+
       //setting up autoScalingClient Mock
       let awsCloudFrontServiceMock = {
         listDistributions: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(listDistributionsResponse)
+          }
+        }),
+        getDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(getDistributionResult)
           }
         })
       };
@@ -1216,7 +2247,7 @@ describe('CloudFront Client', function() {
 
       //Assert
       return resultPromise.then(result => {
-        expect(result.Id).to.be.equal('fdsa');
+        expect(result.Id).to.be.equal('E21EM2OH01LPLB');
       });
     });
 
@@ -1569,4 +2600,229 @@ describe('CloudFront Client', function() {
     });
   })
 
+  describe('_isDistributionOutOfDate', () => {
+    it('should detect difference in cnames', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate": certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: 'example.com',
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect difference in certificateArn', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: 'applesauce',
+        originProtocolPolicy: originProtocolPolicy
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in comment', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: 'something cool',
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in originDomainName', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in originPath', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: '/',
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in originProtocolPolicy', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: 'https-only'
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return false if no changes', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.false;
+    });
+  });
 });

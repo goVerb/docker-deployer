@@ -10,7 +10,6 @@ const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
 
-
 class Deployer {
 
   /**
@@ -101,7 +100,7 @@ class Deployer {
   lookupApiGatewayURL(apiName, stageName) {
     return this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
   }
-  
+
   /**
    * Looks up an API Gateway Domain Name
    * @param apiName
@@ -118,7 +117,7 @@ class Deployer {
    */
   createCloudfront(cloudFrontConfig) {
     const cname = cloudFrontConfig.cname;
-    return this._cloudFrontClient.createCloudFrontDistribution(cloudFrontConfig).then(distribution => {
+    return this._cloudFrontClient.createOrUpdateCloudFrontDistribution(cloudFrontConfig).then(distribution => {
       return this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
     });
   }

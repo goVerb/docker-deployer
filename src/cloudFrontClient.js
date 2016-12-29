@@ -95,7 +95,7 @@ class CloudFrontClient extends BaseClient {
 
     let cloudFrontParams = this._buildDistributionConfig(params);
     cloudFrontParams.Id = distribution.Id;
-    cloudFrontParams.ETag = distribution.ETag;
+    cloudFrontParams.IfMatch = distribution.ETag;
 
     let updatedDistribution;
     let updateDistributionPromise = this._awsCloudFrontClient.updateDistribution(cloudFrontParams).promise();

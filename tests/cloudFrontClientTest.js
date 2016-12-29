@@ -1419,7 +1419,7 @@ describe('CloudFront Client', function() {
       });
     });
 
-    it('pass ETag to updateDistribution method', () => {
+    it('pass IfMatch to updateDistribution method', () => {
       //Arrange
       let distribution = {
         Id: '123',
@@ -1475,7 +1475,7 @@ describe('CloudFront Client', function() {
       return resultPromise.then(() => {
         let params = awsCloudFrontServiceMock.updateDistribution.args[0][0];
 
-        expect(params.ETag).to.be.equal(distribution.ETag);
+        expect(params.IfMatch).to.be.equal(distribution.ETag);
       });
     });
 

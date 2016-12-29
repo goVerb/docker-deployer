@@ -223,6 +223,43 @@ describe('CloudFront Client', function() {
         expect(cloudFrontClientService._updateCloudFrontDistribution.callCount).to.be.equal(1);
       });
     });
+
+    it('should pass distribution as first parameter to _updateCloudFrontDistribution if cloudfront exist and needs to be updated', () => {
+      //Arrange
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      let createdDistribution = {
+        Id: 'something',
+        DistributionConfig: {
+          Aliases: {}
+        }
+      };
+      cloudFrontClientService._getDistributionByCName = sandbox.stub().resolves(createdDistribution);
+      cloudFrontClientService._createCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._updateCloudFrontDistribution = sandbox.stub().resolves();
+      cloudFrontClientService._isDistributionOutOfDate = sandbox.stub().returns(true);
+
+      let cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '/'
+      };
+
+      //Act
+      let resultPromise = cloudFrontClientService.createOrUpdateCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        let passInDistribution = cloudFrontClientService._updateCloudFrontDistribution.args[0][0];
+
+        expect(passInDistribution).to.be.deep.equal(createdDistribution);
+      });
+    });
   });
 
   describe('_createCloudFrontDistribution', () => {

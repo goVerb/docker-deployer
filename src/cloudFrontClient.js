@@ -42,7 +42,7 @@ class CloudFrontClient extends BaseClient {
           return distribution;
         } else {
           this.logMessage(`CloudFront distribution already exist, but out of date.  Updating Cloudfront. [Cname: ${params.cname}]`);
-          return this._updateCloudFrontDistribution(params);
+          return this._updateCloudFrontDistribution(distribution, params);
         }
       } else {
         return this._createCloudFrontDistribution(params);

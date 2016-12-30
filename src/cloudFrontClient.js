@@ -374,13 +374,7 @@ class CloudFrontClient extends BaseClient {
               DefaultTTL: 0,
               LambdaFunctionAssociations: {
                 Quantity: 0, /* required */
-                Items: [
-                  {
-                    EventType: 'viewer-request | viewer-response | origin-request | origin-response',
-                    LambdaFunctionARN: 'STRING_VALUE'
-                  },
-                  /* more items */
-                ]
+                Items: []
               },
               MaxTTL: 0,
               SmoothStreaming: false
@@ -401,6 +395,13 @@ class CloudFrontClient extends BaseClient {
           Prefix: '' /* required */
         },
         PriceClass: 'PriceClass_All',
+        Restrictions: {
+          GeoRestriction: { /* required */
+            Quantity: 0, /* required */
+            RestrictionType: 'none', /* required */
+            Items: []
+          }
+        },
         WebACLId: ''
       }
     };

@@ -1,3 +1,4 @@
+const moment = require('moment');
 
 class BaseClient {
 
@@ -14,7 +15,7 @@ class BaseClient {
    * @param msg
    */
   logMessage(msg) {
-    console.log(msg);
+    console.log(`[${moment().format()}] ${msg}`);
   }
 
 }

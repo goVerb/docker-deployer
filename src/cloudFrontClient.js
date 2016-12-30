@@ -242,6 +242,10 @@ class CloudFrontClient extends BaseClient {
                 'Content-Type',
                 'authorization'
               ]
+            },
+            QueryStringCacheKeys: {
+              Quantity: 0, /* required */
+              Items: []
             }
           },
           MinTTL: 0, /* required */

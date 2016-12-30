@@ -93,7 +93,7 @@ class CloudFrontClient extends BaseClient {
   _updateCloudFrontDistribution(distribution, params) {
     this.logMessage(`Updating Cloud Front Distribution. [Cname: ${params.cname}]`);
 
-    let cloudFrontParams = this._buildDistributionConfig(params);
+    let cloudFrontParams = this._buildDistributionConfig(params, distribution.DistributionConfig.CallerReference);
     cloudFrontParams.Id = distribution.Id;
     cloudFrontParams.IfMatch = distribution.ETag;
 
@@ -215,14 +215,14 @@ class CloudFrontClient extends BaseClient {
     return false;
   }
 
-  _buildDistributionConfig(params) {
+  _buildDistributionConfig(params, callerReference = '') {
     const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy} = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
     const cloudFrontParams = {
       DistributionConfig: { /* required */
-        CallerReference: uuid(), /* required */
+        CallerReference: callerReference || uuid(), /* required */
         Comment: comment, /* required */
         DefaultCacheBehavior: { /* required */
           ForwardedValues: { /* required */

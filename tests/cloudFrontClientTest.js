@@ -1008,7 +1008,10 @@ describe('CloudFront Client', function() {
     it('pass params.cname to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1067,7 +1070,10 @@ describe('CloudFront Client', function() {
     it('pass params.comment to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1124,7 +1130,10 @@ describe('CloudFront Client', function() {
     it('pass params.originName to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1186,7 +1195,10 @@ describe('CloudFront Client', function() {
     it('pass params.originDomainName to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1244,7 +1256,10 @@ describe('CloudFront Client', function() {
     it('pass params.originPath to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1303,7 +1318,10 @@ describe('CloudFront Client', function() {
     it('pass params.pathPattern to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1363,7 +1381,10 @@ describe('CloudFront Client', function() {
     it('pass distributionId to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1423,7 +1444,10 @@ describe('CloudFront Client', function() {
       //Arrange
       let distribution = {
         Id: '123',
-        ETag: 'uniqueETag'
+        ETag: 'uniqueETag',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1482,7 +1506,10 @@ describe('CloudFront Client', function() {
     it('should pass params.originProtocolPolicy to updateDistribution method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1541,7 +1568,10 @@ describe('CloudFront Client', function() {
     it('should originProtocolPolicy to match-viewer when not passed in', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1599,7 +1629,10 @@ describe('CloudFront Client', function() {
     it('should add a ViewerCertificate if acmCertArn is provided', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1662,7 +1695,10 @@ describe('CloudFront Client', function() {
     it('should pass distributionId to waitFor method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1718,7 +1754,10 @@ describe('CloudFront Client', function() {
     it('should pass resourceWaiter to waitFor method', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1774,7 +1813,10 @@ describe('CloudFront Client', function() {
     it('should call waitFor once', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {
@@ -1830,7 +1872,10 @@ describe('CloudFront Client', function() {
     it('should call waitFor twice if first timesout', () => {
       //Arrange
       let distribution = {
-        Id: '123'
+        Id: '123',
+        DistributionConfig: {
+          CallerReference: 'abc'
+        }
       };
 
       let updateDistributionResponse = {

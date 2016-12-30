@@ -276,8 +276,12 @@ class CloudFrontClient extends BaseClient {
               Quantity: 3 /* required */
             }
           },
-          Compress: false,
+          Compress: true,
           DefaultTTL: 0,
+          LambdaFunctionAssociations: {
+            Quantity: 0, /* required */
+            Items: []
+          },
           MaxTTL: 0,
           SmoothStreaming: false
         },
@@ -331,6 +335,10 @@ class CloudFrontClient extends BaseClient {
                 Headers: {
                   Quantity: 0, /* required */
                   Items: []
+                },
+                QueryStringCacheKeys: {
+                  Quantity: 0, /* required */
+                  Items: []
                 }
               },
               MinTTL: 0, /* required */
@@ -364,6 +372,16 @@ class CloudFrontClient extends BaseClient {
               },
               Compress: true,
               DefaultTTL: 0,
+              LambdaFunctionAssociations: {
+                Quantity: 0, /* required */
+                Items: [
+                  {
+                    EventType: 'viewer-request | viewer-response | origin-request | origin-response',
+                    LambdaFunctionARN: 'STRING_VALUE'
+                  },
+                  /* more items */
+                ]
+              },
               MaxTTL: 0,
               SmoothStreaming: false
             }

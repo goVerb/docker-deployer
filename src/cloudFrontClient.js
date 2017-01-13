@@ -170,7 +170,7 @@ class CloudFrontClient extends BaseClient {
    */
   _isDistributionOutOfDate(distribution, params) {
 
-    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy} = params;
+    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
@@ -187,6 +187,11 @@ class CloudFrontClient extends BaseClient {
 
     //comment
     if(distribution.DistributionConfig.Comment !== comment) {
+      return true;
+    }
+
+    //QueryString
+    if(distribution.DistributionConfig.DefaultCacheBehavior.ForwardedValues.QueryString !== queryString) {
       return true;
     }
 
@@ -216,7 +221,7 @@ class CloudFrontClient extends BaseClient {
   }
 
   _buildDistributionConfig(params, callerReference = '') {
-    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy} = params;
+    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
@@ -233,7 +238,7 @@ class CloudFrontClient extends BaseClient {
                 Items: []
               }
             },
-            QueryString: false, /* required */
+            QueryString: queryString, /* required */
             Headers: {
               Quantity: 4, /* required */
               Items: [

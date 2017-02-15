@@ -170,7 +170,7 @@ class CloudFrontClient extends BaseClient {
    */
   _isDistributionOutOfDate(distribution, params) {
 
-    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
+    const {cname, acmCertArn, enableLogging, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
@@ -215,7 +215,10 @@ class CloudFrontClient extends BaseClient {
       return true;
     }
 
-    //pathPattern
+    // Logging
+    if(enableLogging !== distribution.DistributionConfig.Logging.enabled) {
+      return true;
+    }
 
     return false;
   }

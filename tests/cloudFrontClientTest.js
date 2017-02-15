@@ -778,6 +778,129 @@ describe('CloudFront Client', function() {
         });
       });
     });
+    
+    it('should have logging disabled if enableLogging is falsy', () => {
+      //Arrange
+      let createDistributionResponse = {
+        Distribution: {
+          Id: 'abc123'
+        }
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        createDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      const cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '',
+        acmCertArn: 'myCertArn'
+      };
+
+      //Act
+      const resultPromise = cloudFrontClientService._createCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        const params = awsCloudFrontServiceMock.createDistribution.args[0][0];
+        expect(params.DistributionConfig.Logging).to.deep.equal({
+          Bucket: '', /* required */
+          Enabled: false, /* required */
+          IncludeCookies: false, /* required */
+          Prefix: '' /* required */
+        });
+      });
+    });
+    
+    it('should have logging enabled with the cname as a prefix if enableLogging', () => {
+      //Arrange
+      let createDistributionResponse = {
+        Distribution: {
+          Id: 'abc123'
+        }
+      };
+
+      //setting up autoScalingClient Mock
+      let awsCloudFrontServiceMock = {
+        createDistribution: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createDistributionResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({})
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        CloudFront: () => {
+          return awsCloudFrontServiceMock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      const cloudFrontDistributionParams = {
+        cname: 'test.example.com',
+        comment: 'something cool',
+        originName: 'testOriginName',
+        originDomainName: 'ajkfdljsfkdal',
+        originPath: '',
+        acmCertArn: 'myCertArn',
+        enableLogging: true
+      };
+
+      //Act
+      const resultPromise = cloudFrontClientService._createCloudFrontDistribution(cloudFrontDistributionParams);
+
+      //Assert
+      return resultPromise.then(() => {
+        const params = awsCloudFrontServiceMock.createDistribution.args[0][0];
+        expect(params.DistributionConfig.Logging).to.deep.equal({
+          Bucket: 'cloudfront-***REMOVED***', /* required */
+          Enabled: true, /* required */
+          IncludeCookies: false, /* required */
+          Prefix: 'test.example.com' /* required */
+        });
+      });
+    });
 
     it('should pass distributionId to waitFor method', () => {
       //Arrange

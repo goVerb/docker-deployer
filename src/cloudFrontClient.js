@@ -221,7 +221,7 @@ class CloudFrontClient extends BaseClient {
   }
 
   _buildDistributionConfig(params, callerReference = '') {
-    const {cname, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
+    const {cname, enableLogging, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
@@ -417,6 +417,14 @@ class CloudFrontClient extends BaseClient {
         CertificateSource: 'acm',
         MinimumProtocolVersion: 'TLSv1',
         SSLSupportMethod: 'sni-only'
+      };
+    }
+    if(enableLogging) {
+      cloudFrontParams.DistributionConfig.Logging = {
+        Bucket: 'cloudfront-***REMOVED***', /* required */
+        Enabled: true, /* required */
+        IncludeCookies: false, /* required */
+        Prefix: cname /* required */
       };
     }
 

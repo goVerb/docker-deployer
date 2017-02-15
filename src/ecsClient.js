@@ -98,15 +98,15 @@ class EcsClient extends BaseClient {
     return this.getServiceArn(clusterName, serviceName).then(serviceArn => {
       if(serviceArn) {
         this.logMessage(`Service already exists.  Updating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}] [ServiceArn: ${serviceArn}]`);
-        this._updateService(clusterName, serviceName, taskDefinition, desiredCount);
+        return this._updateService(clusterName, serviceName, taskDefinition, desiredCount);
       } else {
         this.logMessage(`Service does not exists.  Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
-        this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+        return this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
       }
     }).catch(err => {
       if (err.code === 'ClusterNotFoundException') {
         this.logMessage(`Service does not exists.  Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
-        this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+        return this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
       }
     });
 

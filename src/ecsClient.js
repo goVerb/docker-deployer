@@ -33,7 +33,12 @@ class EcsClient extends BaseClient {
       if(!clusterArn) {
         return this._createCluster(clusterName);
       } else {
-        this.logMessage(`Cluster already exist.  No action taken. [ClusterName: ${clusterName}] [ClusterArn: ${clusterArn}]`);
+        this.logMessage(`Cluster already exists.  No action taken. [ClusterName: ${clusterName}] [ClusterArn: ${clusterArn}]`);
+      }
+    }).catch(err => {
+      if (err.code === 'ClusterNotFoundException') {
+        this.logMessage(`Cluster does not exist.  Creating Cluster. [ClusterName: ${clusterName}]`);
+        return this._createCluster(clusterName);
       }
     });
   }

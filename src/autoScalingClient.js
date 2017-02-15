@@ -31,15 +31,13 @@ class AutoScalingClient extends BaseClient {
   /**
    *
    * @param launchConfigurationConfig
-   * {
-   *     name: <Name of the launch configuration>,
-   *     baseImageId: <ImageId that will be the base AMI for the EC2 instances>,
-   *     securityGroupId: <id of the security group to be applied to the EC2 instances>,
-   *     instanceType: <Instance type that will be used for the EC2 instances,
-   *     sshKeyName: (Optional) SSH Key associated with the EC2 instances
-   *     ecsClusterName: (Optional) <This is the ECS cluster that will be associated with the launch configuration>
-   *   }
-   * @return {Promise.<TResult>|*}
+   * @param launchConfigurationConfig.name Name of the launch configuration
+   * @param launchConfigurationConfig.baseImageId ImageId that will be the base AMI for the EC2 instances
+   * @param launchConfigurationConfig.securityGroupId id of the security group to be applied to the EC2 instances
+   * @param launchConfigurationConfig.instanceType Instance type that will be used for the EC2 instances
+   * @param launchConfigurationConfig.sshKeyName (Optional) SSH Key associated with the EC2 instances
+   * @param launchConfigurationConfig.ecsClusterName (Optional) <This is the ECS cluster that will be associated with the launch configuration
+   * @return {Promise.<TResult>}
    */
   createLaunchConfigurationFromConfig(launchConfigurationConfig) {
     return this.getLaunchConfigurationArn(launchConfigurationConfig.name).then(launchConfigurationArn => {

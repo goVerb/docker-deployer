@@ -93,10 +93,11 @@ class ElbClient extends BaseClient {
         this.logMessage(`TargetGroup already exist. No action taken. [TargetGroupName: ${name}] [TargetGroupArn: ${targetGroupArn}]`);
       }
     }).catch(err => {
-      this.logMessage(`TargetGroup does not exist.  Creating TargetGroup. [TargetGroupName: ${name}]`);
-      return this._createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      if (err.code === 'TargetGroupNotFound') {
+        this.logMessage(`TargetGroup does not exist.  Creating TargetGroup. [TargetGroupName: ${name}]`);
+        return this._createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      }
     });
-
   }
 
   /**

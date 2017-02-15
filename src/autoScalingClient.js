@@ -26,7 +26,7 @@ class AutoScalingClient extends BaseClient {
     return this._internalAutoScalingClient;
   }
 
-  //TODO: Create a createOrUpdate method for AutoScalingGroup and LaunchConfiguration
+  //TODO: [https://go***REMOVED***.atlassian.net/browse/***REMOVED***-445] Create a createOrUpdate method for AutoScalingGroup and LaunchConfiguration
 
   /**
    *

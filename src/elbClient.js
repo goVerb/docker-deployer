@@ -44,7 +44,7 @@ class ElbClient extends BaseClient {
         this.logMessage(`Application Load Balancer does not exist.  Creating TargetGroup. [AppLoadBalancerName: ${appElbName}]`);
         return this._createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds);
       }
-    })
+    });
   }
 
   /**

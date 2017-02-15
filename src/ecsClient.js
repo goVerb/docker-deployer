@@ -98,7 +98,15 @@ class EcsClient extends BaseClient {
         this.logMessage(`Service does not exists.  Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
         this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
       }
+    }).catch(err => {
+      if (err.code === 'ClusterNotFoundException') {
+        this.logMessage(`Service does not exists.  Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
+        this._createService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+      }
     });
+
+
+
   }
 
   /**

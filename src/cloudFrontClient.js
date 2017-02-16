@@ -216,7 +216,7 @@ class CloudFrontClient extends BaseClient {
     }
 
     // Logging
-    if(enableLogging !== distribution.DistributionConfig.Logging.enabled) {
+    if(Boolean(enableLogging) !== distribution.DistributionConfig.Logging.Enabled) {
       return true;
     }
 

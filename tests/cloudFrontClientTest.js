@@ -894,7 +894,7 @@ describe('CloudFront Client', function() {
       return resultPromise.then(() => {
         const params = awsCloudFrontServiceMock.createDistribution.args[0][0];
         expect(params.DistributionConfig.Logging).to.deep.equal({
-          Bucket: 'cloudfront-***REMOVED***.s3-website-us-west-2.amazonaws.com', /* required */
+          Bucket: 'cloudfront-***REMOVED***.s3.amazonaws.com', /* required */
           Enabled: true, /* required */
           IncludeCookies: false, /* required */
           Prefix: 'test.example.com' /* required */

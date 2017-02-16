@@ -424,7 +424,7 @@ class CloudFrontClient extends BaseClient {
     }
     if(enableLogging) {
       cloudFrontParams.DistributionConfig.Logging = {
-        Bucket: 'cloudfront-***REMOVED***', /* required */
+        Bucket: 'cloudfront-***REMOVED***.s3-website-us-west-2.amazonaws.com', /* required */
         Enabled: true, /* required */
         IncludeCookies: false, /* required */
         Prefix: cname /* required */

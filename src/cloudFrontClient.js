@@ -243,9 +243,11 @@ class CloudFrontClient extends BaseClient {
             },
             QueryString: queryString, /* required */
             Headers: {
-              Quantity: 4, /* required */
+              Quantity: 6, /* required */
               Items: [
                 'x-***REMOVED***-version',
+                'x-***REMOVED***-session',
+                'x-***REMOVED***-correlation',
                 'x-***REMOVED***-test',
                 'Content-Type',
                 'authorization'

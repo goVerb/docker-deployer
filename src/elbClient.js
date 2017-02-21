@@ -294,6 +294,8 @@ class ElbClient extends BaseClient {
         this.logMessage(`Found Application Load Balancer with matching name. [Name: ${loadBalancerName}]`);
         returnObject.DNSName = result.LoadBalancers[0].DNSName;
         returnObject.CanonicalHostedZoneId = result.LoadBalancers[0].CanonicalHostedZoneId;
+      } else {
+        this.logMessage(`NOT FOUND - Application Load Balancer with matching name. [Name: ${loadBalancerName}] [Results: ${JSON.stringify(result)}]`);
       }
 
       return returnObject;
@@ -405,6 +407,7 @@ class ElbClient extends BaseClient {
         return matchingEntry[0].ListenerArn;
       }
       else {
+        this.logMessage(`ListenerArn not found. [Arn: ${applicationLoadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
         return '';
       }
     });

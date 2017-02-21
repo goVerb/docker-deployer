@@ -186,6 +186,9 @@ class Route53Client extends BaseClient {
     return this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName).then(results => {
       let hasChanged = false;
 
+      const parsedExpectedAliasHostedZoneId = expectedAliasHostedZoneId.replace('/hostedzone/','');
+      this.logMessage(`ParsedExpectedAliasHostedZoneId: ${parsedExpectedAliasHostedZoneId}`);
+
       let foundARecord = false;
       let foundAAAARecord = false;
       results.forEach(item => {
@@ -197,15 +200,39 @@ class Route53Client extends BaseClient {
 
         if(item.Type === 'A') {
 
-          hasChanged = (item.AliasTarget.HostedZoneId !== expectedAliasHostedZoneId ||
-            item.AliasTarget.EvaluateTargetHealth !== false ||
-            !item.AliasTarget.DNSName.startsWith(currentParameters.dnsName));
+          if(item.AliasTarget.HostedZoneId !== parsedExpectedAliasHostedZoneId) {
+            this.logMessage(`A Record hostedZoneId has changed. [ExistingValue: ${item.AliasTarget.HostedZoneId}] [NewValue: ${parsedExpectedAliasHostedZoneId}]`);
+            hasChanged = true;
+          }
+
+          if(item.AliasTarget.EvaluateTargetHealth !== false) {
+            this.logMessage(`A Record EvaluateTargetHealth has changed. [ExistingValue: ${item.AliasTarget.EvaluateTargetHealth}] [NewValue: ${false}]`);
+            hasChanged = true;
+          }
+
+          if(!item.AliasTarget.DNSName.startsWith(currentParameters.dnsName)) {
+            this.logMessage(`A Record DNSName has changed. [ExistingValue: ${item.AliasTarget.DNSName}] [NewValue: ${currentParameters.dnsName}]`);
+            hasChanged = true;
+          }
+
           foundARecord = true;
         } else if (item.Type === 'AAAA') {
 
-          hasChanged = item.AliasTarget.HostedZoneId !== expectedAliasHostedZoneId ||
-            item.AliasTarget.EvaluateTargetHealth !== false ||
-            !item.AliasTarget.DNSName.startsWith(currentParameters.dnsName);
+          if(item.AliasTarget.HostedZoneId !== parsedExpectedAliasHostedZoneId) {
+            this.logMessage(`AAAA Record hostedZoneId has changed. [ExistingValue: ${item.AliasTarget.HostedZoneId}] [NewValue: ${parsedExpectedAliasHostedZoneId}]`);
+            hasChanged = true;
+          }
+
+          if(item.AliasTarget.EvaluateTargetHealth !== false) {
+            this.logMessage(`AAAA Record EvaluateTargetHealth has changed. [ExistingValue: ${item.AliasTarget.EvaluateTargetHealth}] [NewValue: ${false}]`);
+            hasChanged = true;
+          }
+
+          if(!item.AliasTarget.DNSName.startsWith(currentParameters.dnsName)) {
+            this.logMessage(`AAAA Record DNSName has changed. [ExistingValue: ${item.AliasTarget.DNSName}] [NewValue: ${currentParameters.dnsName}]`);
+            hasChanged = true;
+          }
+
           foundAAAARecord = true;
         } else {
           hasChanged = true;

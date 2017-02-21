@@ -35,54 +35,66 @@ class Route53Client extends BaseClient {
 
     //get hostedZoneID from domainName
     return this._getHostedZoneIdFromDomainName(domainName).then(domainHostedZoneId => {
-      let params = {
-        HostedZoneId: domainHostedZoneId,
-        ChangeBatch: {
-          Changes: [
-            {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Name: domainName,
-                Type: 'A',
-                AliasTarget: {
-                  DNSName: dnsName,
-                  EvaluateTargetHealth: false,
-                  HostedZoneId: hostedZoneId
-                }
-              }
-            },
-            {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Name: domainName,
-                Type: 'AAAA',
-                AliasTarget: {
-                  DNSName: dnsName,
-                  EvaluateTargetHealth: false,
-                  HostedZoneId: hostedZoneId
-                }
-              }
-            }
-          ]
+
+      //check if any changes
+      let parameters = {
+        domainName: domainName,
+        dnsName: dnsName,
+        domainHostedZoneId: domainHostedZoneId
+      };
+      return this._hasResourceRecordSetChanged(parameters, hostedZoneId).then(result => {
+        if (!result) {
+          this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
+          return BlueBirdPromise.resolve();
         }
-      };
+        let params = {
+          HostedZoneId: domainHostedZoneId,
+          ChangeBatch: {
+            Changes: [
+              {
+                Action: 'UPSERT',
+                ResourceRecordSet: {
+                  Name: domainName,
+                  Type: 'A',
+                  AliasTarget: {
+                    DNSName: dnsName,
+                    EvaluateTargetHealth: false,
+                    HostedZoneId: hostedZoneId
+                  }
+                }
+              },
+              {
+                Action: 'UPSERT',
+                ResourceRecordSet: {
+                  Name: domainName,
+                  Type: 'AAAA',
+                  AliasTarget: {
+                    DNSName: dnsName,
+                    EvaluateTargetHealth: false,
+                    HostedZoneId: hostedZoneId
+                  }
+                }
+              }
+            ]
+          }
+        };
 
-      this.logMessage(`Associating Domain with Application Load Balancer. [DomainName: ${domainName}]`);
-      return this._awsRoute53Client.changeResourceRecordSets(params).promise();
-    }).then(result => {
-      this.logMessage(`Result: ${JSON.stringify(result)}`);
-      let params = {
-        Id: result.ChangeInfo.Id
-      };
+        this.logMessage(`Associating Domain with Application Load Balancer. [DomainName: ${domainName}]`);
+        return this._awsRoute53Client.changeResourceRecordSets(params).promise().then(result => {
+          this.logMessage(`Result: ${JSON.stringify(result)}`);
+          let params = {
+            Id: result.ChangeInfo.Id
+          };
 
-      this.logMessage('Waiting for Route53 change to propagate');
-      return this._awsRoute53Client.waitFor('resourceRecordSetsChanged', params).promise();
-    }).then(() => {
-      this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
+          this.logMessage('Waiting for Route53 change to propagate');
+          return this._awsRoute53Client.waitFor('resourceRecordSetsChanged', params).promise();
+        }).then(() => {
+          this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
+        });
+      });
     });
-
   }
-  
+
   /**
    *
    * @param domainName
@@ -91,58 +103,147 @@ class Route53Client extends BaseClient {
    * @return {Promise.<TResult>}
    */
   associateDomainWithCloudFront(domainName, cloudFrontDNSName) {
-    
+
     // This is a hardcoded AWS CloudFront Value
     const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 
     //get hostedZoneID from domainName
     return this._getHostedZoneIdFromDomainName(domainName).then(domainHostedZoneId => {
-      let params = {
-        HostedZoneId: domainHostedZoneId,
-        ChangeBatch: {
-          Changes: [
-            {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Name: domainName,
-                Type: 'A',
-                AliasTarget: {
-                  DNSName: cloudFrontDNSName,
-                  EvaluateTargetHealth: false,
-                  HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
-                }
-              }
-            },
-            {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Name: domainName,
-                Type: 'AAAA',
-                AliasTarget: {
-                  DNSName: cloudFrontDNSName,
-                  EvaluateTargetHealth: false,
-                  HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
-                }
-              }
-            }
-          ]
+
+      //check if any changes
+      let parameters = {
+        domainName: domainName,
+        dnsName: cloudFrontDNSName,
+        domainHostedZoneId: domainHostedZoneId
+      };
+      return this._hasResourceRecordSetChanged(parameters, CLOUDFRONT_HOSTED_ZONE_ID).then(result => {
+        if (!result) {
+          this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
+          return BlueBirdPromise.resolve();
         }
-      };
 
-      this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}]`);
-      return this._awsRoute53Client.changeResourceRecordSets(params).promise();
-    }).then(result => {
-      this.logMessage(`Result: ${JSON.stringify(result)}`);
-      let params = {
-        Id: result.ChangeInfo.Id
-      };
+        let params = {
+          HostedZoneId: domainHostedZoneId,
+          ChangeBatch: {
+            Changes: [
+              {
+                Action: 'UPSERT',
+                ResourceRecordSet: {
+                  Name: domainName,
+                  Type: 'A',
+                  AliasTarget: {
+                    DNSName: cloudFrontDNSName,
+                    EvaluateTargetHealth: false,
+                    HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
+                  }
+                }
+              },
+              {
+                Action: 'UPSERT',
+                ResourceRecordSet: {
+                  Name: domainName,
+                  Type: 'AAAA',
+                  AliasTarget: {
+                    DNSName: cloudFrontDNSName,
+                    EvaluateTargetHealth: false,
+                    HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
+                  }
+                }
+              }
+            ]
+          }
+        };
 
-      this.logMessage('Waiting for Route53 change to propagate');
-      return this._awsRoute53Client.waitFor('resourceRecordSetsChanged', params).promise();
-    }).then(() => {
-      this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
+        this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}]`);
+        return this._awsRoute53Client.changeResourceRecordSets(params).promise().then(result => {
+          this.logMessage(`Result: ${JSON.stringify(result)}`);
+          let params = {
+            Id: result.ChangeInfo.Id
+          };
+
+          this.logMessage('Waiting for Route53 change to propagate');
+          return this._awsRoute53Client.waitFor('resourceRecordSetsChanged', params).promise();
+        }).then(() => {
+          this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
+        });
+      });
     });
 
+  }
+
+  /**
+   *
+   * @param currentParameters
+   * @param currentParameters.domainName
+   * @param currentParameters.dnsName
+   * @param currentParameters.domainNameHostedZoneId
+   * @return {Promise.<bool>}
+   * @private
+   */
+  _hasResourceRecordSetChanged(currentParameters, expectedAliasHostedZoneId) {
+
+    return this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName).then(results => {
+      let hasChanged = false;
+
+      let foundARecord = false;
+      let foundAAAARecord = false;
+      results.forEach(item => {
+
+        //break if the true condition is met
+        if(hasChanged) {
+          return;
+        }
+
+        if(item.Type === 'A') {
+
+          hasChanged = (item.AliasTarget.HostedZoneId !== expectedAliasHostedZoneId ||
+            item.AliasTarget.EvaluateTargetHealth !== false ||
+            !item.AliasTarget.DNSName.startsWith(currentParameters.dnsName));
+          foundARecord = true;
+        } else if (item.Type === 'AAAA') {
+
+          hasChanged = item.AliasTarget.HostedZoneId !== expectedAliasHostedZoneId ||
+            item.AliasTarget.EvaluateTargetHealth !== false ||
+            !item.AliasTarget.DNSName.startsWith(currentParameters.dnsName);
+          foundAAAARecord = true;
+        } else {
+          hasChanged = true;
+        }
+      });
+
+      if(!foundARecord || !foundAAAARecord) {
+        hasChanged = true;
+      }
+
+
+      console.log(hasChanged);
+      return hasChanged;
+    });
+
+  }
+
+  /**
+   *
+   * @param hostedZoneId
+   * @param dnsName
+   * @return {Promise.<TResult>}
+   * @private
+   */
+  _getResourceRecordSetsByName(hostedZoneId, dnsName) {
+    this.logMessage(`Starting _getResourceRecordSetsByName. [HostedZoneId: ${hostedZoneId}] [DnsName: ${dnsName}]`);
+    const params = {
+      HostedZoneId: hostedZoneId,
+      StartRecordName: dnsName
+    };
+
+    const resultPromise = this._awsRoute53Client.listResourceRecordSets(params).promise();
+
+    return resultPromise.then(results => {
+      console.log(results);
+      return __.filter(results.ResourceRecordSets, (item) => {
+        return __.get(item, 'Name', '').toLocaleUpperCase() === `${dnsName.toLocaleUpperCase()}.`;
+      });
+    });
   }
 
   /**

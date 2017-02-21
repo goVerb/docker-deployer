@@ -32,6 +32,7 @@ class Route53Client extends BaseClient {
    * @return {Promise.<TResult>}
    */
   associateDomainWithApplicationLoadBalancer(domainName, dnsName, hostedZoneId) {
+    this.logMessage(`Starting associateDomainWithApplicationLoadBalancer. [DomainName: ${domainName}] [DNSName: ${dnsName}] [HostedZoneId: ${hostedZoneId}]`);
 
     //get hostedZoneID from domainName
     return this._getHostedZoneIdFromDomainName(domainName).then(domainHostedZoneId => {
@@ -239,7 +240,7 @@ class Route53Client extends BaseClient {
     const resultPromise = this._awsRoute53Client.listResourceRecordSets(params).promise();
 
     return resultPromise.then(results => {
-      console.log(results);
+      this.logMessage(`_getResourceRecordSetsByName Results: ${JSON.stringify(results)}`);
       return __.filter(results.ResourceRecordSets, (item) => {
         return __.get(item, 'Name', '').toLocaleUpperCase() === `${dnsName.toLocaleUpperCase()}.`;
       });
@@ -253,6 +254,7 @@ class Route53Client extends BaseClient {
    * @private
    */
   _getHostedZoneIdFromDomainName(domainName) {
+    this.logMessage(`Starting _getHostedZoneIdFromDomainName. [DomainName: ${domainName}]`);
 
     let parsedHostName = this._getHostedZoneNameFromDomainName(domainName);
     let params = {};
@@ -261,6 +263,7 @@ class Route53Client extends BaseClient {
 
     this.logMessage(`Looking up HostedZones by Name. [ParsedHostName: ${parsedHostName}]`);
     return listHostedZonesByNamePromise.then(result => {
+      this.logMessage(`Looking up HostedZones by Name. [Results: ${JSON.stringify(result)}]`);
       let resultHostedZoneId = '';
       if(result && result.HostedZones && result.HostedZones.length > 0) {
         //find hostedZones that match the

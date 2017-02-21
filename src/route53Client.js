@@ -41,7 +41,7 @@ class Route53Client extends BaseClient {
       let parameters = {
         domainName: domainName,
         dnsName: dnsName,
-        domainHostedZoneId: domainHostedZoneId
+        domainNameHostedZoneId: domainHostedZoneId
       };
       return this._hasResourceRecordSetChanged(parameters, hostedZoneId).then(result => {
         if (!result) {
@@ -115,7 +115,7 @@ class Route53Client extends BaseClient {
       let parameters = {
         domainName: domainName,
         dnsName: cloudFrontDNSName,
-        domainHostedZoneId: domainHostedZoneId
+        domainNameHostedZoneId: domainHostedZoneId
       };
       return this._hasResourceRecordSetChanged(parameters, CLOUDFRONT_HOSTED_ZONE_ID).then(result => {
         if (!result) {

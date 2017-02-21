@@ -433,6 +433,55 @@ describe('Route53 Client', function () {
 
     });
 
+    it('should pass _getHostedZoneIdFromDomainName result to _hasResourceRecordSetChanged', () => {
+      //Arrange
+      let changeResourceRecordSetsResponse = {
+        ChangeInfo: {
+          Id: '/change/C1NA97N1YR2S8Q',
+          Status: 'PENDING',
+          SubmittedAt: '2016-12-16T17:42:11.592Z'
+        }
+      };
+
+      //setting up route53Client Mock
+      let awsRoute53Mock = {
+        changeResourceRecordSets: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => {} })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        Route53: () => {
+          return awsRoute53Mock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      const domainName = 'apple.dev-internal.***REMOVED***.net';
+
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53();
+
+      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
+
+      //Act
+      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(route53ClientService._hasResourceRecordSetChanged.args[0][0]).to.have.property('domainNameHostedZoneId', 'APPLESAUCE');
+      });
+
+    });
+
     it('should pass pass 2 Changes to changeResourceRecordSet', () => {
       //Arrange
       let changeResourceRecordSetsResponse = {
@@ -802,6 +851,55 @@ describe('Route53 Client', function () {
       //Assert
       return resultPromise.then(() => {
         expect(awsRoute53Mock.changeResourceRecordSets.callCount).to.be.equal(0);
+      });
+
+    });
+
+    it('should pass _getHostedZoneIdFromDomainName result to _hasResourceRecordSetChanged', () => {
+      //Arrange
+      let changeResourceRecordSetsResponse = {
+        ChangeInfo: {
+          Id: '/change/C1NA97N1YR2S8Q',
+          Status: 'PENDING',
+          SubmittedAt: '2016-12-16T17:42:11.592Z'
+        }
+      };
+
+      //setting up route53Client Mock
+      let awsRoute53Mock = {
+        changeResourceRecordSets: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => {} })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        Route53: () => {
+          return awsRoute53Mock;
+        }
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+
+      const domainName = 'apple.dev-internal.***REMOVED***.net';
+
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53();
+
+      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
+
+      //Act
+      let resultPromise = route53ClientService.associateDomainWithCloudFront(domainName);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(route53ClientService._hasResourceRecordSetChanged.args[0][0]).to.have.property('domainNameHostedZoneId', 'APPLESAUCE');
       });
 
     });

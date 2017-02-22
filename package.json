@@ -1,6 +1,6 @@
 {
   "name": "@go***REMOVED***/docker-deployer",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "docker deployer utils",
   "main": "build/index.js",
   "scripts": {

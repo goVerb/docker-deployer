@@ -210,8 +210,11 @@ class Route53Client extends BaseClient {
             hasChanged = true;
           }
 
-          if(!item.AliasTarget.DNSName.startsWith(currentParameters.dnsName)) {
-            this.logMessage(`A Record DNSName has changed. [ExistingValue: ${item.AliasTarget.DNSName}] [NewValue: ${currentParameters.dnsName}]`);
+          let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
+          let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
+
+          if(!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
+            this.logMessage(`A Record DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}]`);
             hasChanged = true;
           }
 
@@ -228,8 +231,11 @@ class Route53Client extends BaseClient {
             hasChanged = true;
           }
 
-          if(!item.AliasTarget.DNSName.startsWith(currentParameters.dnsName)) {
-            this.logMessage(`AAAA Record DNSName has changed. [ExistingValue: ${item.AliasTarget.DNSName}] [NewValue: ${currentParameters.dnsName}]`);
+          let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
+          let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
+
+          if(!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
+            this.logMessage(`AAAA Record DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}]`);
             hasChanged = true;
           }
 

@@ -1654,6 +1654,106 @@ describe('Route53 Client', function () {
       });
     });
 
+    it('should return false if A record item.AliasTarget.DNSName doesnt startWith currentparameters.dnsname and has different casing', () => {
+      //Arrange
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53();
+
+      const results = [
+        {
+          "Name": "dev.***REMOVED***.net.",
+          "Type": "A",
+          "ResourceRecords": [
+
+          ],
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "***REMOVED***-ecs-app-load-balancer-dev-840139107.us-west-2.elb.amazonaws.com.",
+            "EvaluateTargetHealth": false
+          }
+        },
+        {
+          "Name": "dev.***REMOVED***.net.",
+          "Type": "AAAA",
+          "ResourceRecords": [
+
+          ],
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
+            "EvaluateTargetHealth": false
+          }
+        }];
+
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
+
+      const currentParameters = {
+        domainName: 'dev.***REMOVED***.net',
+        dnsName: '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
+        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+      };
+      const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
+
+      //Act
+      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+
+
+      //Assert
+      return resultPromise.then(result => {
+        expect(result).to.be.false;
+      });
+    });
+
+    it('should return false if AAAA record item.AliasTarget.DNSName startWith currentparameters.dnsname and has different casing', () => {
+      //Arrange
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53();
+
+      const results = [
+        {
+          "Name": "dev.***REMOVED***.net.",
+          "Type": "A",
+          "ResourceRecords": [
+
+          ],
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com.',
+            "EvaluateTargetHealth": false
+          }
+        },
+        {
+          "Name": "dev.***REMOVED***.net.",
+          "Type": "AAAA",
+          "ResourceRecords": [
+
+          ],
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "***REMOVED***-ecs-app-load-balancer-dev-840139107.us-west-2.elb.amazonaws.com.",
+            "EvaluateTargetHealth": false
+          }
+        }];
+
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
+
+      const currentParameters = {
+        domainName: 'dev.***REMOVED***.net',
+        dnsName: '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
+        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+      };
+      const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
+
+      //Act
+      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+
+
+      //Assert
+      return resultPromise.then(result => {
+        expect(result).to.be.false;
+      });
+    });
+
     it('should return true if A record item.AliasTarget.EvaluateTargetHealth returns true', () => {
       //Arrange
       const Route53 = require('../src/route53Client');

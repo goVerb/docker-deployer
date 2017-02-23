@@ -179,6 +179,7 @@ describe('VPC Client', function() {
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
       //Act
@@ -225,6 +226,7 @@ describe('VPC Client', function() {
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
       //Act
@@ -271,6 +273,7 @@ describe('VPC Client', function() {
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves(existingVpcId);
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -316,7 +319,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
       //Act
@@ -365,6 +369,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -415,6 +421,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -462,6 +470,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -515,6 +525,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -562,6 +574,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -610,6 +624,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -658,6 +674,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -708,6 +726,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -757,7 +777,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
       //Act
@@ -808,6 +829,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -857,6 +880,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -907,6 +932,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -956,6 +983,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -1006,6 +1035,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
 
@@ -1059,6 +1090,7 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
@@ -1109,6 +1141,7 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
@@ -1159,7 +1192,8 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
 
 
       //Act

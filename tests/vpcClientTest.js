@@ -12,9 +12,7 @@ chai.use(chaiAsPromised);
 
 
 
-
 describe('VPC Client', function() {
-  this.timeout(10000);
   let sandbox;
 
   beforeEach(() => {
@@ -180,7 +178,7 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
 
 
       //Act
@@ -226,7 +224,7 @@ describe('VPC Client', function() {
       vpcClientService.createRouteTable = sandbox.stub().resolves({});
       vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
 
 
       //Act

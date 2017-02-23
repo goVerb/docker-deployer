@@ -237,6 +237,53 @@ describe('VPC Client', function() {
       });
     });
 
+    it('should return vpcId to getRouteTableByVpcId if vpc already exists', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let existingVpcId = 'vpc-test123';
+
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves(existingVpcId);
+      vpcClientService.createVpc = sandbox.stub().resolves({});
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves(existingVpcId);
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(foundVpcId => {
+        expect(vpcClientService.getRouteTableByVpcId.args[0][0]).to.be.equal(existingVpcId);
+      });
+    });
+
     it('should pass config.name, environment, and config.cidrBlock to createVpc', () => {
       //Arrange
 
@@ -972,6 +1019,110 @@ describe('VPC Client', function() {
       });
     });
 
+    it('should call createOrUpdatePeeringConnection if config contains a peering connection id and destinationCidrBlock', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ],
+        peeringConnection: { // obtained from mLab when creating the dedicated database instance
+          id: 'sofake',
+          destinationCidrBlock: '0.0.0.0/0'
+        }
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createOrUpdatePeeringConnection.callCount).to.be.equal(1);
+      });
+    });
+
+    it('should NOT call createOrUpdatePeeringConnection if config contains no peering connection id and destinationCidrBlock', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let createdInternetGatewayId = 'igw-abc123test';
+      let createdRouteTableId = 'rtb-123abc';
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
+
+
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createOrUpdatePeeringConnection.callCount).to.be.equal(0);
+      });
+    });
+
     it('should return newly created vpcId', () => {
       //Arrange
 
@@ -1674,6 +1825,192 @@ describe('VPC Client', function() {
     });
 
     it('should return empty string if no vpc is found', () => {
+      //Arrange
+
+      const vpcName = 'MyVPC';
+      let describeVpcsResponse = {
+        Vpcs: [ ]
+      };
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      //Act
+      let resultPromise = vpcClientService.getVpcIdFromName(vpcName);
+
+      //Assert
+      return resultPromise.then(foundVpcId => {
+
+        expect(foundVpcId).to.be.equal('');
+      });
+    });
+  });
+
+  describe('getRouteTableByVpcId', () => {
+    it('should pass vpcId to describeRouteTables method', () => {
+      //Arrange
+
+      const vpcId = 'MyVPC';
+      let describeVpcsResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      //Act
+      let resultPromise = vpcClientService.getRouteTableByVpcId(vpcId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.describeRouteTables.args[0][0];
+
+        expect(params).to.have.property('Filters');
+        expect(params.Filters).to.be.array;
+        expect(params.Filters[0]).to.have.property('Values');
+        expect(params.Filters[0].Name).to.be.equal('vpc-id');
+        expect(params.Filters[0].Values).to.be.array
+        expect(params.Filters[0].Values.length).to.be.equal(1);
+        expect(params.Filters[0].Values[0]).to.be.equal(vpcId);
+      });
+    });
+
+    it('should pass DryRun=false to describeRouteTables method', () => {
+      //Arrange
+
+      const vpcName = 'MyVPC';
+      let describeVpcsResponse = {
+        Vpcs: [
+          {
+            CidrBlock: "10.0.0.0/16",
+            DhcpOptionsId: "dopt-7a8b9c2d",
+            InstanceTenancy: "default",
+            IsDefault: false,
+            State: "available",
+            Tags: [
+              {
+                Key: "Name",
+                Value: vpcName
+              }
+            ],
+            VpcId: "vpc-a01106c2"
+          }
+        ]
+      };
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      //Act
+      let resultPromise = vpcClientService.getVpcIdFromName(vpcName);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.describeVpcs.args[0][0];
+
+        expect(params).to.have.property('DryRun', false);
+      });
+    });
+
+    it('should return routeTableId if routeTable is found', () => {
+      //Arrange
+
+      const vpcName = 'MyVPC';
+      let describeVpcsResponse = {
+        Vpcs: [
+          {
+            CidrBlock: "10.0.0.0/16",
+            DhcpOptionsId: "dopt-7a8b9c2d",
+            InstanceTenancy: "default",
+            IsDefault: false,
+            State: "available",
+            Tags: [
+              {
+                Key: "Name",
+                Value: vpcName
+              }
+            ],
+            VpcId: "vpc-a01106c2"
+          }
+        ]
+      };
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      //Act
+      let resultPromise = vpcClientService.getVpcIdFromName(vpcName);
+
+      //Assert
+      return resultPromise.then(foundVpcId => {
+
+        expect(foundVpcId).to.be.equal(describeVpcsResponse.Vpcs[0].VpcId);
+      });
+    });
+
+    it('should return empty string if no routeTable is found', () => {
       //Arrange
 
       const vpcName = 'MyVPC';
@@ -4708,6 +5045,245 @@ describe('VPC Client', function() {
         let nameTag = __.filter(params.Tags, {Key: 'Name'});
         expect(nameTag[0]).to.have.property('Key', 'Name');
         expect(nameTag[0]).to.have.property('Value', 'value1');
+      });
+    });
+  });
+
+  describe('_describeRouteTables', () => {
+    it('should pass peeringConnectionId to describeRouteTables method', () => {
+      //Arrange
+
+      let describeRouteTablesResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      const testPeeringConnectionId = 'testPeeringConnectionId';
+      const testRouteTableId = 'testRouteTableId';
+
+      //Act
+      let resultPromise = vpcClientService._describeRouteTables(testPeeringConnectionId, testRouteTableId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.describeRouteTables.args[0][0];
+
+        expect(params.DryRun).to.be.false;
+        expect(params.Filters[0].Values[0]).to.be.equal(testPeeringConnectionId);
+      });
+    });
+
+    it('should pass testRouteTableId to describeRouteTables method', () => {
+      //Arrange
+
+      let describeRouteTablesResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      const testPeeringConnectionId = 'testPeeringConnectionId';
+      const testRouteTableId = 'testRouteTableId';
+
+      //Act
+      let resultPromise = vpcClientService._describeRouteTables(testPeeringConnectionId, testRouteTableId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.describeRouteTables.args[0][0];
+
+        expect(params.DryRun).to.be.false;
+        expect(params.RouteTableIds[0]).to.be.equal(testRouteTableId);
+      });
+    });
+  });
+
+  describe('_acceptVpcPeeringConnection', () => {
+    it('should pass peeringConnectionId to acceptVpcPeeringConnection method', () => {
+      //Arrange
+
+      let acceptVpcPeeringConnectionResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        acceptVpcPeeringConnection: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(acceptVpcPeeringConnectionResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      const testPeeringConnectionId = 'testPeeringConnectionId';
+
+      //Act
+      let resultPromise = vpcClientService._acceptVpcPeeringConnection(testPeeringConnectionId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.acceptVpcPeeringConnection.args[0][0];
+
+        expect(params.DryRun).to.be.false;
+        expect(params.VpcPeeringConnectionId).to.be.equal(testPeeringConnectionId);
+      });
+    });
+  });
+
+  describe('_createRoute', () => {
+    it('should pass DestinationCidrBlock to createRoute method', () => {
+      //Arrange
+
+      let createRouteResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      const testDestinationCidrBlock = 'testDestinationCidrBlock';
+      const testRouteTableId = 'testRouteTableId';
+      const testVpcPeeringConnectionId = 'testVpcPeeringConnectionId';
+
+      //Act
+      let resultPromise = vpcClientService._createRoute(testDestinationCidrBlock, testRouteTableId, testVpcPeeringConnectionId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.createRoute.args[0][0];
+
+        expect(params.DestinationCidrBlock).to.be.equal(testDestinationCidrBlock);
+      });
+    });
+
+    it('should pass RouteTableId to createRoute method', () => {
+      //Arrange
+
+      let createRouteResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      const testDestinationCidrBlock = 'testDestinationCidrBlock';
+      const testRouteTableId = 'testRouteTableId';
+      const testVpcPeeringConnectionId = 'testVpcPeeringConnectionId';
+
+      //Act
+      let resultPromise = vpcClientService._createRoute(testDestinationCidrBlock, testRouteTableId, testVpcPeeringConnectionId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.createRoute.args[0][0];
+
+        expect(params.RouteTableId).to.be.equal(testRouteTableId);
+      });
+    });
+
+    it('should pass VpcPeeringConnectionId to createRoute method', () => {
+      //Arrange
+
+      let createRouteResponse = {};
+
+      //setting up ec2Client Mock
+      let awsEc2ClientMock = {
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+      };
+
+      mockery.registerMock('aws-sdk', {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: () => {
+          return awsEc2ClientMock;
+        }
+      });
+
+      //Setting up VPC clients
+      const VPC = require('../src/vpcClient');
+      const vpcClientService = new VPC();
+
+
+      const testDestinationCidrBlock = 'testDestinationCidrBlock';
+      const testRouteTableId = 'testRouteTableId';
+      const testVpcPeeringConnectionId = 'testVpcPeeringConnectionId';
+
+      //Act
+      let resultPromise = vpcClientService._createRoute(testDestinationCidrBlock, testRouteTableId, testVpcPeeringConnectionId);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsEc2ClientMock.createRoute.args[0][0];
+
+        expect(params.VpcPeeringConnectionId).to.be.equal(testVpcPeeringConnectionId);
       });
     });
   });

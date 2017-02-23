@@ -57,13 +57,15 @@ class VpcClient extends BaseClient {
   createVpcFromConfig(environment, config) {
     this.logMessage(`Executing createVpcFromConfig. [Environment: ${environment}] [Config: ${JSON.stringify(config)}]`);
 
+    let vpcId = '';
+    let routeTableId = '';
     return this.getVpcIdFromName(config.name).then(existingVpcId => {
       if(existingVpcId) {
         this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}] [ExistingVpcId: ${existingVpcId}]`);
-        return existingVpcId;
+        vpcId = existingVpcId;
+        return this.getRouteTableByVpcId(vpcId).then(existingRouteTableId => routeTableId = existingRouteTableId);
       }
       else {
-        let vpcId = '';
         let internetGatewayId = '';
         let subnetIds = [];
         let networkAclNameToIdLookup = {};
@@ -125,7 +127,7 @@ class VpcClient extends BaseClient {
           });
         }).then(() => {
           //Create Route Table and associate it with Subnets
-          let routeTableId = '';
+
 
           return this.createRouteTable(vpcId, `${config.name} - Route Table`, environment).then(createdRouteTableId => {
             routeTableId = createdRouteTableId;
@@ -134,7 +136,7 @@ class VpcClient extends BaseClient {
           }).then(() => {
             //associate subnets with route table
             let subnetAssociationPromises = [];
-            for(let subnetIndex = 0; subnetIndex < subnetIds.length; subnetIndex++) {
+            for (let subnetIndex = 0; subnetIndex < subnetIds.length; subnetIndex++) {
               subnetAssociationPromises.push(this.associateSubnetWithRouteTable(routeTableId, subnetIds[subnetIndex]));
             }
 
@@ -145,10 +147,74 @@ class VpcClient extends BaseClient {
           return vpcId;
         });
       }
+    }).then(() => {
+      // If DB peering destination provided, create peering connection and new route
+      if(__.has(config, 'peeringConnection.id') && __.has(config, 'peeringConnection.destinationCidrBlock')) {
+        return this.createOrUpdatePeeringConnection(config.peeringConnection.id, routeTableId, config.peeringConnection.destinationCidrBlock);
+      }
+    }).then(() => {
+      return vpcId;
     });
-
-
   }
+
+  /**
+   * Creates a VPC with a name and environment tag; returns vpcId
+   * @return Promise json object
+   * data = {
+       Vpc: {
+         CidrBlock: "10.0.0.0/16",
+         DhcpOptionsId: "dopt-7a8b9c2d",
+         InstanceTenancy: "default",
+         State: "pending",
+         VpcId: "vpc-a01106c2"
+       }
+     }
+   * @param peeringConnectionId
+   * @param routeTableId
+   * @param destinationCidrBlock Target range for the VPC, in CIDR notation. For example, 10.0.0.0/16
+   */
+  createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock) {
+    let params = {
+      DryRun: false,
+      Filters: [
+        {
+          Name: 'status-code',
+          Values: [
+            'pending-acceptance'
+          ]
+        }
+      ],
+      VpcPeeringConnectionIds: [
+        peeringConnectionId
+      ]
+    };
+
+    let describeVpcPeeringConnectionsPromise = this._awsEc2Client.describeVpcPeeringConnections(params).promise();
+
+    return describeVpcPeeringConnectionsPromise
+      .then(data => {
+        if(__.isEmpty(data.VpcPeeringConnections)) {
+          this.logMessage('No pending peering connections were found. No action taken.');
+        } else {
+          this.logMessage('Accepting peering connection request');
+          return this._acceptVpcPeeringConnection(peeringConnectionId);
+        }
+      }).then(() => {
+        this.logMessage(`Checking if route exists [id: ${routeTableId}]`);
+        return this._describeRouteTables(peeringConnectionId, routeTableId);
+      }).then(data => {
+        if(!__.isEmpty(data.RouteTables)) {
+          this.logMessage(`Route already exists. No action taken [RouteTableId: ${routeTableId}]`);
+        } else {
+          this.logMessage(`Route does not exist. Creating route [RouteTableId: ${routeTableId}]`);
+          return this._createRoute(destinationCidrBlock, routeTableId, peeringConnectionId);
+        }
+      }).catch(err => {
+        this.logMessage(`CreatePeeringConnectionError Error: ${JSON.stringify(err)}`);
+        throw err;
+      });
+  }
+
 
   /**
    * Creates a VPC with a name and environment tag; returns vpcId
@@ -223,6 +289,34 @@ class VpcClient extends BaseClient {
     return this._awsEc2Client.describeVpcs(params).promise().then(result => {
       if(result && result.Vpcs && result.Vpcs.length > 0) {
         return result.Vpcs[0].VpcId;
+      } else {
+        return '';
+      }
+    });
+  }
+
+  /**
+   * Returns the VpcId associated with the name
+   * @param name
+   * @return {Promise.<TResult>}
+   */
+  getRouteTableByVpcId(vpcId) {
+    var params = {
+      DryRun: false,
+      Filters: [
+        {
+          Name: 'vpc-id',
+          Values: [
+            vpcId
+          ]
+        }
+      ]
+    };
+
+    this.logMessage(`Looking up RouteTableId by vpcId. [vpcId: ${vpcId}]`);
+    return this._awsEc2Client.describeRouteTables(params).promise().then(result => {
+      if(result && result.RouteTables && result.RouteTables.length > 0) {
+        return result.RouteTables[0].RouteTableId;
       } else {
         return '';
       }
@@ -626,6 +720,65 @@ class VpcClient extends BaseClient {
     return this._awsEc2Client.createTags(createTagParams).promise();
   }
 
+
+  /**
+   *
+   * @param peeringConnectionId
+   * @param routeTableId
+   * @returns {Promise.<TResult>}
+   * @private
+   */
+  _describeRouteTables(peeringConnectionId, routeTableId) {
+    let params = {
+      DryRun: false,
+      Filters: [
+        {
+          Name: 'route.vpc-peering-connection-id',
+          Values: [
+            peeringConnectionId
+          ]
+        }
+      ],
+      RouteTableIds: [
+        routeTableId
+      ]
+    };
+    return this._awsEc2Client.describeRouteTables(params).promise();
+  }
+
+
+
+  /**
+   *
+   * @param peeringConnectionId
+   * @returns {Promise.<TResult>}
+   * @private
+   */
+  _acceptVpcPeeringConnection(peeringConnectionId) {
+    let params = {
+      DryRun: false,
+      VpcPeeringConnectionId: peeringConnectionId
+    };
+    return this._awsEc2Client.acceptVpcPeeringConnection(params).promise();
+  }
+
+
+  /**
+   *
+   * @param destinationCidrBlock
+   * @param routeTableId
+   * @param peeringConnectionId
+   * @returns {Promise.<TResult>}
+   * @private
+   */
+  _createRoute(destinationCidrBlock, routeTableId, peeringConnectionId) {
+    let params = {
+      DestinationCidrBlock: destinationCidrBlock,
+      RouteTableId: routeTableId,
+      VpcPeeringConnectionId: peeringConnectionId
+    };
+    return this._awsEc2Client.createRoute(params).promise();
+  }
 }
 
 

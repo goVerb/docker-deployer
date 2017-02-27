@@ -19,7 +19,7 @@ describe('Route53 Client', function () {
       useCleanCache: true,
       warnOnUnregistered: false
     });
-    mockery.registerAllowable('aws-sdk');
+    mockery.registerAllowable('aws-sdk', true);
     sandbox = sinon.sandbox.create();
   });
 

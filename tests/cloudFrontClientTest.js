@@ -21,7 +21,7 @@ describe('CloudFront Client', function() {
       useCleanCache: true,
       warnOnUnregistered: false
     });
-    mockery.registerAllowable('aws-sdk');
+    mockery.registerAllowable('aws-sdk', true);
     sandbox = sinon.sandbox.create();
   });
 
@@ -778,7 +778,7 @@ describe('CloudFront Client', function() {
         });
       });
     });
-    
+
     it('should have logging disabled if enableLogging is falsy', () => {
       //Arrange
       let createDistributionResponse = {
@@ -839,7 +839,7 @@ describe('CloudFront Client', function() {
         });
       });
     });
-    
+
     it('should have logging enabled with the cname as a prefix if enableLogging', () => {
       //Arrange
       let createDistributionResponse = {
@@ -2803,7 +2803,7 @@ describe('CloudFront Client', function() {
         expect(result).to.be.deep.equal({});
       });
     });
-  })
+  });
 
   describe('_isDistributionOutOfDate', () => {
     it('should detect difference in cnames', () => {
@@ -3010,7 +3010,7 @@ describe('CloudFront Client', function() {
       expect(result).to.be.true;
     });
 
-    it('should return false if no changes', () => {
+    it('should detect differences in queryString', () => {
       //Arrange
       let originName = 'something api';
       let cname = 'test.example.com';
@@ -3020,14 +3020,41 @@ describe('CloudFront Client', function() {
       let originPath = '/expected';
       let originProtocolPolicy = 'http-only';
       let queryString = true;
-      let distribution = {"Id":"E21EM2OH01LPLB",
-        "ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB",
-        "Status":"Deployed",
-        "LastModifiedTime":"2016-12-20T23:42:55.574Z",
-        "InProgressInvalidationBatches":0,
-        "DomainName":"d2296tvo3hsqb0.cloudfront.net",
-        "ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},
-        "DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: 'https-only',
+        queryString: false
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in customErrorResponses in numbers', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
 
       let cloudFrontParams = {
         cname: cname,
@@ -3037,8 +3064,340 @@ describe('CloudFront Client', function() {
         originPath: originPath,
         acmCertArn: certificateArn,
         originProtocolPolicy: originProtocolPolicy,
-        queryString: queryString
+        queryString: queryString,
+        customErrorResponses: [
+          {
+            errorCode: 403, /* required */
+            errorCachingMinTTL: 300,
+            responseCode: '200',
+            responsePagePath: '/'
+          }
+        ]
+      };
 
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in existing customErrorResponses', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy,
+        queryString: queryString,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: '/applesauce'
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should detect differences in cacheBehaviors in numbers', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let pathPattern = '/';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":`${pathPattern}`,"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        acmCertArn: certificateArn,
+        customErrorResponses: [],
+        cloudfrontPaths: [
+          {
+            originName: originName,
+            originDomainName: 'safdsafasd',
+            originPath: originPath,
+            originProtocolPolicy: originProtocolPolicy,
+            pathPattern: pathPattern,
+            queryString: queryString,
+          },
+          {
+            originName: 'static dev',
+            originDomainName: 'safdsafasd',
+            originPath: '/static',
+            originProtocolPolicy: originProtocolPolicy,
+            pathPattern: pathPattern,
+            queryString: queryString,
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return true if cloudfrontPath.originDomainName is different', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let pathPattern = '/';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":`${pathPattern}`,"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        acmCertArn: certificateArn,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: customErrorResponse403.ResponsePagePath
+          }
+        ],
+        cloudfrontPaths: [
+          {
+            originName: originName,
+            originDomainName: 'safdsafasd',
+            originPath: originPath,
+            originProtocolPolicy: originProtocolPolicy,
+            pathPattern: pathPattern,
+            queryString: queryString,
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return true if cloudfrontPath.originPath is different', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let pathPattern = '/';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":`${pathPattern}`,"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        acmCertArn: certificateArn,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: customErrorResponse403.ResponsePagePath
+          }
+        ],
+        cloudfrontPaths: [
+          {
+            originName: originName,
+            originDomainName: originDomainName,
+            originPath: 'dsafdafdasf',
+            originProtocolPolicy: originProtocolPolicy,
+            pathPattern: pathPattern,
+            queryString: queryString,
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return true if cloudfrontPath.originProtocolPolicy is different', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let pathPattern = '/';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":`${pathPattern}`,"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        acmCertArn: certificateArn,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: customErrorResponse403.ResponsePagePath
+          }
+        ],
+        cloudfrontPaths: [
+          {
+            originName: originName,
+            originDomainName: originDomainName,
+            originPath: originPath,
+            originProtocolPolicy: 'kjlkjkljifdsafads',
+            pathPattern: pathPattern,
+            queryString: queryString,
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return false if cloudfrontPath is equal to classic params', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let pathPattern = '/';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":`${originName}`,"ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":`${pathPattern}`,"TargetOriginId":`${originName}`,"ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        acmCertArn: certificateArn,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: customErrorResponse403.ResponsePagePath
+          }
+        ],
+        cloudfrontPaths: [
+          {
+            originName: originName,
+            originDomainName: originDomainName,
+            originPath: originPath,
+            originProtocolPolicy: originProtocolPolicy,
+            pathPattern: pathPattern,
+            queryString: queryString,
+          }
+        ]
       };
 
       //Setting up CF clients
@@ -3051,8 +3410,58 @@ describe('CloudFront Client', function() {
       //Assert
       expect(result).to.be.false;
     });
-    
-    
+
+    it('should return false if no changes', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":`${originName}`,"ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":"/","TargetOriginId":`${originName}`,"ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        originName: originName,
+        originDomainName: originDomainName,
+        originPath: originPath,
+        pathPattern: '/',
+        acmCertArn: certificateArn,
+        originProtocolPolicy: originProtocolPolicy,
+        queryString: queryString,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: customErrorResponse403.ResponsePagePath
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.false;
+    });
+
     it('should detect differences in logging enabled', () => {
       //Arrange
       let originName = 'something api';
@@ -3088,7 +3497,179 @@ describe('CloudFront Client', function() {
       //Assert
       expect(result).to.be.true;
     });
-    
-    
+
+  });
+
+  describe('_buildDistributionConfig', () => {
+    it('should build config with classic parameters', () => {
+      //Arrange
+      const practiceConfig = {
+        cname: 'dev.***REMOVED***.net',
+        acmCertArn: 'arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3',
+        comment: 'The Dev Environment for the ***REMOVED*** Front End',
+        originName: '***REMOVED*** Web - Dev',
+        originDomainName: '***REMOVED***-web.s3-website-us-west-2.amazonaws.com',
+        originPath: '',
+        pathPattern: '/',
+        originProtocolPolicy: 'http-only',
+        queryString: true,
+        enableLogging: true,
+        customErrorResponses: [],
+        cloudfrontPaths: []
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      const result = cloudFrontClientService._buildDistributionConfig(practiceConfig, 'abc123');
+
+      //Assert
+      expect(result).to.be.deep.equal({"DistributionConfig":{"CallerReference":"abc123","Comment":"The Dev Environment for the ***REMOVED*** Front End","DefaultCacheBehavior":{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},"Enabled":true,"Origins":{"Quantity":1,"Items":[{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":""}]},"Aliases":{"Quantity":1,"Items":["dev.***REMOVED***.net"]},"CacheBehaviors":{"Quantity":1,"Items":[{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/","TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"DefaultRootObject":"","HttpVersion":"http2","IsIPV6Enabled":true,"Logging":{"Bucket":"cloudfront-***REMOVED***.s3.amazonaws.com","Enabled":true,"IncludeCookies":false,"Prefix":"dev.***REMOVED***.net"},"PriceClass":"PriceClass_All","Restrictions":{"GeoRestriction":{"Quantity":0,"RestrictionType":"none","Items":[]}},"WebACLId":"","ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","CertificateSource":"acm","MinimumProtocolVersion":"TLSv1","SSLSupportMethod":"sni-only"}}});
+    });
+
+    it('should build config with cloudfrontPaths parameter', () => {
+      //Arrange
+      const practiceConfig = {
+        cname: 'dev.***REMOVED***.net',
+        acmCertArn: 'arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3',
+        comment: 'The Dev Environment for the ***REMOVED*** Front End',
+        enableLogging: true,
+        customErrorResponses: [],
+        cloudfrontPaths: [
+          {
+            originName: '***REMOVED*** Web - Dev',
+            originDomainName: '***REMOVED***-web.s3-website-us-west-2.amazonaws.com',
+            originPath: '',
+            pathPattern: '/',
+            originProtocolPolicy: 'http-only',
+            queryString: true
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      const result = cloudFrontClientService._buildDistributionConfig(practiceConfig, 'abc123');
+
+      //Assert
+      expect(result).to.be.deep.equal({"DistributionConfig":{"CallerReference":"abc123","Comment":"The Dev Environment for the ***REMOVED*** Front End","DefaultCacheBehavior":{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},"Enabled":true,"Origins":{"Quantity":1,"Items":[{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":""}]},"Aliases":{"Quantity":1,"Items":["dev.***REMOVED***.net"]},"CacheBehaviors":{"Quantity":1,"Items":[{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/","TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"DefaultRootObject":"","HttpVersion":"http2","IsIPV6Enabled":true,"Logging":{"Bucket":"cloudfront-***REMOVED***.s3.amazonaws.com","Enabled":true,"IncludeCookies":false,"Prefix":"dev.***REMOVED***.net"},"PriceClass":"PriceClass_All","Restrictions":{"GeoRestriction":{"Quantity":0,"RestrictionType":"none","Items":[]}},"WebACLId":"","ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","CertificateSource":"acm","MinimumProtocolVersion":"TLSv1","SSLSupportMethod":"sni-only"}}});
+    });
+
+    it('should build config with cloudfrontPaths parameter', () => {
+      //Arrange
+      const practiceConfig = {
+        cname: 'dev.***REMOVED***.net',
+        acmCertArn: 'arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3',
+        comment: 'The Dev Environment for the ***REMOVED*** Front End',
+        enableLogging: true,
+        customErrorResponses: [],
+        cloudfrontPaths: [
+          {
+            originName: '***REMOVED*** Web - Dev',
+            originDomainName: '***REMOVED***-web.s3-website-us-west-2.amazonaws.com',
+            originPath: '',
+            pathPattern: '/',
+            originProtocolPolicy: 'http-only',
+            queryString: true
+          },
+          {
+            originName: '***REMOVED*** Web - Static Dev',
+            originDomainName: '***REMOVED***-web.s3-website-us-west-2.amazonaws.com',
+            originPath: '/static',
+            pathPattern: '/static',
+            originProtocolPolicy: 'http-only',
+            queryString: true
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      const result = cloudFrontClientService._buildDistributionConfig(practiceConfig, 'abc123');
+
+      //Assert
+      expect(result).to.be.deep.equal({"DistributionConfig":{"CallerReference":"abc123","Comment":"The Dev Environment for the ***REMOVED*** Front End","DefaultCacheBehavior":{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},"Enabled":true,"Origins":{"Quantity":2,"Items":[{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":""},{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Static Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":"/static"}]},"Aliases":{"Quantity":1,"Items":["dev.***REMOVED***.net"]},"CacheBehaviors":{"Quantity":2,"Items":[{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/","TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/static","TargetOriginId":"***REMOVED*** Web - Static Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false}]},"CustomErrorResponses":{"Quantity":0,"Items":[]},"DefaultRootObject":"","HttpVersion":"http2","IsIPV6Enabled":true,"Logging":{"Bucket":"cloudfront-***REMOVED***.s3.amazonaws.com","Enabled":true,"IncludeCookies":false,"Prefix":"dev.***REMOVED***.net"},"PriceClass":"PriceClass_All","Restrictions":{"GeoRestriction":{"Quantity":0,"RestrictionType":"none","Items":[]}},"WebACLId":"","ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","CertificateSource":"acm","MinimumProtocolVersion":"TLSv1","SSLSupportMethod":"sni-only"}}});
+    });
+
+    it('should pass customErrorResponses for classic parameters', () => {
+      //Arrange
+      const practiceConfig = {
+        cname: 'dev.***REMOVED***.net',
+        acmCertArn: 'arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3',
+        comment: 'The Dev Environment for the ***REMOVED*** Front End',
+        originName: '***REMOVED*** Web - Dev',
+        originDomainName: '***REMOVED***-web.s3-website-us-west-2.amazonaws.com',
+        originPath: '',
+        pathPattern: '/',
+        originProtocolPolicy: 'http-only',
+        queryString: true,
+        enableLogging: true,
+        customErrorResponses: [
+          {
+            errorCode: 403, /* required */
+            errorCachingMinTTL: 300,
+            responseCode: '200',
+            responsePagePath: '/'
+          }
+        ],
+        cloudfrontPaths: []
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      const result = cloudFrontClientService._buildDistributionConfig(practiceConfig, 'abc123');
+
+      //Assert
+      expect(result).to.be.deep.equal({"DistributionConfig":{"CallerReference":"abc123","Comment":"The Dev Environment for the ***REMOVED*** Front End","DefaultCacheBehavior":{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},"Enabled":true,"Origins":{"Quantity":1,"Items":[{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":""}]},"Aliases":{"Quantity":1,"Items":["dev.***REMOVED***.net"]},"CacheBehaviors":{"Quantity":1,"Items":[{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/","TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false}]},"CustomErrorResponses":{"Quantity":1,"Items":[{"ErrorCode":403,"ErrorCachingMinTTL":300,"ResponseCode":"200","ResponsePagePath":"/"}]},"DefaultRootObject":"","HttpVersion":"http2","IsIPV6Enabled":true,"Logging":{"Bucket":"cloudfront-***REMOVED***.s3.amazonaws.com","Enabled":true,"IncludeCookies":false,"Prefix":"dev.***REMOVED***.net"},"PriceClass":"PriceClass_All","Restrictions":{"GeoRestriction":{"Quantity":0,"RestrictionType":"none","Items":[]}},"WebACLId":"","ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","CertificateSource":"acm","MinimumProtocolVersion":"TLSv1","SSLSupportMethod":"sni-only"}}});
+    });
+
+    it('should pass customErrorResponses for cloudfrontPaths parameter', () => {
+      //Arrange
+      const practiceConfig = {
+        cname: 'dev.***REMOVED***.net',
+        acmCertArn: 'arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3',
+        comment: 'The Dev Environment for the ***REMOVED*** Front End',
+        enableLogging: true,
+        customErrorResponses: [
+          {
+            errorCode: 403, /* required */
+            errorCachingMinTTL: 300,
+            responseCode: '200',
+            responsePagePath: '/'
+          }
+        ],
+        cloudfrontPaths: [
+          {
+            originName: '***REMOVED*** Web - Dev',
+            originDomainName: '***REMOVED***-web.s3-website-us-west-2.amazonaws.com',
+            originPath: '',
+            pathPattern: '/',
+            originProtocolPolicy: 'http-only',
+            queryString: true
+          }
+        ]
+      };
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      const result = cloudFrontClientService._buildDistributionConfig(practiceConfig, 'abc123');
+
+      //Assert
+      expect(result).to.be.deep.equal({"DistributionConfig":{"CallerReference":"abc123","Comment":"The Dev Environment for the ***REMOVED*** Front End","DefaultCacheBehavior":{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},"Enabled":true,"Origins":{"Quantity":1,"Items":[{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":""}]},"Aliases":{"Quantity":1,"Items":["dev.***REMOVED***.net"]},"CacheBehaviors":{"Quantity":1,"Items":[{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/","TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false}]},"CustomErrorResponses":{"Quantity":1,"Items":[{"ErrorCode":403,"ErrorCachingMinTTL":300,"ResponseCode":"200","ResponsePagePath":"/"}]},"DefaultRootObject":"","HttpVersion":"http2","IsIPV6Enabled":true,"Logging":{"Bucket":"cloudfront-***REMOVED***.s3.amazonaws.com","Enabled":true,"IncludeCookies":false,"Prefix":"dev.***REMOVED***.net"},"PriceClass":"PriceClass_All","Restrictions":{"GeoRestriction":{"Quantity":0,"RestrictionType":"none","Items":[]}},"WebACLId":"","ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","CertificateSource":"acm","MinimumProtocolVersion":"TLSv1","SSLSupportMethod":"sni-only"}}});
+    });
   });
 });

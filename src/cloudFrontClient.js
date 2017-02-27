@@ -170,7 +170,20 @@ class CloudFrontClient extends BaseClient {
    */
   _isDistributionOutOfDate(distribution, params) {
 
-    const {cname, acmCertArn, enableLogging, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
+    const {
+      cname,
+      acmCertArn,
+      enableLogging,
+      comment,
+      originName,
+      originDomainName,
+      originPath,
+      pathPattern,
+      originProtocolPolicy,
+      queryString,
+      cloudfrontPaths = [],
+      customErrorResponses = [],
+    } = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
@@ -190,138 +203,137 @@ class CloudFrontClient extends BaseClient {
       return true;
     }
 
+    //defaultCacheBehavior
+
     //QueryString
-    if(distribution.DistributionConfig.DefaultCacheBehavior.ForwardedValues.QueryString !== queryString) {
+    if((cloudfrontPaths.length <= 0 && distribution.DistributionConfig.DefaultCacheBehavior.ForwardedValues.QueryString !== queryString) ||
+      (cloudfrontPaths.length > 0 && distribution.DistributionConfig.DefaultCacheBehavior.ForwardedValues.QueryString !== __.get(cloudfrontPaths, '[0].queryString', false))) {
       return true;
+    }
+
+    //CacheBehaviors
+    if(!__.isEmpty(cloudfrontPaths)) {
+      let foundDifference = false;
+      cloudfrontPaths.forEach(item => {
+        let foundCacheBehavior = __.find(distribution.DistributionConfig.CacheBehaviors.Items, {TargetOriginId: item.originName});
+        if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== item.pathPattern) {
+          foundDifference = true;
+        }
+      });
+
+      if(foundDifference) {
+        return true;
+      }
+    } else {
+      let foundCacheBehavior = __.find(distribution.DistributionConfig.CacheBehaviors.Items, {TargetOriginId: originName});
+      if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== pathPattern) {
+        return true;
+      }
     }
 
 
     //originName
+    if(!__.isEmpty(cloudfrontPaths)) {
+      let foundDifference = false;
+      cloudfrontPaths.forEach(item => {
+        //originDomainName
+        let foundOrigin = __.find(distribution.DistributionConfig.Origins.Items, {Id: item.originName});
+        if (!foundOrigin || foundOrigin.DomainName !== item.originDomainName) {
+          foundDifference = true;
+        }
 
-    //originDomainName
-    let foundOrigin = __.find(distribution.DistributionConfig.Origins.Items, {Id: originName});
-    if(!foundOrigin || foundOrigin.DomainName !== originDomainName) {
-      return true;
+        //originPath
+        if (!foundOrigin || foundOrigin.OriginPath !== item.originPath) {
+          foundDifference = true;
+        }
+
+        //originProtocolPolicy
+        if (!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== item.originProtocolPolicy) {
+          foundDifference = true;
+        }
+      });
+
+      if(foundDifference) {
+        return true;
+      }
+    }
+    else {
+      //originDomainName
+      let foundOrigin = __.find(distribution.DistributionConfig.Origins.Items, {Id: originName});
+      if (!foundOrigin || foundOrigin.DomainName !== originDomainName) {
+        return true;
+      }
+
+
+      //originPath
+      if (!foundOrigin || foundOrigin.OriginPath !== originPath) {
+        return true;
+      }
+
+      //originProtocolPolicy
+      if (!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== computedOriginProtocolPolicy) {
+        return true;
+      }
     }
 
-
-    //originPath
-    if(!foundOrigin || foundOrigin.OriginPath !== originPath) {
-      return true;
-    }
-
-    //originProtocolPolicy
-    if(!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== computedOriginProtocolPolicy) {
-      return true;
-    }
 
     // Logging
     if(Boolean(enableLogging) !== distribution.DistributionConfig.Logging.Enabled) {
       return true;
     }
 
+    //Custom Error Responses
+    if(customErrorResponses.length !== __.get(distribution, 'DistributionConfig.CustomErrorResponses.Quantity', 0)) {
+      return true;
+    } else {
+      //we have to convert our custom objects to match the Cloudfront's return params in order to make the isEqual easier
+      const convertedErrorCodeObjects = __.map(customErrorResponses, (item) => {
+        return {
+          ErrorCode: item.errorCode,
+          ErrorCachingMinTTL: item.errorCachingMinTTL,
+          ResponseCode: item.responseCode,
+          ResponsePagePath: item.responsePagePath
+        };
+      });
+
+      const paramErrorCodeLookup = __.keyBy(convertedErrorCodeObjects, 'ErrorCode');
+      const existingErrorCodeLookup = __.keyBy(__.get(distribution, 'DistributionConfig.CustomErrorResponses.Items', []), 'ErrorCode');
+      if(!__.isEqual(paramErrorCodeLookup, existingErrorCodeLookup)) {
+        return true;
+      }
+    }
+
+
+
     return false;
   }
 
   _buildDistributionConfig(params, callerReference = '') {
-    const {cname, enableLogging, acmCertArn, comment, originName, originDomainName, originPath, pathPattern, originProtocolPolicy, queryString} = params;
+    const {
+      cname,
+      enableLogging,
+      acmCertArn,
+      comment,
+      originName = '',
+      originDomainName = '',
+      originPath = '',
+      pathPattern = '',
+      originProtocolPolicy = 'match-viewer',
+      queryString,
+      cloudfrontPaths = [],
+      customErrorResponses = []
+    } = params;
 
-    let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
 
     const cloudFrontParams = {
       DistributionConfig: { /* required */
         CallerReference: callerReference || uuid(), /* required */
         Comment: comment, /* required */
-        DefaultCacheBehavior: { /* required */
-          ForwardedValues: { /* required */
-            Cookies: { /* required */
-              Forward: 'none', /* required */
-              WhitelistedNames: {
-                Quantity: 0, /* required */
-                Items: []
-              }
-            },
-            QueryString: queryString, /* required */
-            Headers: {
-              Quantity: 6, /* required */
-              Items: [
-                'x-***REMOVED***-version',
-                'x-***REMOVED***-session',
-                'x-***REMOVED***-correlation',
-                'x-***REMOVED***-test',
-                'Content-Type',
-                'authorization'
-              ]
-            },
-            QueryStringCacheKeys: {
-              Quantity: 0, /* required */
-              Items: []
-            }
-          },
-          MinTTL: 0, /* required */
-          TargetOriginId: originName, /* required */
-          TrustedSigners: { /* required */
-            Enabled: false, /* required */
-            Quantity: 0, /* required */
-            Items: []
-          },
-          ViewerProtocolPolicy: 'allow-all', /* required */
-          AllowedMethods: {
-            Items: [ /* required */
-              'POST',
-              'HEAD',
-              'PATCH',
-              'DELETE',
-              'PUT',
-              'GET',
-              'OPTIONS'
-            ],
-            Quantity: 7, /* required */
-            CachedMethods: {
-              Items: [ /* required */
-                'HEAD',
-                'GET',
-                'OPTIONS'
-              ],
-              Quantity: 3 /* required */
-            }
-          },
-          Compress: true,
-          DefaultTTL: 0,
-          LambdaFunctionAssociations: {
-            Quantity: 0, /* required */
-            Items: []
-          },
-          MaxTTL: 0,
-          SmoothStreaming: false
-        },
+        DefaultCacheBehavior: null,
         Enabled: true, /* required */
         Origins: { /* required */
-          Quantity: 1, /* required */
-          Items: [
-            {
-              DomainName: originDomainName, /* required */
-              Id: originName, /* required */
-              CustomHeaders: {
-                Quantity: 0, /* required */
-                Items: []
-              },
-              CustomOriginConfig: {
-                HTTPPort: 80, /* required */
-                HTTPSPort: 443, /* required */
-                OriginProtocolPolicy: computedOriginProtocolPolicy, /* required */
-                OriginSslProtocols: {
-                  Items: [ /* required */
-                    'TLSv1',
-                    'TLSv1.1',
-                    'TLSv1.2'
-                  ],
-                  Quantity: 3 /* required */
-                }
-              },
-              OriginPath: originPath
-            }
-          ]
+          Quantity: 0, /* required */
+          Items: []
         },
         Aliases: {
           Quantity: 1, /* required */
@@ -330,66 +342,8 @@ class CloudFrontClient extends BaseClient {
           ]
         },
         CacheBehaviors: {
-          Quantity: 1, /* required */
-          Items: [
-            {
-              ForwardedValues: { /* required */
-                Cookies: { /* required */
-                  Forward: 'none', /* required */
-                  WhitelistedNames: {
-                    Quantity: 0, /* required */
-                    Items: []
-                  }
-                },
-                QueryString: false, /* required */
-                Headers: {
-                  Quantity: 0, /* required */
-                  Items: []
-                },
-                QueryStringCacheKeys: {
-                  Quantity: 0, /* required */
-                  Items: []
-                }
-              },
-              MinTTL: 0, /* required */
-              PathPattern: pathPattern, /* required */
-              TargetOriginId: originName, /* required */
-              TrustedSigners: { /* required */
-                Enabled: false, /* required */
-                Quantity: 0, /* required */
-                Items: []
-              },
-              ViewerProtocolPolicy: 'allow-all', /* required */
-              AllowedMethods: {
-                Items: [ /* required */
-                  'POST',
-                  'HEAD',
-                  'PATCH',
-                  'DELETE',
-                  'PUT',
-                  'GET',
-                  'OPTIONS'
-                ],
-                Quantity: 7, /* required */
-                CachedMethods: {
-                  Items: [ /* required */
-                    'HEAD',
-                    'GET',
-                    'OPTIONS'
-                  ],
-                  Quantity: 3 /* required */
-                }
-              },
-              Compress: true,
-              DefaultTTL: 0,
-              LambdaFunctionAssociations: {
-                Quantity: 0, /* required */
-                Items: []
-              },
-              MaxTTL: 0,
-              SmoothStreaming: false
-            }
-          ]
+          Quantity: 0, /* required */
+          Items: []
         },
         CustomErrorResponses: {
           Quantity: 0, /* required */
@@ -416,6 +370,56 @@ class CloudFrontClient extends BaseClient {
       }
     };
 
+    this.logMessage('Creating DefaultCacheBehavior, Origins, and CacheBehaviors.');
+    if(!__.isEmpty(cloudfrontPaths)) {
+      cloudFrontParams.DistributionConfig.DefaultCacheBehavior = this._createCacheBehavior(cloudfrontPaths[0], true);
+
+      let origins = [];
+      let cacheBehaviors = [];
+      cloudfrontPaths.forEach(item => {
+        origins.push(this._createOrigin(item));
+        cacheBehaviors.push(this._createCacheBehavior(item, false));
+      });
+
+      cloudFrontParams.DistributionConfig.Origins.Quantity = origins.length;
+      cloudFrontParams.DistributionConfig.Origins.Items = origins;
+
+      cloudFrontParams.DistributionConfig.CacheBehaviors.Quantity = cacheBehaviors.length;
+      cloudFrontParams.DistributionConfig.CacheBehaviors.Items = cacheBehaviors;
+
+    } else {
+
+      const cloudfrontPathParams = {
+        originName,
+        originDomainName,
+        originPath,
+        pathPattern,
+        originProtocolPolicy,
+        queryString
+      };
+      cloudFrontParams.DistributionConfig.DefaultCacheBehavior = this._createCacheBehavior(cloudfrontPathParams, true);
+
+      cloudFrontParams.DistributionConfig.Origins.Quantity = 1;
+      cloudFrontParams.DistributionConfig.Origins.Items = [this._createOrigin(cloudfrontPathParams)];
+
+      console.log(JSON.stringify(cloudFrontParams.DistributionConfig.Origins));
+
+      cloudFrontParams.DistributionConfig.CacheBehaviors.Quantity = 1;
+      cloudFrontParams.DistributionConfig.CacheBehaviors.Items = [this._createCacheBehavior(cloudfrontPathParams, false)];
+    }
+
+    this.logMessage('Attaching Custom Error Responses to Cloudfront.');
+    if(!__.isEmpty(customErrorResponses)) {
+      let constructedCustomErrorResponses = [];
+      customErrorResponses.forEach(item => {
+        constructedCustomErrorResponses.push(this._createCustomErrorResponse(item));
+      });
+
+      cloudFrontParams.DistributionConfig.CustomErrorResponses.Quantity = constructedCustomErrorResponses.length;
+      cloudFrontParams.DistributionConfig.CustomErrorResponses.Items = constructedCustomErrorResponses;
+    }
+
+    this.logMessage('Attaching Cert to Cloudfront.');
     if(acmCertArn) {
       cloudFrontParams.DistributionConfig.ViewerCertificate = {
         ACMCertificateArn: acmCertArn,
@@ -434,6 +438,148 @@ class CloudFrontClient extends BaseClient {
     }
 
     return cloudFrontParams;
+  }
+
+  /**
+   *
+   * @param params.originName
+   * @param params.originDomainName
+   * @param params.originPath
+   * @param params.originProtocolPolicy
+   * @param params.pathPattern
+   * @param params.queryString
+   * @param {boolean} isDefaultCacheBehavior
+   * @private
+   */
+  _createCacheBehavior(params, isDefaultCacheBehavior = false) {
+    const {originName, originDomainName, originPath, originProtocolPolicy, pathPattern, queryString} = params;
+
+    const cacheBehavior =  { /* required */
+      ForwardedValues: { /* required */
+        Cookies: { /* required */
+          Forward: 'none', /* required */
+          WhitelistedNames: {
+            Quantity: 0, /* required */
+            Items: []
+          }
+        },
+        QueryString: queryString, /* required */
+        Headers: {
+          Quantity: 6, /* required */
+          Items: [
+            'x-***REMOVED***-version',
+            'x-***REMOVED***-session',
+            'x-***REMOVED***-correlation',
+            'x-***REMOVED***-test',
+            'Content-Type',
+            'authorization'
+          ]
+        },
+        QueryStringCacheKeys: {
+          Quantity: 0, /* required */
+          Items: []
+        }
+      },
+      MinTTL: 0, /* required */
+      PathPattern: pathPattern, /* required */
+      TargetOriginId: originName, /* required */
+      TrustedSigners: { /* required */
+        Enabled: false, /* required */
+        Quantity: 0, /* required */
+        Items: []
+      },
+      ViewerProtocolPolicy: 'allow-all', /* required */
+      AllowedMethods: {
+        Items: [ /* required */
+          'POST',
+          'HEAD',
+          'PATCH',
+          'DELETE',
+          'PUT',
+          'GET',
+          'OPTIONS'
+        ],
+        Quantity: 7, /* required */
+        CachedMethods: {
+          Items: [ /* required */
+            'HEAD',
+            'GET',
+            'OPTIONS'
+          ],
+          Quantity: 3 /* required */
+        }
+      },
+      Compress: true,
+      DefaultTTL: 0,
+      LambdaFunctionAssociations: {
+        Quantity: 0, /* required */
+        Items: []
+      },
+      MaxTTL: 0,
+      SmoothStreaming: false
+    };
+
+    if(isDefaultCacheBehavior) {
+      delete cacheBehavior.PathPattern;
+    }
+
+    return cacheBehavior;
+  }
+
+  /**
+   *
+   * @param params.originName
+   * @param params.originDomainName
+   * @param params.originPath
+   * @param params.originProtocolPolicy
+   * @param params.pathPattern
+   * @param params.queryString
+   * @private
+   */
+  _createOrigin(params) {
+    const {originName, originDomainName, originPath, originProtocolPolicy, pathPattern, queryString} = params;
+
+    return {
+      DomainName: originDomainName, /* required */
+      Id: originName, /* required */
+      CustomHeaders: {
+        Quantity: 0, /* required */
+        Items: []
+      },
+      CustomOriginConfig: {
+        HTTPPort: 80, /* required */
+        HTTPSPort: 443, /* required */
+        OriginProtocolPolicy: originProtocolPolicy, /* required */
+        OriginSslProtocols: {
+          Items: [ /* required */
+            'TLSv1',
+            'TLSv1.1',
+            'TLSv1.2'
+          ],
+          Quantity: 3 /* required */
+        }
+      },
+      OriginPath: originPath
+    };
+  }
+
+  /**
+   *
+   * @param params.errorCode
+   * @param params.errorCachingMinTTL
+   * @param {string} params.responseCode
+   * @param {string} params.responsePagePath
+   * @private
+   */
+  _createCustomErrorResponse(params) {
+    const {errorCode, errorCachingMinTTL, responseCode, responsePagePath} = params;
+
+    return {
+      ErrorCode: errorCode, /* required */
+      ErrorCachingMinTTL: errorCachingMinTTL,
+      ResponseCode: responseCode,
+      ResponsePagePath: responsePagePath
+    };
   }
 }
 

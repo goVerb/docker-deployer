@@ -335,6 +335,7 @@ class CloudFrontClient extends BaseClient {
       originPath = '',
       pathPattern = '',
       originProtocolPolicy = 'match-viewer',
+      viewerProtocolPolicy = 'allow-all',
       queryString,
       cloudfrontPaths = [],
       customErrorResponses = []
@@ -411,7 +412,7 @@ class CloudFrontClient extends BaseClient {
         originPath,
         pathPattern,
         originProtocolPolicy,
-        viewerProtocolPolicy: 'allow-all',
+        viewerProtocolPolicy,
         queryString
       };
       cloudFrontParams.DistributionConfig.DefaultCacheBehavior = this._createCacheBehavior(cloudfrontPathParams, true);

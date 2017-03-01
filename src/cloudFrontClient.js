@@ -219,6 +219,10 @@ class CloudFrontClient extends BaseClient {
         if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== item.pathPattern) {
           foundDifference = true;
         }
+
+        if(!foundCacheBehavior || foundCacheBehavior.ViewerProtocolPolicy !== item.viewerProtocolPolicy) {
+          foundDifference = true;
+        }
       });
 
       if(foundDifference) {
@@ -395,6 +399,7 @@ class CloudFrontClient extends BaseClient {
         originPath,
         pathPattern,
         originProtocolPolicy,
+        viewerProtocolPolicy: 'allow-all',
         queryString
       };
       cloudFrontParams.DistributionConfig.DefaultCacheBehavior = this._createCacheBehavior(cloudfrontPathParams, true);
@@ -446,13 +451,14 @@ class CloudFrontClient extends BaseClient {
    * @param params.originDomainName
    * @param params.originPath
    * @param params.originProtocolPolicy
+   * @param params.viewerProtocolPolicy
    * @param params.pathPattern
    * @param params.queryString
    * @param {boolean} isDefaultCacheBehavior
    * @private
    */
   _createCacheBehavior(params, isDefaultCacheBehavior = false) {
-    const {originName, originDomainName, originPath, originProtocolPolicy, pathPattern, queryString} = params;
+    const {originName, originDomainName, originPath, originProtocolPolicy, viewerProtocolPolicy = 'allow-all', pathPattern, queryString} = params;
 
     const cacheBehavior =  { /* required */
       ForwardedValues: { /* required */
@@ -488,7 +494,7 @@ class CloudFrontClient extends BaseClient {
         Quantity: 0, /* required */
         Items: []
       },
-      ViewerProtocolPolicy: 'allow-all', /* required */
+      ViewerProtocolPolicy: viewerProtocolPolicy,/* required || Allowed options: 'allow-all | https-only | redirect-to-https' */
       AllowedMethods: {
         Items: [ /* required */
           'POST',

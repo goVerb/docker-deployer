@@ -180,12 +180,14 @@ class CloudFrontClient extends BaseClient {
       originPath,
       pathPattern,
       originProtocolPolicy,
+      viewerProtocolPolicy,
       queryString,
       cloudfrontPaths = [],
       customErrorResponses = [],
     } = params;
 
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
+    let computedViewerProtocolPolicy = viewerProtocolPolicy || 'allow-all';
 
     //cname
     let foundAliasIndex = __.indexOf(distribution.DistributionConfig.Aliases.Items, cname);
@@ -255,6 +257,11 @@ class CloudFrontClient extends BaseClient {
         if (!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== item.originProtocolPolicy) {
           foundDifference = true;
         }
+
+        //viewerProtocolPolicy
+        if (!foundOrigin || foundOrigin.CustomOriginConfig.ViewerProtocolPolicy !== item.viewerProtocolPolicy) {
+          return true;
+        }
       });
 
       if(foundDifference) {
@@ -276,6 +283,11 @@ class CloudFrontClient extends BaseClient {
 
       //originProtocolPolicy
       if (!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== computedOriginProtocolPolicy) {
+        return true;
+      }
+
+      //viewerProtocolPolicy
+      if (!foundOrigin || foundOrigin.CustomOriginConfig.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
         return true;
       }
     }

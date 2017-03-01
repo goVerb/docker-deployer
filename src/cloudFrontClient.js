@@ -271,10 +271,10 @@ class CloudFrontClient extends BaseClient {
     else {
       //originDomainName
       let foundOrigin = __.find(distribution.DistributionConfig.Origins.Items, {Id: originName});
+      let foundDefaultCacheBehavior = distribution.DistributionConfig.DefaultCacheBehavior;
       if (!foundOrigin || foundOrigin.DomainName !== originDomainName) {
         return true;
       }
-
 
       //originPath
       if (!foundOrigin || foundOrigin.OriginPath !== originPath) {
@@ -287,7 +287,7 @@ class CloudFrontClient extends BaseClient {
       }
 
       //viewerProtocolPolicy
-      if (!foundOrigin || foundOrigin.CustomOriginConfig.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
+      if (!foundOrigin || foundDefaultCacheBehavior.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
         return true;
       }
     }

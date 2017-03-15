@@ -363,8 +363,13 @@ class CloudFrontClient extends BaseClient {
           Items: []
         },
         CustomErrorResponses: {
-          Quantity: 0, /* required */
-          Items: []
+          Quantity: 1, /* required */
+          Items: [
+            {
+              ErrorCode: 404,
+              ErrorCachingMinTTL: 0,
+            }
+          ]
         },
         DefaultRootObject: '',
         HttpVersion: 'http2',

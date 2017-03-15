@@ -366,7 +366,11 @@ class CloudFrontClient extends BaseClient {
           Quantity: 1, /* required */
           Items: [
             {
-              ErrorCode: 404,
+              ErrorCode: 409,
+              ErrorCachingMinTTL: 0,
+            },
+            {
+              ErrorCode: 500,
               ErrorCachingMinTTL: 0,
             }
           ]

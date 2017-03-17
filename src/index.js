@@ -8,6 +8,8 @@ const CloudFront = require('./cloudFrontClient.js');
 const APIGateway = require('./apiGatewayClient');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
+let util = require('util');
+
 
 
 class Deployer {
@@ -91,6 +93,9 @@ class Deployer {
 
   }
 
+  logMessage(msg) {
+    console.log(`[${moment().format()}] ${msg}`);
+  }
   /**
    * Looks up an API Gateway URL using the apiName and the StageName
    * @param apiName
@@ -109,7 +114,16 @@ class Deployer {
   lookupApiGatewayDomainName(apiName) {
     return this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
-
+  /**
+   * This will do the following: 1. lookup api by swagger title, 2. delay 3a. if api not found create the new api, 3b. if api found it will update it 4. delay again
+   * @param {Object} swaggerEntity Note: swaggerEntity must have valid info.title. Pulling from here because the is the aws importer strategy
+   * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
+   * @param {boolean} [failOnWarnings=false]
+   * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
+   */
+   createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
+     return this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings)
+   }
   /**
    * Creates a CloudFront Client and associates it to a hosted zone
    * @param cloudfrontConfig
@@ -121,7 +135,20 @@ class Deployer {
       return this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
     });
   }
+  /**
+   *
+   * @param restApiId
+   * @param stageName
+   * @param variableCollection
+   * @returns {Promise.<*>}
+   */
+  createDeployment(restApiId, stageName, variableCollection) {
+    return this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection)
+  }
 
+  getObjectAsString(entity) {
+    return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity)
+  }
   /**
    * Looks up the various resources before pushing the config object to the client to be created
    * @param environment

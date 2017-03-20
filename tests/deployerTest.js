@@ -208,8 +208,59 @@ describe('Deployer', function() {
       expect(cloudFrontClientMock.args[0][0]).to.be.equal(accessKey);
       expect(cloudFrontClientMock.args[0][1]).to.be.equal(secretKey);
     });
-  });
 
+    it('should pass accessKey, secretKey, and region to CloudWatch client', () => {
+      //Arrange
+      let cloudWatchClientStub = sandbox.stub();
+      mockery.registerMock('./cloudWatchClient.js', cloudWatchClientStub);
+
+      //Setting up Deployer clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      //Act
+      const deployerInstance = new Deployer(deployerParams);
+
+      //Assert
+      expect(cloudWatchClientStub.args[0][0]).to.be.equal(accessKey);
+      expect(cloudWatchClientStub.args[0][1]).to.be.equal(secretKey);
+      expect(cloudWatchClientStub.args[0][2]).to.be.equal(region);
+    });
+
+    it('should pass accessKey, secretKey, and region to ApplicationAutoScaling client', () => {
+      //Arrange
+      let applicationAutoScalingStub = sandbox.stub();
+      mockery.registerMock('./applicationAutoScalingClient.js', applicationAutoScalingStub);
+
+      //Setting up Deployer clients
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      //Act
+      const deployerInstance = new Deployer(deployerParams);
+
+      //Assert
+      expect(applicationAutoScalingStub.args[0][0]).to.be.equal(accessKey);
+      expect(applicationAutoScalingStub.args[0][1]).to.be.equal(secretKey);
+      expect(applicationAutoScalingStub.args[0][2]).to.be.equal(region);
+    });
+  });
 
   describe('createInfrastructure', () => {
     let vpcClientStub;
@@ -1527,6 +1578,7 @@ describe('Deployer', function() {
       });
     });
   });
+
   describe('lookupApiGatewayByName', () => {
     let vpcClientStub;
     let ec2ClientStub;
@@ -1596,6 +1648,7 @@ describe('Deployer', function() {
       expect(apiClientStub.lookupApiGatewayByName.args[0][0]).to.equal('name');
     });
   });
+
   describe('createOrOverwriteApiSwagger', () => {
     let vpcClientStub;
     let ec2ClientStub;

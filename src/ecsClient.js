@@ -77,7 +77,7 @@ class EcsClient extends BaseClient {
       taskRoleArn: taskRoleArn,
       volumes: []
     };
-
+    
     let registerTaskDefinitionPromise = this._awsEcsClient.registerTaskDefinition(params).promise();
 
     return registerTaskDefinitionPromise;

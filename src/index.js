@@ -9,6 +9,7 @@ const APIGateway = require('./apiGatewayClient');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 let util = require('util');
+let moment = require('moment');
 
 
 

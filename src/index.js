@@ -93,6 +93,10 @@ class Deployer {
 
   }
 
+  lookupApiGatewayByName(name) {
+    return this._apiGatewayClient.lookupApiGatewayByName(nam);
+  }
+
   logMessage(msg) {
     console.log(`[${moment().format()}] ${msg}`);
   }

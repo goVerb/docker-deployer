@@ -624,7 +624,7 @@ describe('APIGateway Client', function() {
       })
     })
     it('should call _overwriteSwagger if name lookup returns and id', (done) => {
-      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('IAMANID'))
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve({id:'IAMANID'}))
       apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
       let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
 

@@ -1527,4 +1527,142 @@ describe('Deployer', function() {
       });
     });
   });
+  describe('lookupApiGatewayByName', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let apiClientStub;
+    beforeEach(() => {
+
+      vpcClientStub = sandbox.stub();
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = sandbox.stub();
+      apiClientStub = {
+        lookupApiGatewayByName: sandbox.stub()
+      };
+      autoScaleClientStub = sandbox.stub();
+      route53ClientStub = sandbox.stub();
+
+      mockery.registerMock('./vpcClient.js', vpcClientStub);
+      mockery.registerMock('./elbClient.js', () => {
+        return elbClientStub;
+      });
+      mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
+      mockery.registerMock('./ec2Client.js', ec2ClientStub);
+      mockery.registerMock('./ecsClient.js', ecsClientStub);
+      mockery.registerMock('./route53Client.js', route53ClientStub);
+      mockery.registerMock('./apiGatewayClient',() => apiClientStub);
+    });
+    it('should call lookupApiGatewayByName', () => {
+      //Arrange
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      let deployerClient = new Deployer(deployerParams);
+      //Act
+      deployerClient.lookupApiGatewayByName('name')
+      //Assert
+      expect(apiClientStub.lookupApiGatewayByName.calledOnce).to.be.true;
+    });
+    it('should pass name param to lookupApiGatewayByName', () => {
+      //Arrange
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      let deployerClient = new Deployer(deployerParams);
+      //Act
+      deployerClient.lookupApiGatewayByName('name')
+
+      expect(apiClientStub.lookupApiGatewayByName.args[0][0]).to.equal('name');
+    });
+  });
+  describe('createOrOverwriteApiSwagger', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let apiClientStub;
+    beforeEach(() => {
+
+      vpcClientStub = sandbox.stub();
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = sandbox.stub();
+      apiClientStub = {
+        createOrOverwriteApiSwagger: sandbox.stub()
+      };
+      autoScaleClientStub = sandbox.stub();
+      route53ClientStub = sandbox.stub();
+
+      mockery.registerMock('./vpcClient.js', vpcClientStub);
+      mockery.registerMock('./elbClient.js', () => {
+        return elbClientStub;
+      });
+      mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
+      mockery.registerMock('./ec2Client.js', ec2ClientStub);
+      mockery.registerMock('./ecsClient.js', ecsClientStub);
+      mockery.registerMock('./route53Client.js', route53ClientStub);
+      mockery.registerMock('./apiGatewayClient',() => apiClientStub);
+    });
+    it('should call createOrOverwriteApiSwagger', () => {
+      //Arrange
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      let deployerClient = new Deployer(deployerParams);
+      //Act
+      deployerClient.createOrOverwriteApiSwagger('name')
+      //Assert
+      expect(apiClientStub.createOrOverwriteApiSwagger.calledOnce).to.be.true;
+    });
+    it('should pass name param to createOrOverwriteApiSwagger', () => {
+      //Arrange
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = require('../src/index');
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      let deployerClient = new Deployer(deployerParams);
+      //Act
+      deployerClient.createOrOverwriteApiSwagger({info: {title: 'dang'}})
+
+      expect(apiClientStub.createOrOverwriteApiSwagger.args[0][0]).to.deep.equal({info: {title: 'dang'}});
+    });
+  });
 });

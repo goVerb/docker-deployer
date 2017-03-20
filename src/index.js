@@ -122,7 +122,7 @@ class Deployer {
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
    createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
-     return this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings)
+     return this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
    }
   /**
    * Creates a CloudFront Client and associates it to a hosted zone
@@ -143,11 +143,11 @@ class Deployer {
    * @returns {Promise.<*>}
    */
   createDeployment(restApiId, stageName, variableCollection) {
-    return this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection)
+    return this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
   }
 
   getObjectAsString(entity) {
-    return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity)
+    return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity);
   }
   /**
    * Looks up the various resources before pushing the config object to the client to be created

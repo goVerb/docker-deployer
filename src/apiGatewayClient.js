@@ -213,7 +213,7 @@ class APIGatewayClient extends BaseClient {
     }).catch((err)=> {
       return BlueBirdPromise.reject(err);
     });
-  };
+  }
 
   _createSwagger(swaggerEntity, failOnWarnings = false) {
     this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}]`);
@@ -233,7 +233,7 @@ class APIGatewayClient extends BaseClient {
         reject(err);
       });
     });
-  };
+  }
 
   _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false) {
     this.logMessage(`overwriting swagger for [ApiGatewayId: ${apiGatewayId}]`);
@@ -254,7 +254,7 @@ class APIGatewayClient extends BaseClient {
         reject(err);
       });
     });
-  };
+  }
 
   createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false){
     let methodName = 'createOrOverwriteApiSwagger';
@@ -304,7 +304,7 @@ class APIGatewayClient extends BaseClient {
 
 
   _getObjectAsString(entity) {
-    return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity)
+    return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity);
   }
 
 }

@@ -41,6 +41,7 @@ describe('APIGateway Client', function() {
         APIGateway: sandbox.stub()
 
       };
+
       mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
@@ -147,7 +148,7 @@ describe('APIGateway Client', function() {
       expect(params).to.have.property('region', 'us-west-2');
     });
   });
-  
+
   describe('lookupApiGatewayDomainName', () => {
     it('should return the correct domain name', (done) => {
       //Arrange
@@ -198,9 +199,9 @@ describe('APIGateway Client', function() {
         expect(url).to.be.equal('my***REMOVED***Id.execute-api.us-west-2.amazonaws.com');
         done();
       });
-      
+
     });
-    
+
     it('should return nothing if no API is found', (done) => {
       //Arrange
       const getRestApisResponse = {
@@ -249,9 +250,9 @@ describe('APIGateway Client', function() {
         expect(url).to.be.null;
         done();
       });
-      
+
     });
-    
+
   });
 
 
@@ -312,9 +313,9 @@ describe('APIGateway Client', function() {
         expect(url).to.be.equal('https://my***REMOVED***Id.execute-api.us-west-2.amazonaws.com/SomeStage');
         done();
       });
-      
+
     });
-    
+
     it('should return nothing if api is not found', (done) => {
       //Arrange
       const getRestApisResponse = {
@@ -371,10 +372,10 @@ describe('APIGateway Client', function() {
         expect(url).to.be.null;
         done();
       });
-      
+
     });
-    
-    
+
+
     it('should return nothing if stage is not found', (done) => {
       //Arrange
       const getRestApisResponse = {
@@ -429,8 +430,334 @@ describe('APIGateway Client', function() {
         expect(url).to.be.null;
         done();
       });
-      
+
+    });
+  });
+  describe('_overwriteSwagger', () => {
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+
+    beforeEach(() => {
+      APIGatewayMock = {
+
+        putRestApi: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve()
+        })
+      }
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+    })
+
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+    })
+
+    it('should call apiGatewayClient.putRestApi', (done) => {
+      //Act
+      const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{})
+      //Assert
+      promiseResult.then(data => {
+        expect(APIGatewayMock.putRestApi.calledOnce).to.be.true;
+        done();
+      });
+    });
+
+    it('should pass options apiGatewayClient.putRestApi', (done) => {
+      //Arrange
+      let options = {
+        restApiId: 'gatewayId',
+        body: '{}',
+        failOnWarnings: false,
+        mode: 'overwrite'
+      }
+      //Act
+      const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{})
+      //Assert
+      promiseResult.then(data => {
+        expect(APIGatewayMock.putRestApi.args[0][0]).to.deep.equal(options);
+        done();
+      })
     });
   });
 
+  describe('_createSwagger', () => {
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+
+    beforeEach(() => {
+      APIGatewayMock = {
+
+        importRestApi: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve()
+        })
+      }
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+    })
+
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+    })
+
+    it('should call apiGatewayClient.putRestApi', (done) => {
+      //Act
+      const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}})
+      //Assert
+      promiseResult.then(data => {
+        expect(APIGatewayMock.importRestApi.calledOnce).to.be.true;
+        done();
+      });
+    });
+
+    it('should pass options apiGatewayClient.putRestApi', (done) => {
+      //Arrange
+      let options = {"body":"{\"info\":{\"title\":\"test\"}}","failOnWarnings":false}
+      //Act
+      const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}})
+      //Assert
+      promiseResult.then(data => {
+        console.log(JSON.stringify(APIGatewayMock.importRestApi.args[0][0]))
+        expect(APIGatewayMock.importRestApi.args[0][0]).to.deep.equal(options);
+        done();
+      })
+    });
+  });
+  describe('createOrOverwriteApiSwagger', () => {
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+
+    beforeEach(() => {
+      APIGatewayMock = {}
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+    })
+
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+    })
+    it('should error if no swaggerEntity is passed to it', (done) => {
+      let response = apiGatewayService.createOrOverwriteApiSwagger()
+
+      response.catch(err => {
+        expect(err).to.have.property('message','swaggerEntity is null or undefined [swaggerEntity: ]')
+        done();
+      })
+    })
+
+    it('should error if swaggerEntity has no title', (done) => {
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {}})
+
+      response.catch(err => {
+        expect(err).to.have.property('message','swaggerEntity must contain info and title [swaggerEntity: {"info":{}}]')
+        done();
+      })
+    })
+
+    it('should error if swaggerEntity title is null', (done) => {
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: null}})
+
+      response.catch(err => {
+        expect(err).to.have.property('message','swaggerEntity.info.title is null, undefined, or empty [swaggerEntity: {"info":{"title":null}}]')
+        done();
+      })
+    })
+
+    it('should call lookupApiGatewayByName with the entity title', (done) => {
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('IAMANID'))
+      apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
+
+      response.then(data => {
+        expect(apiGatewayService.lookupApiGatewayByName.calledOnce).to.be.true;
+        done();
+      })
+    })
+    it('should call _overwriteSwagger if name lookup returns and id', (done) => {
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('IAMANID'))
+      apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
+
+      response.then(data => {
+        expect(apiGatewayService._overwriteSwagger.calledOnce).to.be.true;
+        done();
+      })
+    })
+    it('should call _createSwagger if name lookup returns no id', (done) => {
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve())
+      apiGatewayService._createSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
+
+      response.then(data => {
+        expect(apiGatewayService._createSwagger.calledOnce).to.be.true;
+        done();
+      })
+    })
+  });
+  describe('createDeployment', () => {
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let createStub;
+    let updateStub;
+    beforeEach(() => {
+      createStub = sandbox.stub().returns(BluebirdPromise.resolve());
+      updateStub = sandbox.stub().returns(BluebirdPromise.resolve());
+      APIGatewayMock = {
+        createDeployment: () => ({promise: createStub}),
+        updateStage: () => ({promise: updateStub})
+      };
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+    })
+
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      createStub = null;
+      updateStub = null;
+    })
+    it('should error if no id is passed to it', (done) => {
+      //Arrange
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+      //Act
+      let response = apiGatewayService.createDeployment(null,'IAMSTAGE',{variable: 'amvar'});
+      //Assert
+      response.catch(err => {
+        expect(err).to.equal("restApiId must be populated");
+        done();
+      })
+    });
+    it('should error if no stagename is passed to it', (done) => {
+      //Arrange
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+      //Act
+      let response = apiGatewayService.createDeployment('IAMANID',null,{variable: 'amvar'});
+      //Assert
+      response.catch(err => {
+        expect(err).to.equal("stageName must be populated");
+        done();
+      })
+    });
+    it('should error if no variableCollection is passed to it', (done) => {
+      //Arrange
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+      //Act
+      let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',[]);
+      //Assert
+      response.catch(err => {
+        expect(err).to.equal("variableCollection must be populated");
+        done();
+      })
+    });
+    it('should call createDeployment from apiGatewayClient once', (done) => {
+      //Arrange
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+      //Act
+      let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',{variable: 'amvar'});
+      //Assert
+      response.then(data => {
+        expect(createStub.calledOnce).to.be.true;
+        done();
+      });
+    });
+    it('should call updateStage from apiGatewayClient once', (done) => {
+      //Arrange
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+      //Act
+      let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',{variable: 'amvar'});
+      //Assert
+      response.then(data => {
+        expect(updateStub.calledOnce).to.be.true;
+        done();
+      });
+    });
+    it('should throw an error if the api throws one', (done) => {
+      //Arrange
+      createStub = sandbox.stub().rejects({message: 'You got an error'})
+      mockery.registerMock('aws-sdk', mockAwsSdk);
+      APIGateway = require('../src/apiGatewayClient');
+      apiGatewayService = new APIGateway('acckey', 'secret');
+      //Act
+      let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',{variable: 'amvar'});
+      //Assert
+      response.catch(err => {
+        console.log(err)
+        expect(err).to.have.property('message', 'You got an error');
+        done();
+      });
+    });
+  });
 });

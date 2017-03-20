@@ -94,14 +94,6 @@ class APIGatewayClient extends BaseClient {
       return BlueBirdPromise.reject("variableCollection must be populated");
     }
 
-    let apiGatewayParams = {
-      apiVersion: '2015-07-09',
-      accessKeyId: this._accessKey,
-      secretAccessKey: this._secretKey,
-      sslEnabled: true,
-      region: this._region
-    };
-    let apiGateway = new AWS.APIGateway(apiGatewayParams);
     return BlueBirdPromise.resolve().then(() => {
 
       let createParams = {
@@ -113,7 +105,7 @@ class APIGatewayClient extends BaseClient {
       };
 
       this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-      return apiGateway.createDeployment(createParams).promise();
+      return this._apiGatewayClient.createDeployment(createParams).promise();
     }).then(data => {
       const params = {
         restApiId: restApiId,
@@ -136,7 +128,7 @@ class APIGatewayClient extends BaseClient {
           }]
       };
       this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-      return apiGateway.updateStage(params).promise();
+      return this._apiGatewayClient.updateStage(params).promise();
     }).then(data => {
       this.logMessage(`Success: ${JSON.stringify(data)}`);
     }).catch(err => {
@@ -169,7 +161,7 @@ class APIGatewayClient extends BaseClient {
         stageDescription: `${stageFullName} - ${moment.utc().format()}`
       };
 
-      this._apiGateway.createDeployment(params).promise();
+      this._apiGatewayClient.createDeployment(params).promise();
     });
   }
 
@@ -183,25 +175,25 @@ class APIGatewayClient extends BaseClient {
       util.isNullOrUndefined(environment.ShortName) ||
       environment.ShortName.toLocaleUpperCase() === unknown) {
 
-      return BlueBirdPromise.reject(new gulpUtil.PluginError({
+      return BlueBirdPromise.reject({
         plugin: methodName,
         message: `environment is not valid [environment: ${this._getObjectAsString(environment)}]`
-      }));
+      });
     }
 
     if (util.isNullOrUndefined(apiName) || apiName === '') {
-      return BlueBirdPromise.reject(new gulpUtil.PluginError({
+      return BlueBirdPromise.reject({
         plugin: methodName,
         message: 'apiName is null or undefined'
-      }));
+      });
     }
 
     return this.lookupApiGatewayByName(apiName).delay(delayInMilliseconds).then((foundApiId)=> {
       if (util.isNullOrUndefined(foundApiId)) {
-        return BlueBirdPromise.reject(new gulpUtil.PluginError({
+        return BlueBirdPromise.reject({
           plugin: methodName,
           message: "foundApiId is null or undefined (no match found)"
-        }));
+        });
       }
 
       this.logMessage(`Found the foundApid: ${foundApiId}`);
@@ -213,10 +205,10 @@ class APIGatewayClient extends BaseClient {
         this.logMessage(`deployApiGatewayToStageForEnvByGatewayName was a success ${this._getObjectAsString(data)}`);
         return BlueBirdPromise.resolve(data);
       }).catch((error) => {
-        return BlueBirdPromise.reject(new gulpUtil.PluginError({
+        return BlueBirdPromise.reject({
           plugin: methodName,
           message: this._getObjectAsString(error)
-        }));
+        });
       });
     }).catch((err)=> {
       return BlueBirdPromise.reject(err);
@@ -232,13 +224,13 @@ class APIGatewayClient extends BaseClient {
     };
 
     return new BlueBirdPromise((resolve, reject) => {
-      this._apiGateway.importRestApi(options, function (err, data) {
-        if (err) {
-          return reject(err);
-        }
-
+      this._apiGatewayClient.importRestApi(options).promise()
+      .then(data => {
         this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}] completed`);
-        return resolve(data);
+        resolve(data);
+      })
+      .catch(err => {
+        reject(err);
       });
     });
   };
@@ -254,12 +246,12 @@ class APIGatewayClient extends BaseClient {
     };
 
     return new BlueBirdPromise((resolve, reject) => {
-      this._apiGateway.putRestApi(options, function (err, data) {
-        if (err) {
-          return reject(err);
-        }
-
-        return resolve(data);
+      this._apiGatewayClient.putRestApi(options).promise()
+      .then(data => {
+        resolve(data);
+      })
+      .catch(err => {
+        reject(err);
       });
     });
   };
@@ -268,27 +260,27 @@ class APIGatewayClient extends BaseClient {
     let methodName = 'createOrOverwriteApiSwagger';
 
     if (util.isNullOrUndefined(swaggerEntity)){
-      return BlueBirdPromise.reject(new gulpUtil.PluginError({
+      return BlueBirdPromise.reject({
         plugin: methodName,
         message: `swaggerEntity is null or undefined [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`
-      }));
+      });
     }
 
     if (!swaggerEntity.hasOwnProperty("info") || !swaggerEntity.info.hasOwnProperty("title")){
-      return BlueBirdPromise.reject(new gulpUtil.PluginError({
+      return BlueBirdPromise.reject({
         plugin: methodName,
         message: `swaggerEntity must contain info and title [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`
-      }));
+      });
     }
 
     if (util.isNullOrUndefined(swaggerEntity.info.title) || swaggerEntity.info.title === ""){
-      return BlueBirdPromise.reject(new gulpUtil.PluginError({
+      return BlueBirdPromise.reject({
         plugin: methodName,
         message: `swaggerEntity.info.title is null, undefined, or empty [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`
-      }));
+      });
     }
 
-    return this.lookupApiGatewayByName(swaggerEntity.info.title).delay(delayInMilliseconds).then((foundApiId)=> {
+    return this.lookupApiGatewayByName(swaggerEntity.info.title).then((foundApiId)=> {
       if (util.isNullOrUndefined(foundApiId)) {
         this.logMessage(`${methodName}: creating api gateway`);
         return this._createSwagger(swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
@@ -300,10 +292,10 @@ class APIGatewayClient extends BaseClient {
         this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
         return BlueBirdPromise.resolve(data);
       }).catch((error) => {
-        return BlueBirdPromise.reject(new gulpUtil.PluginError({
+        return BlueBirdPromise.reject({
           plugin: methodName,
           message: this._getObjectAsString(error)
-        }));
+        });
       });
     }).catch((err)=> {
       return BlueBirdPromise.reject(err);

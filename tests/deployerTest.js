@@ -75,7 +75,6 @@ describe('Deployer', function() {
 
       //Act
       const deployerInstance = new Deployer(deployerParams);
-
       //Assert
       expect(ec2ClientStub.args[0][0]).to.be.equal(accessKey);
       expect(ec2ClientStub.args[0][1]).to.be.equal(secretKey);
@@ -127,7 +126,6 @@ describe('Deployer', function() {
 
       //Act
       const deployerInstance = new Deployer(deployerParams);
-
       //Assert
       expect(elbClientStub.args[0][0]).to.be.equal(accessKey);
       expect(elbClientStub.args[0][1]).to.be.equal(secretKey);

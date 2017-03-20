@@ -94,7 +94,7 @@ class Deployer {
   }
 
   lookupApiGatewayByName(name) {
-    return this._apiGatewayClient.lookupApiGatewayByName(nam);
+    return this._apiGatewayClient.lookupApiGatewayByName(name);
   }
 
   logMessage(msg) {

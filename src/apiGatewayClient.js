@@ -280,15 +280,15 @@ class APIGatewayClient extends BaseClient {
       });
     }
 
-    return this.lookupApiGatewayByName(swaggerEntity.info.title).then((foundApiId)=> {
-      if (util.isNullOrUndefined(foundApiId)) {
+    return this.lookupApiGatewayByName(swaggerEntity.info.title).then((foundApi)=> {
+      if (util.isNullOrUndefined(foundApi)) {
         this.logMessage(`${methodName}: creating api gateway`);
         return this._createSwagger(swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
       }
 
-      this.logMessage(`${methodName}: Found the [foundApid: ${foundApiId}]`);
+      this.logMessage(`${methodName}: Found the [foundApid: ${JSON.stringify(foundApi.id)}]`);
 
-      return this._overwriteSwagger(foundApiId, swaggerEntity, failOnWarnings).delay(delayInMilliseconds).then((data) => {
+      return this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings).delay(delayInMilliseconds).then((data) => {
         this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
         return BlueBirdPromise.resolve(data);
       }).catch((error) => {

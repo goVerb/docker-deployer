@@ -324,7 +324,7 @@ class Deployer {
     }).then(resp => {
       serviceConfig.putAlarmScaleInParams.AlarmActions[0] = resp.PolicyARN;
       return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
-    })
+    });
   }
 
   /**

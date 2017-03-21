@@ -6,6 +6,8 @@ const AutoScaling = require('./autoScalingClient.js');
 const Route53 = require('./route53Client.js');
 const CloudFront = require('./cloudFrontClient.js');
 const APIGateway = require('./apiGatewayClient');
+const ApplicationAutoScaling = require('./applicationAutoScalingClient.js');
+const CloudWatch = require('./cloudWatchClient.js');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 let util = require('util');
@@ -39,6 +41,8 @@ class Deployer {
     this._route53Client = new Route53(this._accessKey, this._secretKey, this._region);
     this._cloudFrontClient = new CloudFront(this._accessKey, this._secretKey);
     this._apiGatewayClient = new APIGateway(this._accessKey, this._secretKey, this._region);
+    this._applicationAutoScalingClient = new ApplicationAutoScaling(this._accessKey, this._secretKey, this._region);
+    this._cloudWatchClient = new CloudWatch(this._accessKey, this._secretKey, this._region);
   }
 
 
@@ -307,8 +311,19 @@ class Deployer {
   _createECSService(serviceConfig) {
 
     return this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName).then(targetGroupArn => {
-
       return this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
+    }).then(() => {
+      return this._applicationAutoScalingClient.registerScalableTarget(serviceConfig.registerScalableTargetParams);
+    }).then(() => {
+      return this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleOutPolicyParams);
+    }).then(resp => {
+      serviceConfig.putAlarmScaleOutParams.AlarmActions[0] = resp.PolicyARN;
+      return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleOutParams);
+    }).then(() => {
+      return this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
+    }).then(resp => {
+      serviceConfig.putAlarmScaleInParams.AlarmActions[0] = resp.PolicyARN;
+      return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
     });
   }
 

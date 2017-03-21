@@ -77,6 +77,7 @@ class APIGatewayClient extends BaseClient {
         this.logMessage(`No API avaialble for [RestAPI Name ${apiName}]`);
         return null;
       }
+      this.logMessage(`API available: [API ID: ${api.id}]`)
       return this._getDomainName(api.id);
     });
   }

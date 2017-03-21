@@ -221,8 +221,8 @@ class CloudFrontClient extends BaseClient {
       cloudfrontPaths.forEach(item => {
         let foundCacheBehavior = __.find(distribution.DistributionConfig.CacheBehaviors.Items, {TargetOriginId: item.originName});
         if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== item.pathPattern) {
-          console.log(JSON.stringify(foundCacheBehavior))
-          console.log(JSON.stringify(item))
+          console.log(JSON.stringify(foundCacheBehavior));
+          console.log(JSON.stringify(item));
           this.logMessage('No foundCacheBehavior or pathPattern does not match');
           foundDifference = true;
         }
@@ -259,8 +259,8 @@ class CloudFrontClient extends BaseClient {
         //originPath
         if (!foundOrigin || foundOrigin.OriginPath !== item.originPath) {
           this.logMessage('No foundOrigin or OriginPath does not match');
-          this.logMessage(JSON.stringify(foundOrigin))
-          this.logMessage(JSON.stringify(item))
+          this.logMessage(JSON.stringify(foundOrigin));
+          this.logMessage(JSON.stringify(item));
 
           foundDifference = true;
         }

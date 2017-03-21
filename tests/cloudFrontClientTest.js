@@ -3187,6 +3187,60 @@ describe('CloudFront Client', function() {
       expect(result).to.be.true;
     });
 
+    it('should set the default cacheBehavior viewerProtocolPolicy to allow-all', () => {
+      //Arrange
+      let originName = 'something api';
+      let cname = 'test.example.com';
+      let certificateArn = 'uniqueArn';
+      let comment = 'existing comment';
+      let originDomainName = 'asfsafdafdas.something';
+      let originPath = '/expected';
+      let pathPattern = '/';
+      let originProtocolPolicy = 'http-only';
+      let queryString = true;
+
+      const customErrorResponse403 = {
+        ErrorCode: 403,
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/'
+      };
+
+      let distribution = {"Id":"E21EM2OH01LPLB","ARN":"arn:aws:cloudfront::***REMOVED***:distribution/E21EM2OH01LPLB","Status":"Deployed","LastModifiedTime":"2016-12-20T23:42:55.574Z","InProgressInvalidationBatches":0,"DomainName":"d2296tvo3hsqb0.cloudfront.net","ActiveTrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"DistributionConfig":{"CallerReference":"4d3b4bbf-9c6a-4fbb-a6a6-79990d77311d","Aliases":{"Quantity":1,"Items":[cname]},"DefaultRootObject":"","Origins":{"Quantity":1,"Items":[{"Id":originName,"DomainName":originDomainName,"OriginPath":originPath,"CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":originProtocolPolicy,"OriginSslProtocols":{"Quantity":3,"Items":["TLSv1","TLSv1.1","TLSv1.2"]}}}]},"DefaultCacheBehavior":{"TargetOriginId":"***REMOVED*** API Gateway - Dev","ForwardedValues":{"QueryString":queryString,"Cookies":{"Forward":"none"},"Headers":{"Quantity":4,"Items":["Content-Type","authorization","x-***REMOVED***-test","x-***REMOVED***-version"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":false,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}},"CacheBehaviors":{"Quantity":1,"Items":[{"PathPattern":`${pathPattern}`,"TargetOriginId":"something api","ForwardedValues":{"QueryString":false,"Cookies":{"Forward":"none"},"Headers":{"Quantity":0,"Items":[]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"allow-all","MinTTL":0,"AllowedMethods":{"Quantity":7,"Items":["HEAD","DELETE","POST","GET","OPTIONS","PUT","PATCH"],"CachedMethods":{"Quantity":3,"Items":["HEAD","GET","OPTIONS"]}},"SmoothStreaming":false,"DefaultTTL":0,"MaxTTL":0,"Compress":true,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]}}]},"CustomErrorResponses":{"Quantity":1,"Items":[customErrorResponse403]},"Comment":comment,"Logging":{"Enabled":false,"IncludeCookies":false,"Bucket":"","Prefix":""},"PriceClass":"PriceClass_All","Enabled":true,"ViewerCertificate":{"ACMCertificateArn":certificateArn,"SSLSupportMethod":"sni-only","MinimumProtocolVersion":"TLSv1","Certificate":certificateArn,"CertificateSource":"acm"},"Restrictions":{"GeoRestriction":{"RestrictionType":"none","Quantity":0,"Items":[]}},"WebACLId":"","HttpVersion":"http2","IsIPV6Enabled":true},"ETag":"EM6TN7UQZMM3Z"};
+
+      let cloudFrontParams = {
+        cname: cname,
+        comment: comment,
+        acmCertArn: certificateArn,
+        customErrorResponses: [
+          {
+            errorCode: customErrorResponse403.ErrorCode,
+            errorCachingMinTTL: customErrorResponse403.ErrorCachingMinTTL,
+            responseCode: customErrorResponse403.ResponseCode,
+            responsePagePath: customErrorResponse403.ResponsePagePath
+          }
+        ],
+        cloudfrontPaths: [
+          {
+            originName: originName,
+            originDomainName: originDomainName,
+            originPath: originPath,
+            originProtocolPolicy: originProtocolPolicy,
+            pathPattern: pathPattern,
+            queryString: queryString,
+          }
+        ]
+      };
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+      //Act
+      let result = cloudFrontClientService._isDistributionOutOfDate(distribution, cloudFrontParams);
+
+      //Assert
+      expect(result).to.be.false;
+    });
     it('should return true if cloudfrontPath.originDomainName is different', () => {
       //Arrange
       let originName = 'something api';

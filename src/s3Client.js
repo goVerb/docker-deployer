@@ -4,6 +4,7 @@ const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const base64 = require('base-64');
 const util = require('util');
+const awspublish = require('gulp-awspublish');
 
 const BaseClient = require('./baseClient');
 
@@ -35,30 +36,18 @@ class S3Client extends BaseClient {
    * @param callback
    * @returns {Promise.<*>}
    */
-  LookupS3BucketByName(s3BucketName, callback) {
-    return new BlueBirdPromise((resolve, reject) => {
-      this.logMessage(`Checking if Bucket exists. [S3BucketName: ${s3BucketName}]`);
+  LookupS3BucketByName(s3BucketName) {
+    let params = {
+      Bucket: s3BucketName
+    };
+    this.logMessage(`Checking if Bucket exists. [S3BucketName: ${s3BucketName}]`);
+    let listBucketsPromise = this._awsS3Client.listBuckets().promise();
 
-      try {
-        let params = {
-          Bucket: s3BucketName
-        };
+    return listBucketsPromise.then(results => {
+      if(__.isEmpty(results.Buckets)) return {};
 
-        this._awsS3Client.waitFor('bucketExists', params, (err, data) => {
-          if(err) {
-            let errorMessage = `Error: ${err}| Error Stack Trace: ${err.stack}`;
-            this.logMessage(errorMessage);
-            resolve();
-          } else {
-            resolve(data);
-          }
-        });
-      } catch (err) {
-        let errorMessage = `LookupS3BucketByName Error: ${err}`;
-        this.logMessage(errorMessage);
-        reject(errorMessage);
-      }
-    }).asCallback(callback);
+      return __.find(results.Buckets, { Name: s3BucketName });
+    });
   }
 
 
@@ -128,24 +117,42 @@ class S3Client extends BaseClient {
 
   /**
    * This will do the following: 1. lookup S3 by name, 2. delay 3a. if S3 not found create the new S3, 3b. if S3 found it will update it 4. delay again
-   * @param {Object} options Note: swaggerEntity must have valid info.title. Pulling from here because the is the aws importer strategy
+   * @param {Object} options
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
-   * @param {boolean} [failOnWarnings=false]
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
-  createBucketIfNecessary(options, delayInMilliseconds = 5000, failOnWarnings = false) {
+  createBucketIfNecessary(options, delayInMilliseconds = 5000) {
     let methodName = 'createOrOverwriteS3Bucket';
 
     return this.LookupS3BucketByName(options.name).delay(delayInMilliseconds).then((foundS3Bucket) => {
-      if(util.isNullOrUndefined(foundS3Bucket)) {
-        this.logMessage(`${methodName}: creating bucket`);
+      if(__.isEmpty(foundS3Bucket)) {
+        this.logMessage(`No bucket found. Creating one. [Bucket name: ${methodName}]`);
         return this.createBucket(options.name).delay(delayInMilliseconds).then(() => {
           return this.enableHosting(options.name).delay(delayInMilliseconds);
         });
       }
-      this.logMessage(`${methodName}: Found the [foundS3Bucket: ${foundS3Bucket}]`);
+      this.logMessage(`${methodName}: Found the bucket. No changes needed. [foundS3Bucket: ${JSON.stringify(foundS3Bucket)}]`);
     }).catch((err) => {
-      return Promise.reject(err);
+      this.logMessage(`${methodName}: Error! [err: ${JSON.stringify(err)}]`);
+      return BlueBirdPromise.reject(err);
+    });
+  }
+
+  /**
+   * This will do the following: 1. lookup S3 by name, 2. delay 3a. if S3 not found create the new S3, 3b. if S3 found it will update it 4. delay again
+   * @param {Object} options
+   * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
+   */
+  publishToBucket(options) {
+    // let methodName = 'publishToBucket';
+
+    return awspublish.create({
+      region: this._region,
+      params: {
+        Bucket: options.name
+      },
+      accessKeyId: this._accessKey,
+      secretAccessKey: this._secretKey,
     });
   }
 

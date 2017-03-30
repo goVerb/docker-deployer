@@ -160,12 +160,23 @@ class Deployer {
 
 
   /**
-   * Creates a CloudFront Client and associates it to a hosted zone
+   * Creates an S3 bucket if needed
    * @param config
    * @return {Promise.<D>}
    */
   createS3BucketIfNecessary(config) {
     return this._s3Client.createBucketIfNecessary(config);
+  }
+
+
+  /**
+   * Creates a CloudFront Client and associates it to a hosted zone
+   * @param config
+   * @param config.name
+   * @return {Promise.<D>}
+   */
+  publishChangesToBucket(config) {
+    return this._s3Client.publishToBucket(config);
   }
 
 
@@ -394,35 +405,15 @@ class Deployer {
 // });
 //
 // const config = {
-//   name: '***REMOVED*** ECS LC - Dev',
-//   baseImageId: 'ami-7abc111a',
-//   vpcName: '***REMOVED*** VPC - Dev',
-//   securityGroupName: '***REMOVED*** EC2 SG - Dev',
-//   instanceType: 't1.micro' // this is new and should bubble through LCs and ASGs
+//   name: '***REMOVED***-web-kill'
 // };
-//
-// const environment = 'Dev';
-//
-// const ecsClusterName = '***REMOVED***-Cluster-Dev';
-//
-// const autoScaleGroup = {
-//   name: '***REMOVED***-ECS-ASG-Dev',
-//   launchConfigurationName: '***REMOVED*** ECS LC - Dev',
-//   minSize: 1,
-//   maxSize: 3,
-//   desiredSize: 2,
-//   targetGroupName: '***REMOVED***-Target-Group-Dev',
-//   vpcName: '***REMOVED*** VPC - Dev',
-//   vpcSubnets: ['Instance Subnet 1 - Dev', 'Instance Subnet 2 - Dev']
-// };
-//
-// let launchConfigToDeleteName;
-// newDeployer._createOrUpdateLaunchConfiguration(config, ecsClusterName).then(launchConfigNames => {
-//   autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
-//   launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
-//
-//   return newDeployer._createOrUpdateAutoScaleGroup(environment, autoScaleGroup, launchConfigToDeleteName);
-// });
+
+
+// newDeployer.createS3BucketIfNecessary(config);
+
+
+
+
 
 
 module.exports = function() {

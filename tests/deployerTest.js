@@ -318,6 +318,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -354,6 +355,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -390,6 +392,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -426,6 +429,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -462,6 +466,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -498,6 +503,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -534,6 +540,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
@@ -570,6 +577,7 @@ describe('Deployer', function() {
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
+      deployerClient.createS3BucketIfNecessary = sandbox.stub().resolves();
       deployerClient._createTargetGroup = sandbox.stub().resolves();
       deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();

@@ -87,6 +87,9 @@ let infrastructureDefinition = {
     targetGroupName: targetGroupDefinition.name,
     protocol: 'HTTP',
     port: 80
+  },
+  s3: {
+    name: 'fake1'
   }
 };
 

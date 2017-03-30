@@ -58,14 +58,15 @@ class Deployer {
       vpcId = createdVpcId;
     }).then(() => {
       //Create security groups
-
       let securityGroupPromises = [];
       for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
         let securityGroupConfig = config.securityGroups[sgIndex];
         securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
       }
-
       return BlueBirdPromise.all(securityGroupPromises);
+    }).then(() => {
+      // Create file hosting buckets if they do not exist already
+      return this.createS3BucketIfNecessary({name: config.s3.name});
     }).then(() => {
       //Create Launch configuration
       return this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);

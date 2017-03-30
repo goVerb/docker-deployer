@@ -313,11 +313,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -333,7 +335,7 @@ describe('Deployer', function() {
       });
     });
 
-    it('should call _createLaunchConfiguration once', () => {
+    it('should call _createOrUpdateLaunchConfiguration once', () => {
       //Arrange
       //Setting up Deployer clients
       const accessKey = 'acckey';
@@ -347,11 +349,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -363,7 +367,7 @@ describe('Deployer', function() {
 
       //Assert
       return resultPromise.then(() => {
-        expect(deployerClient._createLaunchConfiguration.calledOnce).to.be.true;
+        expect(deployerClient._createOrUpdateLaunchConfiguration.calledOnce).to.be.true;
       });
     });
 
@@ -381,11 +385,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -401,7 +407,7 @@ describe('Deployer', function() {
       });
     });
 
-    it('should call _createAutoScaleGroup once', () => {
+    it('should call _createOrUpdateAutoScaleGroup once', () => {
       //Arrange
       //Setting up Deployer clients
       const accessKey = 'acckey';
@@ -415,11 +421,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -431,7 +439,7 @@ describe('Deployer', function() {
 
       //Assert
       return resultPromise.then(() => {
-        expect(deployerClient._createAutoScaleGroup.calledOnce).to.be.true;
+        expect(deployerClient._createOrUpdateAutoScaleGroup.calledOnce).to.be.true;
       });
     });
 
@@ -449,11 +457,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -483,11 +493,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -517,11 +529,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();
@@ -551,11 +565,13 @@ describe('Deployer', function() {
         region: region
       };
 
+      let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
+
       let deployerClient = new Deployer(deployerParams);
       deployerClient._createSecurityGroup = sandbox.stub().resolves();
-      deployerClient._createLaunchConfiguration = sandbox.stub().resolves();
+      deployerClient._createOrUpdateLaunchConfiguration = sandbox.stub().resolves(_createOrUpdateLaunchConfigurationStub);
       deployerClient._createTargetGroup = sandbox.stub().resolves();
-      deployerClient._createAutoScaleGroup = sandbox.stub().resolves();
+      deployerClient._createOrUpdateAutoScaleGroup = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancer = sandbox.stub().resolves();
       deployerClient._createApplicationLoadBalancerListener = sandbox.stub().resolves();
       deployerClient._createDNSEntryForApplicationLoadBalancer = sandbox.stub().resolves();

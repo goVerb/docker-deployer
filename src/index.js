@@ -49,6 +49,7 @@ class Deployer {
   createInfrastructure(config) {
 
     let vpcId = '';
+    let launchConfigToDeleteName;
 
     //create Vpc
     return this._vpcClient.createVpcFromConfig(config.environment, config.vpc).then(createdVpcId => {
@@ -65,19 +66,21 @@ class Deployer {
       return BlueBirdPromise.all(securityGroupPromises);
     }).then(() => {
       //Create Launch configuration
-      return this._createLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
-    }).then(() => {
+      return this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
+    }).then(launchConfigNames => {
+      // Apply the launch configuration name that was actually used
+      config.autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
+      launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
       //Create Target Group
       return this._createTargetGroup(config.environment, config.targetGroup);
     }).then(() => {
       //Create Auto Scale Group
-      return this._createAutoScaleGroup(config.environment, config.autoScaleGroup);
+      return this._createOrUpdateAutoScaleGroup(config.environment, config.autoScaleGroup, launchConfigToDeleteName);
     }).then(() => {
       //Create Application Load Balancer
       return this._createApplicationLoadBalancer(config.environment, config.appLoadBalancer);
     }).then(() => {
       //Create Listener (Application LB to Target Group Association)
-
       return this._createApplicationLoadBalancerListener(config.appListener);
     }).then(() => {
       //associate Load balancer with DNS Entry
@@ -182,9 +185,9 @@ class Deployer {
    * @param launchConfigurationConfig
    * @param ecsClusterName
    * @return {Promise.<TResult>}
-   * @private
+   * @public
    */
-  _createLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
+  _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
     //convert vpcName to vpcId
     return this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName).then(vpcId => {
       return this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
@@ -192,7 +195,7 @@ class Deployer {
       launchConfigurationConfig.ecsClusterName = ecsClusterName;
       launchConfigurationConfig.securityGroupId = securityGroupId;
 
-      return this._autoScalingClient.createLaunchConfigurationFromConfig(launchConfigurationConfig);
+      return this._autoScalingClient.createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig);
     });
   }
 
@@ -216,9 +219,10 @@ class Deployer {
    *
    * @param environment
    * @param asgConfig
-   * @private
+   * @param launchConfigToDeleteName
+   * @public
    */
-  _createAutoScaleGroup(environment, asgConfig) {
+  _createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDeleteName) {
 
     return this._vpcClient.getVpcIdFromName(asgConfig.vpcName).then(vpcId => {
 
@@ -230,7 +234,19 @@ class Deployer {
 
       let subnetIdsAsString = subnetIds.join(',');
 
-      return this._autoScalingClient.createAutoScalingGroup(environment, asgConfig.name, asgConfig.launchConfigurationName, asgConfig.minSize, asgConfig.maxSize, asgConfig.desiredSize, [targetGroupArn], subnetIdsAsString);
+      let params = {
+        environment,
+        name: asgConfig.name,
+        launchConfigurationName: asgConfig.launchConfigurationName,
+        minSize: asgConfig.minSize,
+        maxSize: asgConfig.maxSize,
+        desiredCapacity: asgConfig.desiredSize,
+        targetGroupArns: [targetGroupArn],
+        vpcSubnets: subnetIdsAsString
+      };
+
+
+      return this._autoScalingClient.createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName);
     });
   }
 
@@ -341,6 +357,45 @@ class Deployer {
     });
   }
 }
+
+
+// const newDeployer = new Deployer({
+//   accessKey: '***REMOVED***',
+//   secretKey: '***REMOVED***',
+//   region: 'us-west-2'
+// });
+//
+// const config = {
+//   name: '***REMOVED*** ECS LC - Dev',
+//   baseImageId: 'ami-7abc111a',
+//   vpcName: '***REMOVED*** VPC - Dev',
+//   securityGroupName: '***REMOVED*** EC2 SG - Dev',
+//   instanceType: 't1.micro' // this is new and should bubble through LCs and ASGs
+// };
+//
+// const environment = 'Dev';
+//
+// const ecsClusterName = '***REMOVED***-Cluster-Dev';
+//
+// const autoScaleGroup = {
+//   name: '***REMOVED***-ECS-ASG-Dev',
+//   launchConfigurationName: '***REMOVED*** ECS LC - Dev',
+//   minSize: 1,
+//   maxSize: 3,
+//   desiredSize: 2,
+//   targetGroupName: '***REMOVED***-Target-Group-Dev',
+//   vpcName: '***REMOVED*** VPC - Dev',
+//   vpcSubnets: ['Instance Subnet 1 - Dev', 'Instance Subnet 2 - Dev']
+// };
+//
+// let launchConfigToDeleteName;
+// newDeployer._createOrUpdateLaunchConfiguration(config, ecsClusterName).then(launchConfigNames => {
+//   autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
+//   launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
+//
+//   return newDeployer._createOrUpdateAutoScaleGroup(environment, autoScaleGroup, launchConfigToDeleteName);
+// });
+
 
 module.exports = function() {
   return Deployer;

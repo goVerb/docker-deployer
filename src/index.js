@@ -1,3 +1,4 @@
+const S3 = require('./s3Client');
 const VPC = require('./vpcClient.js');
 const ECS = require('./ecsClient.js');
 const ELB = require('./elbClient.js');
@@ -33,6 +34,7 @@ class Deployer {
     this._secretKey = opts.secretKey;
     this._region = opts.region;
 
+    this._s3Client = new S3(this._accessKey, this._secretKey, this._region);
     this._vpcClient = new VPC(this._accessKey, this._secretKey, this._region);
     this._ecsClient = new ECS(this._accessKey, this._secretKey, this._region);
     this._ec2Client = new EC2(this._accessKey, this._secretKey, this._region);
@@ -94,20 +96,24 @@ class Deployer {
     });
   }
 
+
   deploy(serviceConfig, taskDefintionConfig) {
     return this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions).then(() => {
       return this._createECSService(serviceConfig);
     });
-
   }
+
 
   lookupApiGatewayByName(name) {
     return this._apiGatewayClient.lookupApiGatewayByName(name);
   }
 
+
   logMessage(msg) {
     console.log(`[${moment().format()}] ${msg}`);
   }
+
+
   /**
    * Looks up an API Gateway URL using the apiName and the StageName
    * @param apiName
@@ -126,6 +132,8 @@ class Deployer {
   lookupApiGatewayDomainName(apiName) {
     return this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
+
+
   /**
    * This will do the following: 1. lookup api by swagger title, 2. delay 3a. if api not found create the new api, 3b. if api found it will update it 4. delay again
    * @param {Object} swaggerEntity Note: swaggerEntity must have valid info.title. Pulling from here because the is the aws importer strategy
@@ -136,6 +144,8 @@ class Deployer {
    createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
      return this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
    }
+
+
   /**
    * Creates a CloudFront Client and associates it to a hosted zone
    * @param cloudfrontConfig
@@ -147,6 +157,18 @@ class Deployer {
       return this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
     });
   }
+
+
+  /**
+   * Creates a CloudFront Client and associates it to a hosted zone
+   * @param config
+   * @return {Promise.<D>}
+   */
+  createS3BucketIfNecessary(config) {
+    return this._s3Client.createBucketIfNecessary(config);
+  }
+
+
   /**
    *
    * @param restApiId
@@ -158,9 +180,13 @@ class Deployer {
     return this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
   }
 
+
+
   getObjectAsString(entity) {
     return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity);
   }
+
+
   /**
    * Looks up the various resources before pushing the config object to the client to be created
    * @param environment
@@ -169,7 +195,6 @@ class Deployer {
    * @private
    */
   _createSecurityGroup(environment, securityGroupConfig) {
-
     //convert vpcName to vpcId
     return this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName)
       .then(vpcId => {
@@ -179,6 +204,7 @@ class Deployer {
         return this._ec2Client.createSecurityGroupFromConfig(environment, securityGroupConfig);
       });
   }
+
 
   /**
    *
@@ -199,6 +225,7 @@ class Deployer {
     });
   }
 
+
   /**
    *
    * @param environment
@@ -214,6 +241,7 @@ class Deployer {
       });
     });
   }
+
 
   /**
    *
@@ -250,6 +278,7 @@ class Deployer {
     });
   }
 
+
   /**
    *
    * @param environment
@@ -257,7 +286,6 @@ class Deployer {
    * @private
    */
   _createApplicationLoadBalancer(environment, appLoadBalancerConfig) {
-
     return this._vpcClient.getVpcIdFromName(appLoadBalancerConfig.vpcName).then(vpcId => {
       return BlueBirdPromise.all([
         this._vpcClient.getSubnetIdsFromSubnetName(vpcId, appLoadBalancerConfig.vpcSubnets),
@@ -266,8 +294,8 @@ class Deployer {
     }).spread((subnetIds, securityGroupId) => {
       return this._elbClient.createApplicationLoadBalancer(environment, appLoadBalancerConfig.name, subnetIds, appLoadBalancerConfig.scheme, [securityGroupId]);
     });
-
   }
+
 
   /**
    *
@@ -276,7 +304,6 @@ class Deployer {
    * @private
    */
   _createApplicationLoadBalancerListener(listenerConfig) {
-
     let listenerConfigs = listenerConfig;
     if(!__.isArray(listenerConfigs)) {
       listenerConfigs = [listenerConfig];
@@ -317,6 +344,7 @@ class Deployer {
 
     return BlueBirdPromise.all(promiseArray);
   }
+
 
   /**
    *

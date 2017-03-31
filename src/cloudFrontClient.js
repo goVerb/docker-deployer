@@ -416,7 +416,11 @@ class CloudFrontClient extends BaseClient {
 
     this.logMessage('Creating DefaultCacheBehavior, Origins, and CacheBehaviors.');
     if(!__.isEmpty(cloudfrontPaths)) {
-      cloudFrontParams.DistributionConfig.DefaultCacheBehavior = this._createCacheBehavior(cloudfrontPaths[0], true);
+      cloudfrontPaths.forEach((each) => {
+        if(each.isDefault) {
+          cloudFrontParams.DistributionConfig.DefaultCacheBehavior = this._createCacheBehavior(each, true);
+        }
+      });
 
       let origins = [];
       let cacheBehaviors = [];

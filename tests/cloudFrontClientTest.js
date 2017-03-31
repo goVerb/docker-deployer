@@ -3602,7 +3602,8 @@ describe('CloudFront Client', function() {
             originPath: '',
             pathPattern: '/',
             originProtocolPolicy: 'http-only',
-            queryString: true
+            queryString: true,
+            isDefault: true
           }
         ]
       };
@@ -3633,7 +3634,8 @@ describe('CloudFront Client', function() {
             originPath: '',
             pathPattern: '/',
             originProtocolPolicy: 'http-only',
-            queryString: true
+            queryString: true,
+            isDefault: true
           },
           {
             originName: '***REMOVED*** Web - Static Dev',
@@ -3641,7 +3643,8 @@ describe('CloudFront Client', function() {
             originPath: '/static',
             pathPattern: '/static',
             originProtocolPolicy: 'http-only',
-            queryString: true
+            queryString: true,
+            isDefault: false
           }
         ]
       };
@@ -3715,7 +3718,8 @@ describe('CloudFront Client', function() {
             pathPattern: '/',
             originProtocolPolicy: 'http-only',
             viewerProtocolPolicy: 'redirect-to-https',
-            queryString: true
+            queryString: true,
+            isDefault: true
           }
         ]
       };

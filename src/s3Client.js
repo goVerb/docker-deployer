@@ -21,7 +21,7 @@ class S3Client extends BaseClient {
         secretAccessKey: this._secretKey,
         apiVersion: '2006-03-01',
         region: this._region,
-        sslEnabled: true
+        sslEnabled: false
       };
       this._internalS3Client = new AWS.S3(params);
     }

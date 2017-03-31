@@ -123,7 +123,7 @@ class S3Client extends BaseClient {
    */
   createBucketIfNecessary(options, delayInMilliseconds = 5000) {
     let methodName = 'createOrOverwriteS3Bucket';
-    this.logMessage(`LookupS3BucketByName: [options: ${JSON.stringify(options)}]`)
+    this.logMessage(`LookupS3BucketByName: [options: ${JSON.stringify(options)}]`);
     return this.LookupS3BucketByName(options.name).delay(delayInMilliseconds).then((foundS3Bucket) => {
       if(__.isEmpty(foundS3Bucket)) {
         this.logMessage(`No bucket found. Creating one. [Bucket name: ${methodName}]`);

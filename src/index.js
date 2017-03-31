@@ -406,7 +406,8 @@ class Deployer {
 // });
 //
 // const config = {
-//   name: '***REMOVED***-web-kill'
+//   name: '***REMOVED***-web-kill',
+//   enableHosting: true
 // };
 //
 //

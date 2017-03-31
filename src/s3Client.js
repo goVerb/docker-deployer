@@ -57,27 +57,49 @@ class S3Client extends BaseClient {
    * @returns {Promise.<*>}
    */
   createBucket(s3BucketName /*, stageName, variableCollection*/ ) {
-    return new BlueBirdPromise((resolve, reject) => {
-      let params = {
-        Bucket: s3BucketName, /* required */
-        CreateBucketConfiguration: {
-          LocationConstraint: this._region
-        }
+    // return new BlueBirdPromise((resolve, reject) => {
+    //   let params = {
+    //     Bucket: s3BucketName, /* required */
+    //     CreateBucketConfiguration: {
+    //       LocationConstraint: this._region
+    //     }
+    //   };
+    //   this.logMessage(`Creating Deployment. [s3BucketName: ${s3BucketName}]`);
+    //   this._awsS3Client.createBucket(params, (err, data) => {
+    //     if(err) {
+    //       let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
+    //       this.logMessage(errorMessage);
+    //       reject({
+    //         message: errorMessage
+    //       });
+    //     } else {
+    //       this.logMessage(`Success: ${JSON.stringify(data)}`);
+    //       resolve();
+    //     }
+    //   });
+    // });
+
+    const params = {
+      Bucket: s3BucketName, /* required */
+      CreateBucketConfiguration: {
+        LocationConstraint: this._region
+      }
+    };
+    this.logMessage(`Creating Deployment. [s3BucketName: ${s3BucketName}]`);
+
+    let createBucketPromise = this._awsS3Client.createBucket(params).promise();
+
+    return createBucketPromise.then(data => {
+      this.logMessage(`Success: ${JSON.stringify(data)}`);
+      return data;
+    }).catch(err => {
+      let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
+      this.logMessage(errorMessage);
+      return {
+        message: errorMessage
       };
-      this.logMessage(`Creating Deployment. [s3BucketName: ${s3BucketName}]`);
-      this._awsS3Client.createBucket(params, (err, data) => {
-        if(err) {
-          let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
-          this.logMessage(errorMessage);
-          reject({
-            message: errorMessage
-          });
-        } else {
-          this.logMessage(`Success: ${JSON.stringify(data)}`);
-          resolve();
-        }
-      });
     });
+
   }
 
 
@@ -87,31 +109,60 @@ class S3Client extends BaseClient {
    * @returns {Promise.<*>}
    */
   enableHosting(s3BucketName /*, stageName, variableCollection*/ ) {
-    return new BlueBirdPromise((resolve, reject) => {
-      let params = {
-        Bucket: s3BucketName, /* required */
-        WebsiteConfiguration: { /* required */
-          ErrorDocument: {
-            Key: 'index.html' /* required */
-          },
-          IndexDocument: {
-            Suffix: 'index.html' /* required */
-          }
+    // return new BlueBirdPromise((resolve, reject) => {
+    //   let params = {
+    //     Bucket: s3BucketName, /* required */
+    //     WebsiteConfiguration: { /* required */
+    //       ErrorDocument: {
+    //         Key: 'index.html' /* required */
+    //       },
+    //       IndexDocument: {
+    //         Suffix: 'index.html' /* required */
+    //       }
+    //     }
+    //   };
+    //   this.logMessage(`Enabling Hosting. [s3BucketName: ${s3BucketName}]`);
+    //   this._awsS3Client.putBucketWebsite(params, (err, data) => {
+    //     if(err) {
+    //       let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
+    //       this.logMessage(errorMessage);
+    //       reject({
+    //         message: errorMessage
+    //       });
+    //     } else {
+    //       this.logMessage(`Success: ${JSON.stringify(data)}`);
+    //       resolve();
+    //     }
+    //   });
+    // });
+
+
+
+
+    const params = {
+      Bucket: s3BucketName, /* required */
+      WebsiteConfiguration: { /* required */
+        ErrorDocument: {
+          Key: 'index.html' /* required */
+        },
+        IndexDocument: {
+          Suffix: 'index.html' /* required */
         }
+      }
+    };
+    this.logMessage(`Enabling Hosting. [s3BucketName: ${s3BucketName}]`);
+
+    const putBucketWebsitePromise = this._awsS3Client.putBucketWebsite(params).promise();
+
+    return putBucketWebsitePromise.then(data => {
+      this.logMessage(`Success: ${JSON.stringify(data)}`);
+      return data;
+    }).catch(err => {
+      let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
+      this.logMessage(errorMessage);
+      return {
+        message: errorMessage
       };
-      this.logMessage(`Enabling Hosting. [s3BucketName: ${s3BucketName}]`);
-      this._awsS3Client.putBucketWebsite(params, (err, data) => {
-        if(err) {
-          let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
-          this.logMessage(errorMessage);
-          reject({
-            message: errorMessage
-          });
-        } else {
-          this.logMessage(`Success: ${JSON.stringify(data)}`);
-          resolve();
-        }
-      });
     });
   }
 
@@ -138,6 +189,7 @@ class S3Client extends BaseClient {
       this.logMessage(`${methodName}: Error! [err: ${JSON.stringify(err)}]`);
       return BlueBirdPromise.reject(err);
     });
+
   }
 
   /**

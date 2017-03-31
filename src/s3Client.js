@@ -21,7 +21,7 @@ class S3Client extends BaseClient {
         secretAccessKey: this._secretKey,
         apiVersion: '2006-03-01',
         region: this._region,
-        sslEnabled: false
+        sslEnabled: true
       };
       this._internalS3Client = new AWS.S3(params);
     }
@@ -118,6 +118,8 @@ class S3Client extends BaseClient {
   /**
    * This will do the following: 1. lookup S3 by name, 2. delay 3a. if S3 not found create the new S3, 3b. if S3 found it will update it 4. delay again
    * @param {Object} options
+   * @param {Object} options.name
+   * @param {boolean} options.enableHosting
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
@@ -128,7 +130,7 @@ class S3Client extends BaseClient {
       if(__.isEmpty(foundS3Bucket)) {
         this.logMessage(`No bucket found. Creating one. [Bucket name: ${methodName}]`);
         return this.createBucket(options.name).delay(delayInMilliseconds).then(() => {
-          return this.enableHosting(options.name).delay(delayInMilliseconds);
+          if(options.enableHosting) return this.enableHosting(options.name).delay(delayInMilliseconds);
         });
       }
       this.logMessage(`${methodName}: Found the bucket. No changes needed. [foundS3Bucket: ${JSON.stringify(foundS3Bucket)}]`);

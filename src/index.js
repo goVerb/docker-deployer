@@ -66,7 +66,7 @@ class Deployer {
       return BlueBirdPromise.all(securityGroupPromises);
     }).then(() => {
       // Create file hosting buckets if they do not exist already
-      return this.createS3BucketIfNecessary({name: config.s3.name});
+      return this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
     }).then(() => {
       //Create Launch configuration
       return this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
@@ -408,8 +408,8 @@ class Deployer {
 // const config = {
 //   name: '***REMOVED***-web-kill'
 // };
-
-
+//
+//
 // newDeployer.createS3BucketIfNecessary(config);
 
 

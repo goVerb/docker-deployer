@@ -185,7 +185,7 @@ class CloudFrontClient extends BaseClient {
       customErrorResponses = [],
     } = params;
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
-    let computedViewerProtocolPolicy = viewerProtocolPolicy || 'allow-all';
+    let computedViewerProtocolPolicy = viewerProtocolPolicy || __.get(cloudfrontPaths, '[0].viewerProtocolPolicy', '') || 'allow-all';
 
     //cname
     let foundAliasIndex = __.indexOf(distribution.DistributionConfig.Aliases.Items, cname);
@@ -209,9 +209,17 @@ class CloudFrontClient extends BaseClient {
     //defaultCacheBehavior
 
     //QueryString
-    if((cloudfrontPaths.length <= 0 && distribution.DistributionConfig.DefaultCacheBehavior.ForwardedValues.QueryString !== queryString) ||
-      (cloudfrontPaths.length > 0 && distribution.DistributionConfig.DefaultCacheBehavior.ForwardedValues.QueryString !== __.get(cloudfrontPaths, '[0].queryString', false))) {
+    let foundDefaultCacheBehavior = distribution.DistributionConfig.DefaultCacheBehavior;
+    if((cloudfrontPaths.length <= 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== queryString) ||
+      (cloudfrontPaths.length > 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== __.get(cloudfrontPaths, '[0].queryString', false))) {
       this.logMessage('QueryString does not match');
+      return true;
+    }
+
+    //viewerProtocolPolicy
+    if (foundDefaultCacheBehavior.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
+      this.logMessage('No foundOrigin or ViewerProtocolPolicy does not match in else statement');
+
       return true;
     }
 
@@ -271,13 +279,6 @@ class CloudFrontClient extends BaseClient {
 
           foundDifference = true;
         }
-
-        //viewerProtocolPolicy
-        if (!foundOrigin || foundOrigin.CustomOriginConfig.ViewerProtocolPolicy !== item.viewerProtocolPolicy) {
-          this.logMessage('No foundOrigin or ViewerProtocolPolicy does not match');
-
-          return true;
-        }
       });
 
       if(foundDifference) {
@@ -287,7 +288,6 @@ class CloudFrontClient extends BaseClient {
     else {
       //originDomainName
       let foundOrigin = __.find(distribution.DistributionConfig.Origins.Items, {Id: originName});
-      let foundDefaultCacheBehavior = distribution.DistributionConfig.DefaultCacheBehavior;
       if (!foundOrigin || foundOrigin.DomainName !== originDomainName) {
         this.logMessage('No foundOrigin or DomainName does not match in else statement');
 
@@ -303,13 +303,6 @@ class CloudFrontClient extends BaseClient {
       //originProtocolPolicy
       if (!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== computedOriginProtocolPolicy) {
         this.logMessage('No foundOrigin or OriginProtocolPolicy does not match in else statement');
-
-        return true;
-      }
-
-      //viewerProtocolPolicy
-      if (!foundOrigin || foundDefaultCacheBehavior.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
-        this.logMessage('No foundOrigin or ViewerProtocolPolicy does not match in else statement');
 
         return true;
       }

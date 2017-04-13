@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 const mockery = require('mockery');
-
+import proxyquire from 'proxyquire';
 
 require('sinon-as-promised');
 chai.use(chaiAsPromised);
@@ -33,14 +33,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to VPC client', () => {
       //Arrange
       let vpcClientStub = sandbox.stub();
-      mockery.registerMock('./vpcClient.js', vpcClientStub);
+      const mocks = {'./vpcClient.js': vpcClientStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,

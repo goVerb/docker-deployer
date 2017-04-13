@@ -2,9 +2,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -17,17 +17,10 @@ describe('EC2 Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -41,14 +34,17 @@ describe('EC2 Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up EC2 clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2(accessKey, secretKey, region);
 
 
@@ -69,14 +65,18 @@ describe('EC2 Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up EC2 clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2(accessKey, secretKey, region);
 
 
@@ -97,14 +97,18 @@ describe('EC2 Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up EC2 clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2(accessKey, secretKey, region);
 
 
@@ -125,14 +129,18 @@ describe('EC2 Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up EC2 clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const EC2 = require('../src/ec2Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2(accessKey, secretKey);
 
 
@@ -252,17 +260,21 @@ describe('EC2 Client', function() {
         describeSecurityGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSecurityGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -289,18 +301,20 @@ describe('EC2 Client', function() {
       let awsEc2ClientMock = {
         describeSecurityGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSecurityGroupsResponse)} })
       };
-
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 client
-      const EC2 = require('../src/ec2Client.js');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -328,17 +342,20 @@ describe('EC2 Client', function() {
         describeSecurityGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSecurityGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 client
-      const EC2 = require('../src/ec2Client.js');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -372,17 +389,21 @@ describe('EC2 Client', function() {
         describeSecurityGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSecurityGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
+
 
       //Setting up EC2 client
-      const EC2 = require('../src/ec2Client.js');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -407,17 +428,21 @@ describe('EC2 Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -443,17 +468,21 @@ describe('EC2 Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -481,17 +510,21 @@ describe('EC2 Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -523,17 +556,21 @@ describe('EC2 Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -570,17 +607,21 @@ describe('EC2 Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -617,17 +658,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -659,17 +704,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -701,17 +750,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -743,17 +796,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -787,17 +844,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -829,17 +890,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -874,17 +939,21 @@ describe('EC2 Client', function() {
         createSecurityGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSecurityGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const EC2 = proxyquire('../src/ec2Client', mocks);
       const ec2ClientService = new EC2();
       ec2ClientService._createTags = sandbox.stub().resolves();
       ec2ClientService._createSecurityGroupRules = sandbox.stub().resolves();
@@ -1192,17 +1261,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1235,17 +1307,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1278,17 +1353,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1321,17 +1399,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1364,17 +1445,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1407,17 +1491,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1451,17 +1538,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupEgress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupEgressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1491,17 +1581,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1534,17 +1627,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1577,17 +1673,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1620,17 +1719,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1663,17 +1765,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1706,17 +1811,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1750,17 +1858,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 
@@ -1790,17 +1901,20 @@ describe('EC2 Client', function() {
         authorizeSecurityGroupIngress: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(authorizeSecurityGroupIngressResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up EC2 clients
-      const EC2 = require('../src/ec2Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const EC2 = proxyquire('../src/ec2Client.js', mocks);
       const ec2ClientService = new EC2();
 
 

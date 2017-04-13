@@ -5,6 +5,7 @@ const expect = chai.expect;
 const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -15,17 +16,10 @@ describe('Route53 Client', function () {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk', true);
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -40,14 +34,16 @@ describe('Route53 Client', function () {
         Route53: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53(accessKey, secretKey, region);
 
 
@@ -69,14 +65,16 @@ describe('Route53 Client', function () {
         Route53: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53(accessKey, secretKey, region);
 
 
@@ -98,14 +96,16 @@ describe('Route53 Client', function () {
         Route53: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53(accessKey, secretKey, region);
 
 
@@ -127,14 +127,16 @@ describe('Route53 Client', function () {
         Route53: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53(accessKey, secretKey);
 
 
@@ -268,11 +270,13 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       //Act
@@ -315,11 +319,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves();
@@ -364,11 +371,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -413,11 +423,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -462,11 +475,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -511,11 +527,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -560,13 +579,16 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
       const ELB_DNSName = 'magic.dns.name';
       const ELB_HostedZone = 'safjdkaslfjdas';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -621,13 +643,16 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
       const ELB_DNSName = 'magic.dns.name';
       const ELB_HostedZone = 'safjdkaslfjdas';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -682,11 +707,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -738,11 +766,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves();
@@ -786,11 +817,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -835,11 +869,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -884,11 +921,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -933,11 +973,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -982,12 +1025,15 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
       const cloudFrontDNSName = 'magic.dns.name';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -1042,12 +1088,15 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
       const cloudFrontDNSName = 'magic.dns.name';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -1102,11 +1151,14 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       const domainName = 'apple.dev-internal.***REMOVED***.net';
 
-      const Route53 = require('../src/route53Client');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
@@ -1125,88 +1177,88 @@ describe('Route53 Client', function () {
   });
 
   describe('_getHostedZoneNameFromDomainName', () => {
-      it('should parse simple host.tld into correct hostedZoneName', (done) => {
-        //Arrange
-        let expected = 'example.com';
-        let input = 'example.com';
+    it('should parse simple host.tld into correct hostedZoneName', (done) => {
+      //Arrange
+      let expected = 'example.com';
+      let input = 'example.com';
 
-        const accessKey = 'acckey';
-        const secretKey = 'secret';
-        const region = 'us-west-3';
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
 
-        const Route53 = require('../src/route53Client');
-        const route53ClientService = new Route53(accessKey, secretKey, region);
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53(accessKey, secretKey, region);
 
-        //Act
-        let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
+      //Act
+      let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
 
-        //Assert
-        expect(actual).to.be.equal(expected);
-        done();
-      });
-
-      it('should parse simple apple.host.tld into correct hostedZoneName', (done) => {
-        //Arrange
-        let expected = 'example.com';
-        let input = 'apple.example.com';
-
-        const accessKey = 'acckey';
-        const secretKey = 'secret';
-        const region = 'us-west-3';
-
-        const Route53 = require('../src/route53Client');
-        const route53ClientService = new Route53(accessKey, secretKey, region);
-
-        //Act
-        let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
-
-        //Assert
-        expect(actual).to.be.equal(expected);
-        done();
-      });
-
-      it('should parse simple blanket.apple.host.tld into correct hostedZoneName', (done) => {
-        //Arrange
-        let expected = 'example.com';
-        let input = 'blanket.apple.example.com';
-
-        const accessKey = 'acckey';
-        const secretKey = 'secret';
-        const region = 'us-west-3';
-
-        const Route53 = require('../src/route53Client');
-        const route53ClientService = new Route53(accessKey, secretKey, region);
-
-        //Act
-        let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
-
-        //Assert
-        expect(actual).to.be.equal(expected);
-        done();
-      });
-
-      it('should throw error if host is passed in without tld', (done) => {
-        //Arrange
-        let expected = 'example.com';
-        let input = 'example';
-
-        const accessKey = 'acckey';
-        const secretKey = 'secret';
-        const region = 'us-west-3';
-
-        const Route53 = require('../src/route53Client');
-        const route53ClientService = new Route53(accessKey, secretKey, region);
-
-        //Act & Assert
-        try {
-          let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
-        } catch (err) {
-          //Assert
-          expect(err.message).to.be.equal(`Invalid domainName to split.  Expected a value with *.{host}.{tld} and received ${input}`);
-        }
-        done();
-      });
+      //Assert
+      expect(actual).to.be.equal(expected);
+      done();
     });
+
+    it('should parse simple apple.host.tld into correct hostedZoneName', (done) => {
+      //Arrange
+      let expected = 'example.com';
+      let input = 'apple.example.com';
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53(accessKey, secretKey, region);
+
+      //Act
+      let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
+
+      //Assert
+      expect(actual).to.be.equal(expected);
+      done();
+    });
+
+    it('should parse simple blanket.apple.host.tld into correct hostedZoneName', (done) => {
+      //Arrange
+      let expected = 'example.com';
+      let input = 'blanket.apple.example.com';
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53(accessKey, secretKey, region);
+
+      //Act
+      let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
+
+      //Assert
+      expect(actual).to.be.equal(expected);
+      done();
+    });
+
+    it('should throw error if host is passed in without tld', (done) => {
+      //Arrange
+      let expected = 'example.com';
+      let input = 'example';
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-3';
+
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53(accessKey, secretKey, region);
+
+      //Act & Assert
+      try {
+        let actual = route53ClientService._getHostedZoneNameFromDomainName(input);
+      } catch (err) {
+        //Assert
+        expect(err.message).to.be.equal(`Invalid domainName to split.  Expected a value with *.{host}.{tld} and received ${input}`);
+      }
+      done();
+    });
+  });
 
   describe('_getResourceRecordSetsByName', () => {
     it('should pass hostedZoneId to listResourceRecordSets', () => {
@@ -1232,9 +1284,12 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
-      const Route53 = require('../src/route53Client');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       let hostedZoneId = 'Z1PJUNE0O0S76K';
@@ -1273,9 +1328,12 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
-      const Route53 = require('../src/route53Client');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       let hostedZoneId = 'Z1PJUNE0O0S76K';
@@ -1314,9 +1372,12 @@ describe('Route53 Client', function () {
           return awsRoute53Mock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
-      const Route53 = require('../src/route53Client');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       let hostedZoneId = 'Z1PJUNE0O0S76K';

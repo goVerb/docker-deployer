@@ -19,7 +19,7 @@ class CloudFrontClient extends BaseClient {
 
     if(!this._internalCloudFrontClient) {
       const cloudfrontParams = {
-        apiVersion: '2016-01-28',
+        apiVersion: '2017-03-25',
         accessKeyId: this._accessKey,
         secretAccessKey: this._secretKey
       };
@@ -608,21 +608,27 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param params.errorCode
-   * @param params.errorCachingMinTTL
+   * @param {number} params.errorCode
+   * @param {number} params.errorCachingMinTTL
    * @param {string} params.responseCode
    * @param {string} params.responsePagePath
+   * @return {Object}
    * @private
    */
   _createCustomErrorResponse(params) {
     const {errorCode, errorCachingMinTTL, responseCode, responsePagePath} = params;
 
-    return {
+    let resultObject = {
       ErrorCode: errorCode, /* required */
       ErrorCachingMinTTL: errorCachingMinTTL,
-      ResponseCode: responseCode,
-      ResponsePagePath: responsePagePath
     };
+
+    if(!(__.isEmpty(responseCode) || __.isEmpty(responsePagePath))) {
+      resultObject.ResponseCode = responseCode;
+      resultObject.ResponsePagePath = responsePagePath;
+    }
+
+    return resultObject;
   }
 }
 

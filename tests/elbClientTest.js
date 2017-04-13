@@ -2,9 +2,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -17,17 +17,10 @@ describe('ELB Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -41,14 +34,17 @@ describe('ELB Client', function() {
         ELBv2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ELB = require('../src/elbClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB(accessKey, secretKey, region);
 
 
@@ -69,14 +65,17 @@ describe('ELB Client', function() {
         ELBv2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ELB = require('../src/elbClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB(accessKey, secretKey, region);
 
 
@@ -97,14 +96,17 @@ describe('ELB Client', function() {
         ELBv2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ELB = require('../src/elbClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB(accessKey, secretKey, region);
 
 
@@ -125,14 +127,17 @@ describe('ELB Client', function() {
         ELBv2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ELB = require('../src/elbClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB(accessKey, secretKey);
 
 
@@ -155,7 +160,7 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('');
       elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
@@ -179,7 +184,7 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('existingAppLoadBalancerArn');
       elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
@@ -203,7 +208,7 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('');
       elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
@@ -231,7 +236,7 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('');
       elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
@@ -263,14 +268,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -279,7 +284,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -309,14 +318,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -325,7 +334,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -356,14 +369,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -372,7 +385,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -402,14 +419,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -418,7 +435,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -449,14 +470,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -465,7 +486,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -498,14 +523,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -514,7 +539,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -547,14 +576,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -563,7 +592,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -585,14 +618,14 @@ describe('ELB Client', function() {
         createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'uniqueAppElbName';
@@ -601,7 +634,11 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -626,7 +663,7 @@ describe('ELB Client', function() {
       const healthCheckSettingOverrides = {};
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('');
       elbClientService._createTargetGroup = sandbox.stub().resolves('');
@@ -651,7 +688,7 @@ describe('ELB Client', function() {
       const healthCheckSettingOverrides = {};
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('targetGroupArn');
       elbClientService._createTargetGroup = sandbox.stub().resolves('');
@@ -676,7 +713,7 @@ describe('ELB Client', function() {
       const healthCheckSettingOverrides = {};
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('');
       elbClientService._createTargetGroup = sandbox.stub().resolves('');
@@ -706,7 +743,7 @@ describe('ELB Client', function() {
       const healthCheckSettingOverrides = {};
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('');
       elbClientService._createTargetGroup = sandbox.stub().resolves('');
@@ -734,7 +771,7 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -763,14 +800,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -781,7 +818,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -812,14 +853,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -830,7 +871,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -861,14 +906,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -879,7 +924,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -910,14 +959,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -928,7 +977,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -959,14 +1012,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -979,7 +1032,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1010,14 +1067,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1028,7 +1085,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1059,14 +1120,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1079,7 +1140,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1110,14 +1175,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1128,7 +1193,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1159,14 +1228,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1179,7 +1248,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1210,14 +1283,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1228,7 +1301,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1259,14 +1336,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1279,7 +1356,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1310,14 +1391,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1328,7 +1409,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1359,14 +1444,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1379,7 +1464,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1410,14 +1499,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1428,7 +1517,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1459,14 +1552,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1479,7 +1572,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1510,14 +1607,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1528,7 +1625,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1559,14 +1660,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1581,7 +1682,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1613,14 +1718,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1631,7 +1736,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1662,14 +1771,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1682,7 +1791,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1713,14 +1826,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1731,7 +1844,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1762,14 +1879,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1780,7 +1897,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1817,14 +1938,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1835,7 +1956,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1864,14 +1989,14 @@ describe('ELB Client', function() {
         createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const environment = 'testENV';
       const name = 'targetGroupName';
@@ -1882,7 +2007,11 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
       elbClientService._createTagsForTargetGroup = sandbox.stub().resolves({});
 
@@ -1906,7 +2035,7 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('');
       elbClientService._createListener = sandbox.stub().resolves('');
@@ -1931,7 +2060,7 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('existingListenerArn');
       elbClientService._createListener = sandbox.stub().resolves('');
@@ -1954,7 +2083,7 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('');
       elbClientService._createListener = sandbox.stub().resolves('');
@@ -1981,7 +2110,7 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up VPC clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('');
       elbClientService._createListener = sandbox.stub().resolves('');
@@ -2012,7 +2141,7 @@ describe('ELB Client', function() {
 
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('');
       elbClientService._createListener = sandbox.stub().resolves('');
@@ -2039,7 +2168,7 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+      const ELB = require('../src/elbClient');
       const elbClientService = new ELB();
       elbClientService.getListenerArn = sandbox.stub().resolves('');
       elbClientService._createListener = sandbox.stub().resolves('');
@@ -2065,14 +2194,14 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2080,7 +2209,11 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2104,14 +2237,14 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2119,7 +2252,11 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2144,14 +2281,14 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2159,7 +2296,11 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2183,14 +2324,14 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2198,7 +2339,11 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2222,14 +2367,14 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2240,7 +2385,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2264,14 +2413,15 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
+
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2280,7 +2430,11 @@ describe('ELB Client', function() {
       const certificates = [];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2304,14 +2458,14 @@ describe('ELB Client', function() {
         createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const targetGroupArn = 'targetGroupArn/::qierd-stuff/';
@@ -2319,7 +2473,11 @@ describe('ELB Client', function() {
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2349,19 +2507,23 @@ describe('ELB Client', function() {
         describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getTargetGroupArnFromName(targetGroupName);
@@ -2388,19 +2550,23 @@ describe('ELB Client', function() {
         describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getTargetGroupArnFromName(targetGroupName);
@@ -2419,19 +2585,23 @@ describe('ELB Client', function() {
         describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getTargetGroupArnFromName(targetGroupName);
@@ -2452,19 +2622,23 @@ describe('ELB Client', function() {
         describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const appLBName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getApplicationLoadBalancerArnFromName(appLBName);
@@ -2491,19 +2665,23 @@ describe('ELB Client', function() {
         describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const appLBName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getApplicationLoadBalancerArnFromName(appLBName);
@@ -2522,19 +2700,23 @@ describe('ELB Client', function() {
         describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const appLBName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getApplicationLoadBalancerArnFromName(appLBName);
@@ -2555,19 +2737,23 @@ describe('ELB Client', function() {
         describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const appLBName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService.getApplicationLoadBalancerDNSInfoFromName(appLBName);
@@ -2595,19 +2781,23 @@ describe('ELB Client', function() {
         describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const appLBName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       //Act
@@ -2629,19 +2819,23 @@ describe('ELB Client', function() {
         describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const appLBName = 'testUniqueName';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       //Act
@@ -2665,19 +2859,23 @@ describe('ELB Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const resourceId = 'elb-ajkfd91';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2699,19 +2897,23 @@ describe('ELB Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const resourceId = 'elb-ajkfd91';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForElbV2(resourceId, null);
@@ -2732,14 +2934,14 @@ describe('ELB Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const resourceId = 'elb-ajkfd91';
       const tags = [
@@ -2747,7 +2949,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForElbV2(resourceId, tags);
@@ -2768,14 +2974,14 @@ describe('ELB Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const resourceId = 'elb-ajkfd91';
       const tags = [
@@ -2783,7 +2989,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForElbV2(resourceId, tags);
@@ -2812,14 +3022,14 @@ describe('ELB Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const resourceId = 'elb-ajkfd91';
       const tags = [
@@ -2827,7 +3037,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForElbV2(resourceId, tags, false);
@@ -2855,19 +3069,23 @@ describe('ELB Client', function() {
         addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupArn = 'complicatedArn';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -2889,19 +3107,23 @@ describe('ELB Client', function() {
         addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupArn = 'complicatedArn';
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForTargetGroup(targetGroupArn, null);
@@ -2922,14 +3144,14 @@ describe('ELB Client', function() {
         addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupArn = 'complicatedArn';
       const tags = [
@@ -2937,7 +3159,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForTargetGroup(targetGroupArn, tags);
@@ -2958,14 +3184,14 @@ describe('ELB Client', function() {
         addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupArn = 'complicatedArn';
       const tags = [
@@ -2973,7 +3199,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForTargetGroup(targetGroupArn, tags);
@@ -3002,14 +3232,14 @@ describe('ELB Client', function() {
         addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const targetGroupArn = 'complicatedArn';
       const tags = [
@@ -3017,7 +3247,11 @@ describe('ELB Client', function() {
       ];
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
       let resultPromise = elbClientService._createTagsForTargetGroup(targetGroupArn, tags, false);
@@ -3046,21 +3280,25 @@ describe('ELB Client', function() {
         describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       const applicationLoadBalancerArn = 'complicatedArn';
       const protocol = 'HTTP';
       const port = 80;
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -3097,17 +3335,21 @@ describe('ELB Client', function() {
         describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 
@@ -3143,17 +3385,21 @@ describe('ELB Client', function() {
         describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ELBv2: () => {
           return awsElbv2ClientMock;
         }
-      });
+      };
 
       //Setting up ELB clients
-      const ELB = require('../src/elbClient.js');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const ELB = proxyquire('../src/elbClient', mocks);
       const elbClientService = new ELB();
 
 

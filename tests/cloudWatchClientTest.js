@@ -4,9 +4,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -17,17 +17,10 @@ describe('CloudWatch Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk', true);
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -43,13 +36,15 @@ describe('CloudWatch Client', function() {
         CloudWatch: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const CloudWatch = require('../src/cloudWatchClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudWatch = proxyquire('../src/cloudWatchClient', mocks);
       const cloudWatchClientService = new CloudWatch(accessKey, secretKey);
 
 

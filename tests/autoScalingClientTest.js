@@ -2,11 +2,11 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
 const base64 = require('base-64');
 const moment = require('moment');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -19,17 +19,10 @@ describe('Auto Scaling Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -44,14 +37,16 @@ describe('Auto Scaling Client', function() {
         AutoScaling: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up AutoScaling clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const AutoScaling = require('../src/autoScalingClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling(accessKey, secretKey, region);
 
 
@@ -72,14 +67,17 @@ describe('Auto Scaling Client', function() {
         AutoScaling: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up AutoScaling clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling(accessKey, secretKey, region);
 
 
@@ -100,14 +98,17 @@ describe('Auto Scaling Client', function() {
         AutoScaling: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up AutoScaling clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling(accessKey, secretKey, region);
 
 
@@ -128,14 +129,17 @@ describe('Auto Scaling Client', function() {
         AutoScaling: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up AutoScaling clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling(accessKey, secretKey);
 
 
@@ -454,17 +458,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -498,17 +505,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -542,17 +552,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -587,17 +600,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -631,17 +647,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -675,17 +694,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -719,17 +741,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -765,17 +790,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -809,17 +837,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -853,17 +884,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -897,17 +931,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -941,17 +978,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -986,17 +1026,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -1030,17 +1073,20 @@ describe('Auto Scaling Client', function() {
         createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
       autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
       autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
@@ -1807,17 +1853,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -1853,17 +1902,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -1906,17 +1958,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -1950,17 +2005,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -1994,17 +2052,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2038,17 +2099,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2082,17 +2146,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2126,17 +2193,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2172,17 +2242,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2218,17 +2291,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2262,17 +2338,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2306,17 +2385,20 @@ describe('Auto Scaling Client', function() {
         createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
       const environment = 'testEnvironment';
@@ -2361,17 +2443,20 @@ describe('Auto Scaling Client', function() {
         describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
 
@@ -2404,17 +2489,20 @@ describe('Auto Scaling Client', function() {
         describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
 
@@ -2440,17 +2528,20 @@ describe('Auto Scaling Client', function() {
         describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
 
@@ -2615,17 +2706,20 @@ describe('Auto Scaling Client', function() {
         describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
 
@@ -2658,17 +2752,20 @@ describe('Auto Scaling Client', function() {
         describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
 
@@ -2694,17 +2791,20 @@ describe('Auto Scaling Client', function() {
         describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         AutoScaling: () => {
           return awsAutoScalingClientMock;
         }
-      });
+      };
 
       //Setting up AutoScaling clients
-      const AutoScaling = require('../src/autoScalingClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
       const autoScalingClientService = new AutoScaling();
 
 

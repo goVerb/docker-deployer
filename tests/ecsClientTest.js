@@ -2,9 +2,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -17,17 +17,10 @@ describe('ECS Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -41,14 +34,16 @@ describe('ECS Client', function() {
         ECS: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ECS clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS(accessKey, secretKey, region);
 
 
@@ -69,14 +64,16 @@ describe('ECS Client', function() {
         ECS: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ECS clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS(accessKey, secretKey, region);
 
 
@@ -97,14 +94,16 @@ describe('ECS Client', function() {
         ECS: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ECS clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS(accessKey, secretKey, region);
 
 
@@ -125,14 +124,16 @@ describe('ECS Client', function() {
         ECS: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ECS clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS(accessKey, secretKey);
 
 
@@ -238,17 +239,20 @@ describe('ECS Client', function() {
         createCluster: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createClusterResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -314,17 +318,20 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -388,17 +395,20 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -462,17 +472,20 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -536,17 +549,20 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -611,17 +627,20 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -779,17 +798,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -819,17 +841,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -859,17 +884,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -899,17 +927,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -939,17 +970,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -979,17 +1013,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1019,17 +1056,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1059,17 +1099,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1099,17 +1142,20 @@ describe('ECS Client', function() {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1138,17 +1184,20 @@ describe('ECS Client', function() {
         updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1175,17 +1224,20 @@ describe('ECS Client', function() {
         updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1212,17 +1264,21 @@ describe('ECS Client', function() {
         updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1249,17 +1305,20 @@ describe('ECS Client', function() {
         updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1296,17 +1355,20 @@ describe('ECS Client', function() {
         describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1341,17 +1403,20 @@ describe('ECS Client', function() {
         describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1387,17 +1452,20 @@ describe('ECS Client', function() {
         describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1443,17 +1511,20 @@ describe('ECS Client', function() {
         describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1487,17 +1558,20 @@ describe('ECS Client', function() {
         describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1524,17 +1598,20 @@ describe('ECS Client', function() {
         describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1568,17 +1645,20 @@ describe('ECS Client', function() {
         describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1611,17 +1691,20 @@ describe('ECS Client', function() {
         describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1665,17 +1748,20 @@ describe('ECS Client', function() {
         describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1709,17 +1795,20 @@ describe('ECS Client', function() {
         describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 
@@ -1747,17 +1836,20 @@ describe('ECS Client', function() {
         describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         ECS: () => {
           return awsEcsClientMock;
         }
-      });
+      };
 
       //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const ECS = proxyquire('../src/ecsClient', mocks);
       const ecsClientService = new ECS();
 
 

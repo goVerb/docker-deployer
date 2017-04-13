@@ -4,10 +4,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
-
+import proxyquire from 'proxyquire';
 
 require('sinon-as-promised');
 chai.use(chaiAsPromised);
@@ -17,17 +16,10 @@ describe('CloudFront Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk', true);
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -43,13 +35,15 @@ describe('CloudFront Client', function() {
         CloudFront: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront(accessKey, secretKey);
 
 
@@ -295,10 +289,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -350,10 +347,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -405,10 +405,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -465,10 +468,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -521,10 +527,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -578,10 +587,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -636,10 +648,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -693,10 +708,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -749,10 +767,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       const cloudFrontDistributionParams = {
@@ -810,10 +831,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       const cloudFrontDistributionParams = {
@@ -871,10 +895,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       const cloudFrontDistributionParams = {
@@ -933,10 +960,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -987,10 +1017,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1041,10 +1074,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1103,10 +1139,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1164,10 +1203,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1226,10 +1268,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1286,10 +1331,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1351,10 +1399,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1412,10 +1463,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1474,10 +1528,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1537,10 +1594,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1600,10 +1660,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1662,10 +1725,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1724,10 +1790,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1785,10 +1854,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       const cloudFrontDistributionParams = {
@@ -1851,10 +1923,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1910,10 +1985,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -1969,10 +2047,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -2036,10 +2117,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cloudFrontDistributionParams = {
@@ -2083,10 +2167,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cname = 'applesauce.example.com';
@@ -2439,10 +2526,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cname = 'applesauce.example.com';
@@ -2787,10 +2877,13 @@ describe('CloudFront Client', function() {
           return awsCloudFrontServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const CloudFront = proxyquire('../src/cloudFrontClient', mocks);
       const cloudFrontClientService = new CloudFront();
 
       let cname = 'newCDN.example.com';
@@ -3792,6 +3885,85 @@ describe('CloudFront Client', function() {
 
       //Assert
       expect(result).to.be.deep.equal({"DistributionConfig":{"CallerReference":"abc123","Comment":"The Dev Environment for the ***REMOVED*** Front End","DefaultCacheBehavior":{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":"redirect-to-https","AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false},"Enabled":true,"Origins":{"Quantity":1,"Items":[{"DomainName":"***REMOVED***-web.s3-website-us-west-2.amazonaws.com","Id":"***REMOVED*** Web - Dev","CustomHeaders":{"Quantity":0,"Items":[]},"CustomOriginConfig":{"HTTPPort":80,"HTTPSPort":443,"OriginProtocolPolicy":"http-only","OriginSslProtocols":{"Items":["TLSv1","TLSv1.1","TLSv1.2"],"Quantity":3}},"OriginPath":""}]},"Aliases":{"Quantity":1,"Items":["dev.***REMOVED***.net"]},"CacheBehaviors":{"Quantity":1,"Items":[{"ForwardedValues":{"Cookies":{"Forward":"none","WhitelistedNames":{"Quantity":0,"Items":[]}},"QueryString":true,"Headers":{"Quantity":6,"Items":["x-***REMOVED***-version","x-***REMOVED***-session","x-***REMOVED***-correlation","x-***REMOVED***-test","Content-Type","authorization"]},"QueryStringCacheKeys":{"Quantity":0,"Items":[]}},"MinTTL":0,"PathPattern":"/","TargetOriginId":"***REMOVED*** Web - Dev","TrustedSigners":{"Enabled":false,"Quantity":0,"Items":[]},"ViewerProtocolPolicy":'redirect-to-https',"AllowedMethods":{"Items":["POST","HEAD","PATCH","DELETE","PUT","GET","OPTIONS"],"Quantity":7,"CachedMethods":{"Items":["HEAD","GET","OPTIONS"],"Quantity":3}},"Compress":true,"DefaultTTL":0,"LambdaFunctionAssociations":{"Quantity":0,"Items":[]},"MaxTTL":0,"SmoothStreaming":false}]},"CustomErrorResponses":{"Quantity":1,"Items":[{"ErrorCode":403,"ErrorCachingMinTTL":300,"ResponseCode":"200","ResponsePagePath":"/"}]},"DefaultRootObject":"","HttpVersion":"http2","IsIPV6Enabled":true,"Logging":{"Bucket":"cloudfront-***REMOVED***.s3.amazonaws.com","Enabled":true,"IncludeCookies":false,"Prefix":"dev.***REMOVED***.net"},"PriceClass":"PriceClass_All","Restrictions":{"GeoRestriction":{"Quantity":0,"RestrictionType":"none","Items":[]}},"WebACLId":"","ViewerCertificate":{"ACMCertificateArn":"arn:aws:acm:us-east-1:***REMOVED***:certificate/9ea941bd-7ba7-4e5c-b944-e38d52ba39e3","CertificateSource":"acm","MinimumProtocolVersion":"TLSv1","SSLSupportMethod":"sni-only"}}});
+    });
+  });
+
+  describe('_createCustomErrorResponse', () => {
+    it('should generate CustomErrorResponse object with all fields', () => {
+      //Arrange
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+
+      let customErrorResponseParams = {
+        errorCode: 500,
+        errorCachingMinTTL: 0,
+        responseCode: '500',
+        responsePagePath: '/'
+      };
+
+      //Act
+      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+
+      //Assert
+      expect(resultObject).to.be.deep.equal({
+        ErrorCode: customErrorResponseParams.errorCode, /* required */
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL,
+        ResponseCode: customErrorResponseParams.responseCode,
+        ResponsePagePath: customErrorResponseParams.responsePagePath
+      });
+    });
+
+    it('should generate object without ResponseCode and ResponsePagePath if ResponseCode is empty string', () => {
+      //Arrange
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+
+      let customErrorResponseParams = {
+        errorCode: 500,
+        errorCachingMinTTL: 0,
+        responseCode: '',
+        responsePagePath: '/'
+      };
+
+      //Act
+      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+
+      //Assert
+      expect(resultObject).to.be.deep.equal({
+        ErrorCode: customErrorResponseParams.errorCode, /* required */
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
+      });
+    });
+
+    it('should generate object without ResponseCode and ResponsePagePath if ResponsePagePath is empty string', () => {
+      //Arrange
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+
+      let customErrorResponseParams = {
+        errorCode: 500,
+        errorCachingMinTTL: 0,
+        responseCode: '51',
+        responsePagePath: ''
+      };
+
+      //Act
+      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+
+      //Assert
+      expect(resultObject).to.be.deep.equal({
+        ErrorCode: customErrorResponseParams.errorCode, /* required */
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
+      });
     });
   });
 });

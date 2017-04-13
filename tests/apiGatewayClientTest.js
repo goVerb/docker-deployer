@@ -2,10 +2,10 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
 const base64 = require('base-64');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -16,17 +16,10 @@ describe('APIGateway Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -42,14 +35,15 @@ describe('APIGateway Client', function() {
 
       };
 
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey, region);
 
 
@@ -71,14 +65,17 @@ describe('APIGateway Client', function() {
         APIGateway: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey, region);
 
 
@@ -100,14 +97,17 @@ describe('APIGateway Client', function() {
         APIGateway: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey, region);
 
 
@@ -129,14 +129,17 @@ describe('APIGateway Client', function() {
         APIGateway: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey);
 
 
@@ -168,7 +171,7 @@ describe('APIGateway Client', function() {
         getRestApis: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve(getRestApisResponse)
         })
-      }
+      };
 
       let mockAwsSdk = {
         config: {
@@ -180,13 +183,16 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey);
 
 
@@ -232,13 +238,16 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey);
 
 
@@ -295,13 +304,16 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey);
 
 
@@ -354,13 +366,16 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey);
 
 
@@ -412,13 +427,16 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up APIGateway clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       const apiGatewayService = new APIGateway(accessKey, secretKey);
 
 
@@ -457,8 +475,11 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
     })
 
@@ -521,8 +542,11 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+
       apiGatewayService = new APIGateway('acckey', 'secret');
     })
 
@@ -556,6 +580,7 @@ describe('APIGateway Client', function() {
       })
     });
   });
+
   describe('createOrOverwriteApiSwagger', () => {
     let APIGatewayMock;
     let mockAwsSdk;
@@ -575,8 +600,10 @@ describe('APIGateway Client', function() {
         }
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
     })
 
@@ -644,6 +671,7 @@ describe('APIGateway Client', function() {
       })
     })
   });
+
   describe('createDeployment', () => {
     let APIGatewayMock;
     let mockAwsSdk;
@@ -669,7 +697,7 @@ describe('APIGateway Client', function() {
         }
 
       };
-    })
+    });
 
     afterEach(() => {
       APIGatewayMock = null;
@@ -678,11 +706,14 @@ describe('APIGateway Client', function() {
       apiGatewayService = null;
       createStub = null;
       updateStub = null;
-    })
+    });
+
     it('should error if no id is passed to it', (done) => {
       //Arrange
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
       //Act
       let response = apiGatewayService.createDeployment(null,'IAMSTAGE',{variable: 'amvar'});
@@ -694,8 +725,10 @@ describe('APIGateway Client', function() {
     });
     it('should error if no stagename is passed to it', (done) => {
       //Arrange
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
       //Act
       let response = apiGatewayService.createDeployment('IAMANID',null,{variable: 'amvar'});
@@ -705,58 +738,71 @@ describe('APIGateway Client', function() {
         done();
       })
     });
-    it('should error if no variableCollection is passed to it', (done) => {
+    it('should error if no variableCollection is passed to it', () => {
       //Arrange
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
       //Act
       let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',[]);
       //Assert
-      response.catch(err => {
+      return response.catch(err => {
         expect(err).to.equal("variableCollection must be populated");
-        done();
       })
     });
-    it('should call createDeployment from apiGatewayClient once', (done) => {
+
+    it('should call createDeployment from apiGatewayClient once', () => {
       //Arrange
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
+
       //Act
       let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',{variable: 'amvar'});
+
       //Assert
-      response.then(data => {
+      return response.then(data => {
         expect(createStub.calledOnce).to.be.true;
-        done();
       });
     });
-    it('should call updateStage from apiGatewayClient once', (done) => {
+
+    it('should call updateStage from apiGatewayClient once', () => {
       //Arrange
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
       //Act
       let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',{variable: 'amvar'});
       //Assert
-      response.then(data => {
+      return response.then(data => {
         expect(updateStub.calledOnce).to.be.true;
-        done();
       });
     });
-    it('should throw an error if the api throws one', (done) => {
+
+    it('should throw an error if the api throws one', () => {
       //Arrange
-      createStub = sandbox.stub().rejects({message: 'You got an error'})
-      mockery.registerMock('aws-sdk', mockAwsSdk);
-      APIGateway = require('../src/apiGatewayClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
+      apiGatewayService.createDeployment = sandbox.stub().rejects(new Error('You got an error'));
+
       //Act
       let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',{variable: 'amvar'});
+
       //Assert
-      response.catch(err => {
+      return response.then(() => {
+        expect().fail();
+      }).catch(err => {
         console.log(err)
         expect(err).to.have.property('message', 'You got an error');
-        done();
       });
     });
   });

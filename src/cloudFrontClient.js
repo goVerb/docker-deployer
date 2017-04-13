@@ -571,7 +571,7 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param params.originName
+   * @param {string} params.originName
    * @param params.originDomainName
    * @param params.originPath
    * @param params.originProtocolPolicy
@@ -593,6 +593,8 @@ class CloudFrontClient extends BaseClient {
         HTTPPort: 80, /* required */
         HTTPSPort: 443, /* required */
         OriginProtocolPolicy: originProtocolPolicy, /* required */
+        OriginKeepaliveTimeout: 5,
+        OriginReadTimeout: 30,
         OriginSslProtocols: {
           Items: [ /* required */
             'TLSv1',

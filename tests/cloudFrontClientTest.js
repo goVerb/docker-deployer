@@ -3937,7 +3937,9 @@ describe('CloudFront Client', function() {
       //Assert
       expect(resultObject).to.be.deep.equal({
         ErrorCode: customErrorResponseParams.errorCode, /* required */
-        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL,
+        ResponseCode: '',
+        ResponsePagePath: ''
       });
     });
 
@@ -3962,7 +3964,9 @@ describe('CloudFront Client', function() {
       //Assert
       expect(resultObject).to.be.deep.equal({
         ErrorCode: customErrorResponseParams.errorCode, /* required */
-        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL,
+        ResponseCode: '',
+        ResponsePagePath: ''
       });
     });
 
@@ -3985,7 +3989,9 @@ describe('CloudFront Client', function() {
       //Assert
       expect(resultObject).to.be.deep.equal({
         ErrorCode: customErrorResponseParams.errorCode, /* required */
-        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL,
+        ResponseCode: '',
+        ResponsePagePath: ''
       });
     });
   });

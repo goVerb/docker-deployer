@@ -621,16 +621,21 @@ class CloudFrontClient extends BaseClient {
    * @private
    */
   _createCustomErrorResponse(params) {
-    const {errorCode, errorCachingMinTTL, responseCode, responsePagePath} = params;
+    const {errorCode, errorCachingMinTTL, responseCode = '', responsePagePath = ''} = params;
 
     let resultObject = {
       ErrorCode: errorCode, /* required */
       ErrorCachingMinTTL: errorCachingMinTTL,
     };
 
+    //responseCode and responsePagePath have to valid in order for the values to be populated
+
     if(!(__.isEmpty(responseCode) || __.isEmpty(responsePagePath))) {
       resultObject.ResponseCode = responseCode;
       resultObject.ResponsePagePath = responsePagePath;
+    } else {
+      resultObject.ResponseCode = '';
+      resultObject.ResponsePagePath = '';
     }
 
     return resultObject;

@@ -2,7 +2,6 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 import proxyquire from 'proxyquire';
 
 require('sinon-as-promised');
@@ -15,17 +14,10 @@ describe('Deployer', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -59,14 +51,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to EC2 client', () => {
       //Arrange
       let ec2ClientStub = sandbox.stub();
-      mockery.registerMock('./ec2Client.js', ec2ClientStub);
+      const mocks = {'./ec2Client.js': ec2ClientStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -84,14 +76,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to ECS client', () => {
       //Arrange
       let ecsClientStub = sandbox.stub();
-      mockery.registerMock('./ecsClient.js', ecsClientStub);
+      const mocks = {'./ecsClient.js': ecsClientStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -110,14 +102,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to ELB client', () => {
       //Arrange
       let elbClientStub = sandbox.stub();
-      mockery.registerMock('./ecsClient.js', elbClientStub);
+      const mocks = {'./elbClient.js': elbClientStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -135,14 +127,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to AutoScaling client', () => {
       //Arrange
       let autoScalingClientStub = sandbox.stub();
-      mockery.registerMock('./autoScalingClient.js', autoScalingClientStub);
+      const mocks = {'./autoScalingClient.js': autoScalingClientStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -161,14 +153,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to Route53 client', () => {
       //Arrange
       let route53ClientMock = sandbox.stub();
-      mockery.registerMock('./route53Client.js', route53ClientMock);
+      const mocks = {'./route53Client.js': route53ClientMock};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -187,14 +179,14 @@ describe('Deployer', function() {
     it('should pass accessKey and secretKey to CloudFront client', () => {
       //Arrange
       let cloudFrontClientMock = sandbox.stub();
-      mockery.registerMock('./cloudFrontClient.js', cloudFrontClientMock);
+      const mocks = {'./cloudFrontClient.js': cloudFrontClientMock};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-4';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -212,14 +204,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to CloudWatch client', () => {
       //Arrange
       let cloudWatchClientStub = sandbox.stub();
-      mockery.registerMock('./cloudWatchClient.js', cloudWatchClientStub);
+      const mocks = {'./cloudWatchClient.js': cloudWatchClientStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -238,14 +230,14 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to ApplicationAutoScaling client', () => {
       //Arrange
       let applicationAutoScalingStub = sandbox.stub();
-      mockery.registerMock('./applicationAutoScalingClient.js', applicationAutoScalingStub);
+      const mocks = {'./applicationAutoScalingClient.js': applicationAutoScalingStub};
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -269,6 +261,7 @@ describe('Deployer', function() {
     let elbClientStub;
     let autoScaleClientStub;
     let route53ClientStub;
+    let mocks;
     beforeEach(() => {
 
       vpcClientStub = {
@@ -285,16 +278,18 @@ describe('Deployer', function() {
       autoScaleClientStub = sandbox.stub();
       route53ClientStub = sandbox.stub();
 
-      mockery.registerMock('./vpcClient.js', () => {
-            return vpcClientStub;
-        });
-      mockery.registerMock('./elbClient.js', elbClientStub);
-      mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
-      mockery.registerMock('./ec2Client.js', ec2ClientStub);
-      mockery.registerMock('./ecsClient.js', () => {
-        return ecsClientStub;
-      });
-      mockery.registerMock('./route53Client.js', route53ClientStub);
+      mocks = {
+        './vpcClient.js': () => {
+          return vpcClientStub;
+        },
+        './elbClient.js': elbClientStub,
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': () => {
+          return ecsClientStub;
+        },
+        './route53Client.js': route53ClientStub
+      }
 
     });
 
@@ -306,7 +301,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -343,7 +338,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -380,7 +375,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -417,7 +412,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -454,7 +449,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -491,7 +486,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -528,7 +523,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -565,7 +560,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -605,6 +600,7 @@ describe('Deployer', function() {
       let autoScaleClientStub;
       let route53ClientStub;
       let cloudfrontClientStub;
+      let mocks;
       beforeEach(() => {
 
         vpcClientStub = sandbox.stub();
@@ -619,15 +615,17 @@ describe('Deployer', function() {
         route53ClientStub = sandbox.stub();
         cloudfrontClientStub = sandbox.stub();
 
-        mockery.registerMock('./vpcClient.js', vpcClientStub);
-        mockery.registerMock('./elbClient.js', () => {
-          return elbClientStub;
-        });
-        mockery.registerMock('./cloudFrontClient.js', cloudfrontClientStub);
-        mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
-        mockery.registerMock('./ec2Client.js', ec2ClientStub);
-        mockery.registerMock('./ecsClient.js', ecsClientStub);
-        mockery.registerMock('./route53Client.js', route53ClientStub);
+        mocks = {
+          './vpcClient.js': vpcClientStub,
+          './elbClient.js': () => {
+            return elbClientStub;
+          },
+          './cloudFrontClient.js': cloudfrontClientStub,
+          './autoScalingClient.js': autoScaleClientStub,
+          './ec2Client.js': ec2ClientStub,
+          './ecsClient.js': ecsClientStub,
+          './route53Client.js': route53ClientStub
+        }
 
       });
 
@@ -638,7 +636,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -669,7 +667,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -700,7 +698,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -731,7 +729,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -762,7 +760,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -793,7 +791,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -836,7 +834,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -877,7 +875,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -923,6 +921,7 @@ describe('Deployer', function() {
       let elbClientStub;
       let autoScaleClientStub;
       let route53ClientStub;
+      let mocks;
       beforeEach(() => {
 
         vpcClientStub = sandbox.stub();
@@ -936,14 +935,17 @@ describe('Deployer', function() {
         autoScaleClientStub = sandbox.stub();
         route53ClientStub = sandbox.stub();
 
-        mockery.registerMock('./vpcClient.js', vpcClientStub);
-        mockery.registerMock('./elbClient.js', () => {
-          return elbClientStub;
-        });
-        mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
-        mockery.registerMock('./ec2Client.js', ec2ClientStub);
-        mockery.registerMock('./ecsClient.js', ecsClientStub);
-        mockery.registerMock('./route53Client.js', route53ClientStub);
+
+        mocks = {
+          './vpcClient.js': vpcClientStub,
+          './elbClient.js': () => {
+            return elbClientStub;
+          },
+          './autoScalingClient.js': autoScaleClientStub,
+          './ec2Client.js': ec2ClientStub,
+          './ecsClient.js': ecsClientStub,
+          './route53Client.js': route53ClientStub
+        };
 
       });
 
@@ -954,7 +956,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -985,7 +987,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1016,7 +1018,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1047,7 +1049,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1078,7 +1080,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1109,7 +1111,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1152,7 +1154,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1193,7 +1195,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1239,6 +1241,7 @@ describe('Deployer', function() {
       let elbClientStub;
       let autoScaleClientStub;
       let route53ClientStub;
+      let mocks;
       beforeEach(() => {
 
         vpcClientStub = sandbox.stub();
@@ -1252,14 +1255,16 @@ describe('Deployer', function() {
         autoScaleClientStub = sandbox.stub();
         route53ClientStub = sandbox.stub();
 
-        mockery.registerMock('./vpcClient.js', vpcClientStub);
-        mockery.registerMock('./elbClient.js', () => {
-          return elbClientStub;
-        });
-        mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
-        mockery.registerMock('./ec2Client.js', ec2ClientStub);
-        mockery.registerMock('./ecsClient.js', ecsClientStub);
-        mockery.registerMock('./route53Client.js', route53ClientStub);
+        mocks = {
+          './vpcClient.js': vpcClientStub,
+          './elbClient.js': () => {
+            return elbClientStub;
+          },
+          './autoScalingClient.js': autoScaleClientStub,
+          './ec2Client.js': ec2ClientStub,
+          './ecsClient.js': ecsClientStub,
+          './route53Client.js': route53ClientStub
+        };
 
       });
 
@@ -1270,7 +1275,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1306,7 +1311,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1343,7 +1348,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1379,7 +1384,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1416,7 +1421,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1452,7 +1457,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1509,7 +1514,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1556,7 +1561,7 @@ describe('Deployer', function() {
         const secretKey = 'secret';
         const region = 'us-west-2';
 
-        const Deployer = require('../src/index');
+        const Deployer = proxyquire('../src/index', mocks);
         const deployerParams = {
           accessKey: accessKey,
           secretKey: secretKey,
@@ -1611,6 +1616,7 @@ describe('Deployer', function() {
     let autoScaleClientStub;
     let route53ClientStub;
     let apiClientStub;
+    let mocks;
     beforeEach(() => {
 
       vpcClientStub = sandbox.stub();
@@ -1623,15 +1629,18 @@ describe('Deployer', function() {
       autoScaleClientStub = sandbox.stub();
       route53ClientStub = sandbox.stub();
 
-      mockery.registerMock('./vpcClient.js', vpcClientStub);
-      mockery.registerMock('./elbClient.js', () => {
-        return elbClientStub;
-      });
-      mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
-      mockery.registerMock('./ec2Client.js', ec2ClientStub);
-      mockery.registerMock('./ecsClient.js', ecsClientStub);
-      mockery.registerMock('./route53Client.js', route53ClientStub);
-      mockery.registerMock('./apiGatewayClient',() => apiClientStub);
+      mocks = {
+        './vpcClient.js': vpcClientStub,
+        './elbClient.js': () => {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub,
+        './apiGatewayClient': () => apiClientStub
+      };
+
     });
     it('should call lookupApiGatewayByName', () => {
       //Arrange
@@ -1639,7 +1648,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -1648,17 +1657,19 @@ describe('Deployer', function() {
 
       let deployerClient = new Deployer(deployerParams);
       //Act
-      deployerClient.lookupApiGatewayByName('name')
+      deployerClient.lookupApiGatewayByName('name');
+
       //Assert
       expect(apiClientStub.lookupApiGatewayByName.calledOnce).to.be.true;
     });
+
     it('should pass name param to lookupApiGatewayByName', () => {
       //Arrange
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -1666,8 +1677,9 @@ describe('Deployer', function() {
       };
 
       let deployerClient = new Deployer(deployerParams);
+
       //Act
-      deployerClient.lookupApiGatewayByName('name')
+      deployerClient.lookupApiGatewayByName('name');
 
       expect(apiClientStub.lookupApiGatewayByName.args[0][0]).to.equal('name');
     });
@@ -1681,6 +1693,8 @@ describe('Deployer', function() {
     let autoScaleClientStub;
     let route53ClientStub;
     let apiClientStub;
+    let mocks;
+
     beforeEach(() => {
 
       vpcClientStub = sandbox.stub();
@@ -1693,15 +1707,19 @@ describe('Deployer', function() {
       autoScaleClientStub = sandbox.stub();
       route53ClientStub = sandbox.stub();
 
-      mockery.registerMock('./vpcClient.js', vpcClientStub);
-      mockery.registerMock('./elbClient.js', () => {
-        return elbClientStub;
-      });
-      mockery.registerMock('./autoScalingClient.js', autoScaleClientStub);
-      mockery.registerMock('./ec2Client.js', ec2ClientStub);
-      mockery.registerMock('./ecsClient.js', ecsClientStub);
-      mockery.registerMock('./route53Client.js', route53ClientStub);
-      mockery.registerMock('./apiGatewayClient',() => apiClientStub);
+
+      mocks = {
+        './vpcClient.js': vpcClientStub,
+        './elbClient.js': () => {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub,
+        './apiGatewayClient': () => apiClientStub
+      };
+
     });
     it('should call createOrOverwriteApiSwagger', () => {
       //Arrange
@@ -1709,7 +1727,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -1718,17 +1736,18 @@ describe('Deployer', function() {
 
       let deployerClient = new Deployer(deployerParams);
       //Act
-      deployerClient.createOrOverwriteApiSwagger('name')
+      deployerClient.createOrOverwriteApiSwagger('name');
       //Assert
       expect(apiClientStub.createOrOverwriteApiSwagger.calledOnce).to.be.true;
     });
+
     it('should pass name param to createOrOverwriteApiSwagger', () => {
       //Arrange
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = require('../src/index');
+      const Deployer = proxyquire('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -1737,7 +1756,7 @@ describe('Deployer', function() {
 
       let deployerClient = new Deployer(deployerParams);
       //Act
-      deployerClient.createOrOverwriteApiSwagger({info: {title: 'dang'}})
+      deployerClient.createOrOverwriteApiSwagger({info: {title: 'dang'}});
 
       expect(apiClientStub.createOrOverwriteApiSwagger.args[0][0]).to.deep.equal({info: {title: 'dang'}});
     });

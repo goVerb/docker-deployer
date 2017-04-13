@@ -4,9 +4,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -17,17 +17,10 @@ describe('S3 Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk', true);
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -43,13 +36,16 @@ describe('S3 Client', function() {
         S3: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up ELB clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3(accessKey, secretKey);
 
 
@@ -86,10 +82,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
 
       let s3BucketName = 'fake';
@@ -125,10 +124,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
 
       let s3BucketName = 'fake';
@@ -165,10 +167,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
 
 
@@ -205,10 +210,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
 
 
@@ -246,10 +254,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
       s3ClientService._region = 'us-west-2';
 
@@ -294,10 +305,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
       s3ClientService._region = 'us-west-2';
 
@@ -342,10 +356,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
       s3ClientService._region = 'us-west-2';
 
@@ -388,10 +405,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
       s3ClientService._region = 'us-west-2';
 
@@ -441,10 +461,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
       s3ClientService._region = 'us-west-2';
 
@@ -481,10 +504,13 @@ describe('S3 Client', function() {
           return awsS3ServiceMock;
         }
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up CF clients
-      const S3 = require('../src/s3Client');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
       const s3ClientService = new S3();
       s3ClientService._region = 'us-west-2';
 

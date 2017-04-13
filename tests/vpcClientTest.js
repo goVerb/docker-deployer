@@ -2,9 +2,9 @@ const chai = require('chai');
 const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
-const mockery = require('mockery');
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
+import proxyquire from 'proxyquire';
 
 
 require('sinon-as-promised');
@@ -17,17 +17,10 @@ describe('VPC Client', function() {
   let sandbox;
 
   beforeEach(() => {
-    mockery.enable({
-      useCleanCache: true,
-      warnOnUnregistered: false
-    });
-    mockery.registerAllowable('aws-sdk');
     sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    mockery.disable();
-    mockery.deregisterAll();
     sandbox.restore();
   });
 
@@ -41,14 +34,16 @@ describe('VPC Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up VPC clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC(accessKey, secretKey, region);
 
 
@@ -69,14 +64,17 @@ describe('VPC Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
+
 
       //Setting up VPC clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC(accessKey, secretKey, region);
 
 
@@ -97,14 +95,16 @@ describe('VPC Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up VPC clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC(accessKey, secretKey, region);
 
 
@@ -125,14 +125,16 @@ describe('VPC Client', function() {
         EC2: sandbox.stub()
 
       };
-      mockery.registerMock('aws-sdk', mockAwsSdk);
 
       //Setting up VPC clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC(accessKey, secretKey);
 
 
@@ -1222,14 +1224,14 @@ describe('VPC Client', function() {
         waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1237,7 +1239,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1276,7 +1281,7 @@ describe('VPC Client', function() {
         })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {
           }
@@ -1284,7 +1289,7 @@ describe('VPC Client', function() {
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1292,7 +1297,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1331,7 +1339,7 @@ describe('VPC Client', function() {
         })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {
           }
@@ -1339,7 +1347,7 @@ describe('VPC Client', function() {
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1347,7 +1355,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1384,7 +1395,7 @@ describe('VPC Client', function() {
         })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {
           }
@@ -1392,7 +1403,8 @@ describe('VPC Client', function() {
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
+
 
 
       const name = 'newNameTest';
@@ -1400,7 +1412,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1435,7 +1450,7 @@ describe('VPC Client', function() {
         })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {
           }
@@ -1443,7 +1458,7 @@ describe('VPC Client', function() {
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1451,7 +1466,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1480,14 +1498,14 @@ describe('VPC Client', function() {
         waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1495,7 +1513,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1526,14 +1547,14 @@ describe('VPC Client', function() {
         waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1541,7 +1562,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1572,14 +1596,14 @@ describe('VPC Client', function() {
         waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1587,7 +1611,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1616,14 +1643,14 @@ describe('VPC Client', function() {
         waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1631,7 +1658,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1663,14 +1693,14 @@ describe('VPC Client', function() {
         waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
 
       const name = 'newNameTest';
@@ -1678,7 +1708,10 @@ describe('VPC Client', function() {
       const cidrBlock = '10.0.0.0/16';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._modifyVpcAttributes = sandbox.stub().resolves({});
@@ -1723,17 +1756,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -1781,17 +1817,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -1834,17 +1873,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -1871,17 +1913,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -1908,17 +1953,20 @@ describe('VPC Client', function() {
         describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -1967,17 +2015,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2020,17 +2071,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2057,17 +2111,20 @@ describe('VPC Client', function() {
         describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2112,17 +2169,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2169,17 +2229,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2227,17 +2290,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2280,17 +2346,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2339,17 +2408,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2406,17 +2478,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2444,17 +2519,20 @@ describe('VPC Client', function() {
         describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -2483,14 +2561,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2500,7 +2578,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2530,14 +2611,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2547,7 +2628,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2577,14 +2661,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2594,7 +2678,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2624,14 +2711,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2641,7 +2728,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2671,14 +2761,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2688,7 +2778,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2716,14 +2809,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2733,7 +2826,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2763,14 +2859,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2780,7 +2876,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2810,14 +2909,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2827,7 +2926,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2855,14 +2957,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2872,7 +2974,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2902,14 +3007,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2919,7 +3024,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2949,14 +3057,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -2966,7 +3074,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -2994,14 +3105,14 @@ describe('VPC Client', function() {
         createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -3011,7 +3122,10 @@ describe('VPC Client', function() {
       const mapPublicIpOnLaunch = false;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService._setMapPublicIpOnLaunchAttribute = sandbox.stub().resolves({});
@@ -3043,21 +3157,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3085,21 +3202,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3129,21 +3249,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3173,21 +3296,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3215,21 +3341,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3259,21 +3388,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3303,21 +3435,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3345,21 +3480,24 @@ describe('VPC Client', function() {
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3388,21 +3526,24 @@ describe('VPC Client', function() {
         createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3431,21 +3572,24 @@ describe('VPC Client', function() {
         createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3474,21 +3618,24 @@ describe('VPC Client', function() {
         createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3517,21 +3664,24 @@ describe('VPC Client', function() {
         createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3558,21 +3708,24 @@ describe('VPC Client', function() {
         createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
       const environment = 'newEnvironmentTest';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3597,21 +3750,24 @@ describe('VPC Client', function() {
         createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const internetGatewayId = 'igw-abc123';
       const routeTableId = 'rt-123';
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -3635,21 +3791,24 @@ describe('VPC Client', function() {
         createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const internetGatewayId = 'igw-abc123';
       const routeTableId = 'rt-123';
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -3673,21 +3832,24 @@ describe('VPC Client', function() {
         createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const internetGatewayId = 'igw-abc123';
       const routeTableId = 'rt-123';
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -3713,21 +3875,24 @@ describe('VPC Client', function() {
         associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const routeTableId = 'rt-123';
       const subnetId = 'subnet-123abc';
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -3751,21 +3916,24 @@ describe('VPC Client', function() {
         associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const routeTableId = 'rt-123';
       const subnetId = 'subnet-123abc';
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -3789,21 +3957,24 @@ describe('VPC Client', function() {
         associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const routeTableId = 'rt-123';
       const subnetId = 'subnet-123abc';
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -3834,14 +4005,14 @@ describe('VPC Client', function() {
         createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -3850,7 +4021,10 @@ describe('VPC Client', function() {
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
 
@@ -3879,14 +4053,14 @@ describe('VPC Client', function() {
         createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -3903,7 +4077,10 @@ describe('VPC Client', function() {
       networkAclRules.push(singleRule);
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService.createNetworkAclRule = sandbox.stub().resolves({});
@@ -3933,14 +4110,14 @@ describe('VPC Client', function() {
         createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -3957,7 +4134,10 @@ describe('VPC Client', function() {
       networkAclRules.push(singleRule);
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService.createNetworkAclRule = sandbox.stub().resolves({});
@@ -3987,14 +4167,14 @@ describe('VPC Client', function() {
         createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -4011,7 +4191,10 @@ describe('VPC Client', function() {
       networkAclRules.push(singleRule);
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService.createNetworkAclRule = sandbox.stub().resolves({});
@@ -4039,14 +4222,14 @@ describe('VPC Client', function() {
         createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -4064,7 +4247,10 @@ describe('VPC Client', function() {
       networkAclRules.push(singleRule);
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService.createNetworkAclRule = sandbox.stub().resolves({});
@@ -4092,14 +4278,14 @@ describe('VPC Client', function() {
         createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const vpcId = 'vpc-123abc';
       const name = 'newNameTest';
@@ -4117,7 +4303,10 @@ describe('VPC Client', function() {
       networkAclRules.push(singleRule);
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._createTags = sandbox.stub().resolves({});
       vpcClientService.createNetworkAclRule = sandbox.stub().resolves({});
@@ -4144,14 +4333,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4161,7 +4350,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4185,14 +4377,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4202,7 +4394,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4226,14 +4421,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4243,7 +4438,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4267,14 +4465,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4284,7 +4482,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4308,14 +4509,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4325,7 +4526,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4349,14 +4553,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4366,7 +4570,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4390,14 +4597,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4407,7 +4614,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4431,14 +4641,14 @@ describe('VPC Client', function() {
         createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const cidrBlock = '0.0.0.0/0';
@@ -4448,7 +4658,10 @@ describe('VPC Client', function() {
       const ruleNumber = 100;
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4476,21 +4689,24 @@ describe('VPC Client', function() {
         replaceNetworkAclAssociation: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(replaceNetworkAclAssociationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const subnetId = 'subnet-abc123';
       const networkAclAssociationId = 'aclassoc-abc123';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._findCurrentNetworkAclAssociationIdForSubnetId = sandbox.stub().withArgs(subnetId).resolves(networkAclAssociationId);
 
@@ -4517,21 +4733,24 @@ describe('VPC Client', function() {
         replaceNetworkAclAssociation: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(replaceNetworkAclAssociationResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       const networkAclId = 'acl-abc123';
       const subnetId = 'subnet-abc123';
       const networkAclAssociationId = 'aclassoc-abc123';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
       vpcClientService._findCurrentNetworkAclAssociationIdForSubnetId = sandbox.stub().withArgs(subnetId).resolves(networkAclAssociationId);
 
@@ -4560,17 +4779,20 @@ describe('VPC Client', function() {
         describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4613,17 +4835,20 @@ describe('VPC Client', function() {
         describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4659,17 +4884,20 @@ describe('VPC Client', function() {
         describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4694,17 +4922,20 @@ describe('VPC Client', function() {
         modifySubnetAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifySubnetAttributeResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4731,17 +4962,20 @@ describe('VPC Client', function() {
         modifySubnetAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifySubnetAttributeResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4769,17 +5003,20 @@ describe('VPC Client', function() {
         modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4808,17 +5045,20 @@ describe('VPC Client', function() {
         modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4847,17 +5087,20 @@ describe('VPC Client', function() {
         modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4887,17 +5130,20 @@ describe('VPC Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4923,17 +5169,20 @@ describe('VPC Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -4961,16 +5210,19 @@ describe('VPC Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5002,17 +5254,20 @@ describe('VPC Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5049,17 +5304,20 @@ describe('VPC Client', function() {
         createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5094,17 +5352,20 @@ describe('VPC Client', function() {
         describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5133,17 +5394,20 @@ describe('VPC Client', function() {
         describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5174,17 +5438,20 @@ describe('VPC Client', function() {
         acceptVpcPeeringConnection: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(acceptVpcPeeringConnectionResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5214,17 +5481,20 @@ describe('VPC Client', function() {
         createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5253,17 +5523,20 @@ describe('VPC Client', function() {
         createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 
@@ -5292,17 +5565,20 @@ describe('VPC Client', function() {
         createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
       };
 
-      mockery.registerMock('aws-sdk', {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
         EC2: () => {
           return awsEc2ClientMock;
         }
-      });
+      };
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const VPC = proxyquire('../src/vpcClient', mocks);
       const vpcClientService = new VPC();
 
 

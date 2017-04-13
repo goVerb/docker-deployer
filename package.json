@@ -47,7 +47,6 @@
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1",
     "mocha": "^3.1.2",
-    "mockery": "^2.0.0",
     "proxyquire": "^1.7.11",
     "run-sequence": "^1.2.2",
     "sinon": "^1.17.7",

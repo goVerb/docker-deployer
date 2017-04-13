@@ -444,7 +444,7 @@ class CloudFrontClient extends BaseClient {
       cloudFrontParams.DistributionConfig.Origins.Quantity = 1;
       cloudFrontParams.DistributionConfig.Origins.Items = [this._createOrigin(cloudfrontPathParams)];
 
-      console.log(JSON.stringify(cloudFrontParams.DistributionConfig.Origins));
+      this.logMessage(`Origins: ${JSON.stringify(cloudFrontParams.DistributionConfig.Origins)}`);
 
       cloudFrontParams.DistributionConfig.CacheBehaviors.Quantity = 1;
       cloudFrontParams.DistributionConfig.CacheBehaviors.Items = [this._createCacheBehavior(cloudfrontPathParams, false)];
@@ -459,6 +459,8 @@ class CloudFrontClient extends BaseClient {
 
       cloudFrontParams.DistributionConfig.CustomErrorResponses.Quantity = constructedCustomErrorResponses.length;
       cloudFrontParams.DistributionConfig.CustomErrorResponses.Items = constructedCustomErrorResponses;
+
+      this.logMessage(`CustomErrorResponses: ${JSON.stringify(cloudFrontParams.DistributionConfig.CustomErrorResponses)}`);
     }
 
     this.logMessage('Attaching Cert to Cloudfront.');
@@ -471,6 +473,7 @@ class CloudFrontClient extends BaseClient {
       };
     }
     if(enableLogging) {
+      this.logMessage('Attaching logging parameters to Cloudfront.');
       cloudFrontParams.DistributionConfig.Logging = {
         Bucket: 'cloudfront-***REMOVED***.s3.amazonaws.com', /* required */
         Enabled: true, /* required */

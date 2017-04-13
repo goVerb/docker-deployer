@@ -3965,5 +3965,28 @@ describe('CloudFront Client', function() {
         ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
       });
     });
+
+    it('should generate object without ResponseCode and ResponsePagePath if ResponseCode and ResponsePagePath are not present', () => {
+      //Arrange
+
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      const cloudFrontClientService = new CloudFront();
+
+
+      let customErrorResponseParams = {
+        errorCode: 500,
+        errorCachingMinTTL: 0
+      };
+
+      //Act
+      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+
+      //Assert
+      expect(resultObject).to.be.deep.equal({
+        ErrorCode: customErrorResponseParams.errorCode, /* required */
+        ErrorCachingMinTTL: customErrorResponseParams.errorCachingMinTTL
+      });
+    });
   });
 });

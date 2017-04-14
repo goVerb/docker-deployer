@@ -246,8 +246,9 @@ class CloudFrontClient extends BaseClient {
       }
     } else {
       let foundCacheBehavior = __.find(distribution.DistributionConfig.CacheBehaviors.Items, {TargetOriginId: originName});
-      if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== pathPattern) {
-        this.logMessage('No foundCacheBehavior or pathPattern does not match with in else statement');
+      let existingPathPattern = __.get(foundCacheBehavior, 'PathPattern', '');
+      if (!foundCacheBehavior || existingPathPattern !== pathPattern) {
+        this.logMessage(`No foundCacheBehavior or pathPattern does not match with in else statement. [Existing: ${existingPathPattern}] [New: ${pathPattern}]`);
         return true;
       }
     }
@@ -324,17 +325,28 @@ class CloudFrontClient extends BaseClient {
     } else {
       //we have to convert our custom objects to match the Cloudfront's return params in order to make the isEqual easier
       const convertedErrorCodeObjects = __.map(customErrorResponses, (item) => {
-        return {
-          ErrorCode: item.errorCode,
-          ErrorCachingMinTTL: item.errorCachingMinTTL,
-          ResponseCode: item.responseCode,
-          ResponsePagePath: item.responsePagePath
+        const {errorCode, errorCachingMinTTL, responseCode = '', responsePagePath = ''} = item;
+
+        let resultObject = {
+          ErrorCode: errorCode, /* required */
+          ErrorCachingMinTTL: errorCachingMinTTL,
         };
+
+        if(!(__.isEmpty(responseCode) || __.isEmpty(responsePagePath))) {
+          resultObject.ResponseCode = responseCode;
+          resultObject.ResponsePagePath = responsePagePath;
+        } else {
+          resultObject.ResponseCode = '';
+          resultObject.ResponsePagePath = '';
+        }
+
+        return resultObject;
       });
 
       const paramErrorCodeLookup = __.keyBy(convertedErrorCodeObjects, 'ErrorCode');
       const existingErrorCodeLookup = __.keyBy(__.get(distribution, 'DistributionConfig.CustomErrorResponses.Items', []), 'ErrorCode');
       if(!__.isEqual(paramErrorCodeLookup, existingErrorCodeLookup)) {
+        this.logMessage(`CustomErrorResponses do not match. [Existing: ${existingErrorCodeLookup}] [New: ${paramErrorCodeLookup}]`);
         return true;
       }
     }

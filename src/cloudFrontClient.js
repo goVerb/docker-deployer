@@ -212,13 +212,13 @@ class CloudFrontClient extends BaseClient {
     let foundDefaultCacheBehavior = distribution.DistributionConfig.DefaultCacheBehavior;
     if((cloudfrontPaths.length <= 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== queryString) ||
       (cloudfrontPaths.length > 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== __.get(cloudfrontPaths, '[0].queryString', false))) {
-      this.logMessage('QueryString does not match');
+      this.logMessage('DefaultCacheBehavior: QueryString does not match.');
       return true;
     }
 
     //viewerProtocolPolicy
     if (foundDefaultCacheBehavior.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
-      this.logMessage('No foundOrigin or ViewerProtocolPolicy does not match in else statement');
+      this.logMessage(`DefaultCacheBehavior: New ViewerProtocolPolicy does not match in existing. [Existing: ${foundDefaultCacheBehavior.ViewerProtocolPolicy}] [New: ${computedViewerProtocolPolicy}]`);
 
       return true;
     }
@@ -231,12 +231,12 @@ class CloudFrontClient extends BaseClient {
         if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== item.pathPattern) {
           console.log(JSON.stringify(foundCacheBehavior));
           console.log(JSON.stringify(item));
-          this.logMessage('No foundCacheBehavior or pathPattern does not match');
+          this.logMessage('CacheBehaviors: No foundCacheBehavior or pathPattern does not match');
           foundDifference = true;
         }
 
         if(!foundCacheBehavior || foundCacheBehavior.ViewerProtocolPolicy !== __.get(item,'viewerProtocolPolicy','allow-all')) {
-          this.logMessage(`[Existing ViewerProtocolPolicy: ${__.get(foundCacheBehavior,'ViewerProtocolPolicy')}] [New ViewerProtocolPolicy: ${__.get(item,'viewerProtocolPolicy')}]`);
+          this.logMessage(`CacheBehaviors:  [Existing ViewerProtocolPolicy: ${__.get(foundCacheBehavior,'ViewerProtocolPolicy')}] [New ViewerProtocolPolicy: ${__.get(item,'viewerProtocolPolicy')}]`);
           foundDifference = true;
         }
       });
@@ -248,7 +248,7 @@ class CloudFrontClient extends BaseClient {
       let foundCacheBehavior = __.find(distribution.DistributionConfig.CacheBehaviors.Items, {TargetOriginId: originName});
       let existingPathPattern = __.get(foundCacheBehavior, 'PathPattern', '');
       if (!foundCacheBehavior || existingPathPattern !== pathPattern) {
-        this.logMessage(`No foundCacheBehavior or pathPattern does not match with in else statement. [Existing: ${existingPathPattern}] [New: ${pathPattern}]`);
+        this.logMessage(`CacheBehaviors: No foundCacheBehavior or pathPattern does not match with in else statement. [Existing: ${existingPathPattern}] [New: ${pathPattern}]`);
         return true;
       }
     }

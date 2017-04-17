@@ -3364,6 +3364,7 @@ describe('CloudFront Client', function() {
             originProtocolPolicy: originProtocolPolicy,
             pathPattern: pathPattern,
             queryString: queryString,
+            isDefault: true
           }
         ]
       };
@@ -3647,6 +3648,7 @@ describe('CloudFront Client', function() {
             viewerProtocolPolicy: viewerProtocolPolicy,
             pathPattern: pathPattern,
             queryString: queryString,
+            isDefault: true
           }
         ]
       };

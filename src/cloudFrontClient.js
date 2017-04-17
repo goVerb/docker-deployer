@@ -184,8 +184,11 @@ class CloudFrontClient extends BaseClient {
       cloudfrontPaths = [],
       customErrorResponses = [],
     } = params;
+
+    const defaultCloudFrontPathIndex = __.findIndex(cloudfrontPaths, (item) => { return item.isDefault;});
+
     let computedOriginProtocolPolicy = originProtocolPolicy || 'match-viewer';
-    let computedViewerProtocolPolicy = viewerProtocolPolicy || __.get(cloudfrontPaths, '[0].viewerProtocolPolicy', '') || 'allow-all';
+    let computedViewerProtocolPolicy = viewerProtocolPolicy || __.get(cloudfrontPaths, `[${defaultCloudFrontPathIndex}].viewerProtocolPolicy`, '') || 'allow-all';
 
     //cname
     let foundAliasIndex = __.indexOf(distribution.DistributionConfig.Aliases.Items, cname);
@@ -211,13 +214,14 @@ class CloudFrontClient extends BaseClient {
     //QueryString
     let foundDefaultCacheBehavior = distribution.DistributionConfig.DefaultCacheBehavior;
     if((cloudfrontPaths.length <= 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== queryString) ||
-      (cloudfrontPaths.length > 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== __.get(cloudfrontPaths, '[0].queryString', false))) {
+      (cloudfrontPaths.length > 0 && foundDefaultCacheBehavior.ForwardedValues.QueryString !== __.get(cloudfrontPaths, `[${defaultCloudFrontPathIndex}].queryString`, false))) {
       this.logMessage('DefaultCacheBehavior: QueryString does not match.');
       return true;
     }
 
     //viewerProtocolPolicy
-    if (foundDefaultCacheBehavior.ViewerProtocolPolicy !== computedViewerProtocolPolicy) {
+    if((cloudfrontPaths.length <= 0 && foundDefaultCacheBehavior.ViewerProtocolPolicy !== computedViewerProtocolPolicy) ||
+      (cloudfrontPaths.length > 0 && foundDefaultCacheBehavior.ViewerProtocolPolicy !== __.get(cloudfrontPaths, `[${defaultCloudFrontPathIndex}].viewerProtocolPolicy`, 'allow-all'))) {
       this.logMessage(`DefaultCacheBehavior: New ViewerProtocolPolicy does not match in existing. [Existing: ${foundDefaultCacheBehavior.ViewerProtocolPolicy}] [New: ${computedViewerProtocolPolicy}]`);
 
       return true;

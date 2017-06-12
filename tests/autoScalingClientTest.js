@@ -9,7 +9,7 @@ const moment = require('moment');
 import proxyquire from 'proxyquire';
 
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 
@@ -964,7 +964,7 @@ describe('Auto Scaling Client', function() {
       return resultPromise.then(() => {
         let params = awsAutoScalingClientMock.createLaunchConfiguration.args[0][0];
 
-        expect(params).to.have.deep.property('InstanceMonitoring.Enabled', false);
+        expect(params).to.have.nested.property('InstanceMonitoring.Enabled', false);
       });
     });
 

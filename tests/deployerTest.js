@@ -4,7 +4,7 @@ const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 import proxyquire from 'proxyquire';
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 

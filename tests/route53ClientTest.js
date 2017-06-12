@@ -7,7 +7,7 @@ const BluebirdPromise = require('bluebird');
 import proxyquire from 'proxyquire';
 
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 
@@ -603,12 +603,12 @@ describe('Route53 Client', function () {
 
         let changes = changeBatch.Changes;
 
-        expect(changes[0]).to.have.deep.property('Action', 'UPSERT');
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.Name', domainName);
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.Type', 'A');
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        expect(changes[0]).to.have.property('Action', 'UPSERT');
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Type', 'A');
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
 
       });
     });
@@ -667,12 +667,12 @@ describe('Route53 Client', function () {
 
         let changes = changeBatch.Changes;
 
-        expect(changes[1]).to.have.deep.property('Action', 'UPSERT');
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.Name', domainName);
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.Type', 'AAAA');
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        expect(changes[1]).to.have.property('Action', 'UPSERT');
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
 
       });
     });
@@ -1048,12 +1048,12 @@ describe('Route53 Client', function () {
 
         let changes = changeBatch.Changes;
 
-        expect(changes[0]).to.have.deep.property('Action', 'UPSERT');
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.Name', domainName);
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.Type', 'A');
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.AliasTarget.DNSName', cloudFrontDNSName);
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
-        expect(changes[0]).to.have.deep.property('ResourceRecordSet.AliasTarget.HostedZoneId', CLOUDFRONT_HOSTED_ZONE_ID);
+        expect(changes[0]).to.have.nested.property('Action', 'UPSERT');
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Type', 'A');
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', cloudFrontDNSName);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', CLOUDFRONT_HOSTED_ZONE_ID);
 
       });
     });
@@ -1111,12 +1111,12 @@ describe('Route53 Client', function () {
 
         let changes = changeBatch.Changes;
 
-        expect(changes[1]).to.have.deep.property('Action', 'UPSERT');
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.Name', domainName);
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.Type', 'AAAA');
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.AliasTarget.DNSName', cloudFrontDNSName);
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
-        expect(changes[1]).to.have.deep.property('ResourceRecordSet.AliasTarget.HostedZoneId', CLOUDFRONT_HOSTED_ZONE_ID);
+        expect(changes[1]).to.have.property('Action', 'UPSERT');
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', cloudFrontDNSName);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', CLOUDFRONT_HOSTED_ZONE_ID);
 
       });
     });

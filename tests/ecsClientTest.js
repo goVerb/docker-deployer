@@ -7,7 +7,7 @@ const BluebirdPromise = require('bluebird');
 import proxyquire from 'proxyquire';
 
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 
@@ -970,7 +970,7 @@ const mockAwsSdk = {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
@@ -993,7 +993,7 @@ const mockAwsSdk = {
       //Assert
       return resultPromise.then(() => {
         let params = awsEcsClientMock.createService.args[0][0];
-        expect(params).to.have.deep.property('loadBalancers[0].containerName', containerName);
+        expect(params).to.have.nested.property('loadBalancers[0].containerName', containerName);
       });
     });
 
@@ -1013,7 +1013,7 @@ const mockAwsSdk = {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
@@ -1036,7 +1036,7 @@ const mockAwsSdk = {
       //Assert
       return resultPromise.then(() => {
         let params = awsEcsClientMock.createService.args[0][0];
-        expect(params).to.have.deep.property('loadBalancers[0].containerPort', containerPort);
+        expect(params).to.have.nested.property('loadBalancers[0].containerPort', containerPort);
       });
     });
 
@@ -1056,7 +1056,7 @@ const mockAwsSdk = {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
@@ -1079,7 +1079,7 @@ const mockAwsSdk = {
       //Assert
       return resultPromise.then(() => {
         let params = awsEcsClientMock.createService.args[0][0];
-        expect(params).to.have.deep.property('loadBalancers[0].targetGroupArn', targetGroupArn);
+        expect(params).to.have.nested.property('loadBalancers[0].targetGroupArn', targetGroupArn);
       });
     });
 
@@ -1094,12 +1094,12 @@ const mockAwsSdk = {
       const targetGroupArn = 'targetGroupArn';
       let createServiceResponse = {};
 
-      //setting up ec2Client Mock
+      //setting up ecsClient Mock
       let awsEcsClientMock = {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
@@ -1122,7 +1122,7 @@ const mockAwsSdk = {
       //Assert
       return resultPromise.then(() => {
         let params = awsEcsClientMock.createService.args[0][0];
-        expect(params).to.have.deep.property('deploymentConfiguration.maximumPercent', 200);
+        expect(params).to.have.nested.property('deploymentConfiguration.maximumPercent', 200);
       });
     });
 
@@ -1142,7 +1142,7 @@ const mockAwsSdk = {
         createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
@@ -1165,7 +1165,7 @@ const mockAwsSdk = {
       //Assert
       return resultPromise.then(() => {
         let params = awsEcsClientMock.createService.args[0][0];
-        expect(params).to.have.deep.property('deploymentConfiguration.minimumHealthyPercent', 50);
+        expect(params).to.have.nested.property('deploymentConfiguration.minimumHealthyPercent', 50);
       });
     });
   });

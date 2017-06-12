@@ -8,7 +8,7 @@ const base64 = require('base-64');
 import proxyquire from 'proxyquire';
 
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 

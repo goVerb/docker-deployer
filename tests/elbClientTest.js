@@ -7,7 +7,7 @@ const BluebirdPromise = require('bluebird');
 import proxyquire from 'proxyquire';
 
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 
@@ -2267,8 +2267,8 @@ describe('ELB Client', function() {
       return resultPromise.then(() => {
         let params = awsElbv2ClientMock.createListener.args[0][0];
 
-        expect(params).to.have.deep.property('DefaultActions[0].TargetGroupArn', targetGroupArn);
-        expect(params).to.have.deep.property('DefaultActions[0].Type', 'forward');
+        expect(params).to.have.nested.property('DefaultActions[0].TargetGroupArn', targetGroupArn);
+        expect(params).to.have.nested.property('DefaultActions[0].Type', 'forward');
       });
     });
 

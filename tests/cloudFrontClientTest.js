@@ -8,7 +8,7 @@ const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
 import proxyquire from 'proxyquire';
 
-require('sinon-as-promised');
+
 chai.use(chaiAsPromised);
 
 

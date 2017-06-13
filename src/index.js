@@ -421,13 +421,18 @@ class Deployer {
    * @param {String} [lambdaConfig.schedule.ruleName]
    * @param {String} [lambdaConfig.schedule.ruleDescription]
    * @param {String} [lambdaConfig.schedule.ruleScheduleExpression]
+   * @param {Array} [lambdaConfig.environments]
+   * @param {String} [lambdaConfig.environments[].name]
+   * @param {Object} [lambdaConfig.environments[].variables]
    */
-  deployLambda(deploymentParams, lambdaConfig) {
+  deployLambda(lambdaConfig) {
+    const ALLOWED_ENVIRONMENTS = {dev: 'dev', demo: 'demo', prod:'prod'};
     if (!__.has(lambdaConfig, 'zipFileName')) {
       throw new Error('lambdaConfig must have field \'zipFileName\'');
     }
-    if (!__.has(deploymentParams, 'environment')) {
-      throw new Error('deploymentParams must have field \'environment\'');
+
+    if (!__.has(lambdaConfig, 'environments')) {
+      throw new Error('lambdaConfig must have field \'environments\'');
     }
     // const deployEnvironment = deploymentParams.environment.toLocaleUpperCase();
     // const lambdaConfig = require(path.join(process.cwd(), './lambdaConfig')); //eslint-disable-line
@@ -436,69 +441,76 @@ class Deployer {
 
     const envLambdas = [];
 
+    const environments = lambdaConfig.environments;
+    delete lambdaConfig.environments;
 
-    envLambdas.push(this._lambdaClient.deployLambdaFunction(deploymentParams, lambdaConfig));
+    let currentEnvironment;
+    for(let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
+      currentEnvironment = environments[envIndex];
 
-    // const isEnvironmentDeployable = (element) => {
-    //   return element.toLocaleUpperCase() === deployEnvironment;
-    // };
-    //
-    //
-    // for (const lambdaName of lambdasToDeploy) {
-    //   const localLambdaConfig = lambdaConfig[lambdaName];
-    //
-    //   //multi environment
-    //   if (localLambdaConfig.deploymentEnvironment && localLambdaConfig.deploymentEnvironment.constructor === Array) {
-    //     console.log(`Using Array of environments`);
-    //     if (localLambdaConfig.deploymentEnvironment.find(isEnvironmentDeployable)) {
-    //       envLambdas.push(this._lambdaClient.deployLambdaFunction(deploymentParams, localLambdaConfig));
-    //     }
-    //   }
-    //
-    //   //single environment
-    //   if (localLambdaConfig.deploymentEnvironment && localLambdaConfig.deploymentEnvironment.constructor === String) {
-    //     console.log(`Using Single Environment`);
-    //     if (localLambdaConfig.deploymentEnvironment.toLocaleUpperCase() === deployEnvironment) {
-    //       envLambdas.push(this._lambdaClient.deployLambdaFunction(deploymentParams, localLambdaConfig));
-    //     }
-    //   }
-    // }
+      if(!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
+        this.logMessage(`Invalid Lambda environment, skipping entry. [Environment: ${currentEnvironment.name}] [Allowed Environments: ${JSON.stringify(Object.keys(ALLOWED_ENVIRONMENTS))}]`);
+        continue;
+      }
+
+      let currentDeploymentParams = {
+        environmentName: currentEnvironment.name,
+        variables: currentEnvironment.variables
+      };
+
+      envLambdas.push(this._lambdaClient.deployLambdaFunction(currentDeploymentParams, lambdaConfig));
+    }
+
     return Promise.all(envLambdas);
   }
 }
 
 
-// const lambdaConfig = {
-//   //"accessKeyId":"***REMOVED***",
-//   //"secretAccessKey":"***REMOVED***",
-//   "region":"us-west-2",
-//   "handler":"index.handler",
-//   "role":"arn:aws:iam::***REMOVED***:role/lambda_basic_execution",
-//   "functionName":"***REMOVED***-computeTrackGlobalResults",
-//   "timeout":100,
-//   "memorySize":256,
-//   "publish":true,
-//   "runtime":"nodejs6.10",
-//   'zipFileName': '/Users/richard/src/lambda-cron/computeTrackGlobalResults/dist.zip',
-//   'logging': {
-//     'Principal': 'logs.us-west-2.amazonaws.com',
-//     'LambdaFunctionName': 'cloudwatch-logger',
-//     'Arn': 'arn:aws:lambda:us-west-2:***REMOVED***:function:cloudwatch-logger'
-//   },
-//   'schedule': {
-//     ruleName: 'ComputeTrackGlobalResultsHourly',
-//     ruleDescription: 'some description',
-//     ruleScheduleExpression: 'rate(5 minutes)'
-//   }
-// };
-//
-// const deploymentConfig = {
-//   environment: 'dev'
-// };
-//
-//
-// const instance = new Deployer();
-// instance.deployLambda(deploymentConfig, lambdaConfig);
+const lambdaConfig = {
+  "region":"us-west-2",
+  "handler":"index.handler",
+  "role":"arn:aws:iam::***REMOVED***:role/lambda_basic_execution",
+  "functionName":"***REMOVED***-computeTrackGlobalResults",
+  "timeout":100,
+  "memorySize":256,
+  "publish":true,
+  "runtime":"nodejs6.10",
+  'zipFileName': '/Users/richard/src/lambda-cron/computeTrackGlobalResults/dist.zip',
+  environments: [
+    {
+      name: 'dev',
+      variables: {
+        'host': 'https://api.dev.***REMOVED***.net'
+      }
+    },
+    {
+      name: 'demo',
+      variables: {
+        'host': 'https://api.demo.***REMOVED***.net'
+      }
+    },
+    {
+      name: 'prod',
+      variables: {
+        'host': 'https://api.app.***REMOVED***.net'
+      }
+    }
+  ],
+  'logging': {
+    'Principal': 'logs.us-west-2.amazonaws.com',
+    'LambdaFunctionName': 'cloudwatch-logger',
+    'Arn': 'arn:aws:lambda:us-west-2:***REMOVED***:function:cloudwatch-logger'
+  },
+  'schedule': {
+    ruleName: 'ComputeTrackGlobalResultsHourly',
+    ruleDescription: 'some description',
+    ruleScheduleExpression: 'rate(10 minutes)'
+  }
+};
+
+
+const instance = new Deployer();
+instance.deployLambda(lambdaConfig);
 
 
 

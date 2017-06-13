@@ -175,3 +175,52 @@ Input
   originPath: '/'
 }
 ```
+
+
+
+## deployLambda
+
+Input
+```
+ {
+  region:"us-west-6",
+  handler:"index.handler",
+  role:"arn:aws:iam::80981928390183:role/lambda_basic_execution",
+  functionName:"some-lambda-name",
+  timeout:100,
+  memorySize:256,
+  publish:true,
+  runtime:"nodejs6.10",
+  zipFileName: /some/absolute/path/to/zip/dist.zip',
+  environments: [
+    {
+      name: 'dev',
+      variables: {
+        host: 'https://sampledev.***REMOVED***.net'
+      }
+    },
+    {
+      name: 'demo',
+      variables: {
+        host: 'https://sampledemo.***REMOVED***.net'
+      }
+    },
+    {
+      name: 'prod',
+      variables: {
+        host: 'https://sampleapp.***REMOVED***.net'
+      }
+    }
+  ],
+  logging: {
+    Principal: 'logs.us-west-6.amazonaws.com',
+    LambdaFunctionName: 'lambda-logger',
+    Arn: 'arn:aws:lambda:us-west-2:80981928390183:function:lambda-logger'
+  },
+  schedule: {
+    ruleName: 'deci rate',
+    ruleDescription: 'some description',
+    ruleScheduleExpression: 'rate(10 minutes)'
+  }
+}
+```

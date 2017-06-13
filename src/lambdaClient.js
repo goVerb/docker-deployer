@@ -36,11 +36,11 @@ class LambdaClient extends BaseClient {
   /**
    *
    * @param {Object} deploymentParams
-   * @param {String} deploymentParams.environment
+   * @param {String} deploymentParams.environmentName
+   * @param {Object} deploymentParams.variables
    * @param {Object} lambdaConfig
    * @param {String} lambdaConfig.zipFileName
    * @param {Object} [lambdaConfig.schedule]
-   *
    * @param {Object} [lambdaConfig.logging]
    * @return {Promise.<T>}
    */
@@ -71,7 +71,8 @@ class LambdaClient extends BaseClient {
       Role: '',
       Timeout: localConfig.timeout || 100,
       MemorySize: localConfig.memorySize || 128,
-      Runtime: localConfig.runtime || LAMBDA_RUNTIME
+      Runtime: localConfig.runtime || LAMBDA_RUNTIME,
+      Environment: localConfig.Environment
     };
 
 
@@ -96,7 +97,7 @@ class LambdaClient extends BaseClient {
               return bbRetry(localAttachLoggingFunction, {max_tries: 3, interval: 1000, backoff: 500});
             })
             .then(() => {
-              return this._setupScheduleForLambda(localConfig.schedule, localConfig.functionName, functionArn);
+              return this._setupScheduleForLambda(localConfig.schedule, localConfig.functionName, functionArn, deploymentParams.environmentName);
             })
             .catch((err) => {
               this.logError(`Error in createLambdaFunction(): ${JSON.stringify(err)}`);
@@ -109,7 +110,7 @@ class LambdaClient extends BaseClient {
             params.Role = updateResponse.Arn;
           })
           .then(() => this.updateLambdaFunction(codePackage, params))
-          .then(() => this.retryAwsCall(this.updateLambdaConfig, 'updateLambdaConfig', params))
+          .then(() => this.retryAwsCall(this._updateLambdaConfig, '_updateLambdaConfig', params))
           .then(() => this.retryAwsCall(this.updateEventSource, 'updateEventSource', localConfig))
           .then(() => this.updatePushSource(snsClient, localConfig, existingFunctionArn))
           .then(() => this.retryAwsCall(this.publishLambdaVersion, 'publishLambdaVersion', localConfig))
@@ -120,7 +121,7 @@ class LambdaClient extends BaseClient {
             return bbRetry(localAttachLoggingFunction, {max_tries: 3, interval: 1000, backoff: 500});
           })
           .then(() => {
-            return this._setupScheduleForLambda(localConfig.schedule, localConfig.functionName, existingFunctionArn);
+            return this._setupScheduleForLambda(localConfig.schedule, localConfig.functionName, existingFunctionArn, deploymentParams.environmentName);
           })
           .catch((err) => {
             this.logError(`Error in updateLambdaFunction: ${JSON.stringify(err)}`);
@@ -141,10 +142,11 @@ class LambdaClient extends BaseClient {
    * @param {String} scheduleParams.ruleScheduleExpression
    * @param {String} lambdaFunctionName
    * @param {String} lambdaArn
-   * @return {Promise.<TResult>}
+   * @param {String} environmentName
+   * @return {Promise}
    * @private
    */
-  _setupScheduleForLambda = (scheduleParams, lambdaFunctionName, lambdaArn) => {
+  _setupScheduleForLambda = (scheduleParams, lambdaFunctionName, lambdaArn, environmentName) => {
     if(!__.has(scheduleParams, 'ruleName') || !__.has(scheduleParams, 'ruleDescription') || !__.has(scheduleParams, 'ruleScheduleExpression')) {
       return BlueBirdPromise.resolve();
     }
@@ -159,55 +161,55 @@ class LambdaClient extends BaseClient {
       ScheduleExpression: scheduleParams.ruleScheduleExpression
     }).promise()
       .then((data) => {
-        console.log(`putRule: data: ${JSON.stringify(data)}`);
+        this.logMessage(`putRule: data: ${JSON.stringify(data)}`);
         ruleArn = data.RuleArn;
       })
       .catch((err) => {
-        console.log(`putRule: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
+        this.logError(`putRule: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
       })
       .then(() => {
         return this._awsLambdaClient.removePermission({
           FunctionName: lambdaFunctionName,
-          StatementId: `${scheduleParams.ruleName}CronId`
+          StatementId: `${scheduleParams.ruleName}-${environmentName}-CronId`
         }).promise();
       })
       .then((data) => {
-        console.log(`removePermission: data: ${JSON.stringify(data)}`);
+        this.logMessage(`removePermission: data: ${JSON.stringify(data)}`);
       })
       .catch((err) => {
-        console.log(`removePermission: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
+        this.logError(`removePermission: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
       })
       .then(() => {
         return this._awsLambdaClient.addPermission({
           FunctionName: lambdaFunctionName,
-          StatementId: `${scheduleParams.ruleName}CronId`,
+          StatementId: `${scheduleParams.ruleName}-${environmentName}-CronId`,
           Action: 'lambda:InvokeFunction',
           Principal: 'events.amazonaws.com',
           SourceArn: ruleArn
         }).promise();
       })
       .then((data) => {
-        console.log(`addPermission: data: ${JSON.stringify(data)}`);
+        this.logMessage(`addPermission: data: ${JSON.stringify(data)}`);
       })
       .catch((err) => {
-        console.log(`addPermission: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
+        this.logError(`addPermission: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
       })
       .then(() => {
         return cloudwatchevents.putTargets({
           Rule: scheduleParams.ruleName,
           Targets: [
             {
-              Id: '1',
+              Id: `${lambdaFunctionName}-1`,
               Arn: lambdaArn
             }
           ]
         }).promise();
       })
       .then((data) => {
-        console.log(`putTargets: data: ${JSON.stringify(data)}`);
+        this.logMessage(`putTargets: data: ${JSON.stringify(data)}`);
       })
       .catch((err) => {
-        console.log(`putTargets: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
+        this.logError(`putTargets: err: ${err}, ${err.stack}, ${JSON.stringify(err, ['message'])}`);
         throw err;
       });
   };
@@ -248,7 +250,7 @@ class LambdaClient extends BaseClient {
    * @param {Object} params
    * @param {String} params.Role This is the role name
    * @param {Array} params.Policies
-   * @return {Promise.<TResult>}
+   * @return {Promise}
    */
   createOrUpdateIAMRole (params) {
     if (params.hasOwnProperty('Role') && !params.hasOwnProperty('Policies')) {
@@ -290,7 +292,7 @@ class LambdaClient extends BaseClient {
   /**
    * Looks up Role from RoleName
    * @param {String} roleName
-   * @return {Promise.<TResult>}
+   * @return {Promise}
    */
   getIAMRole(roleName) {
     const iamClient = new AWS.IAM();
@@ -356,7 +358,7 @@ class LambdaClient extends BaseClient {
    * @param {String} params.RoleName
    * @param {String} params.PolicyName
    * @param {Object} params.PolicyDocument
-   * @return {Promise.<TResult>}
+   * @return {Promise}
    */
   putIAMRolePolicy(params) {
     this.logMessage(`Creating IAM Role. [Role Name: ${params.RoleName}]`);
@@ -379,15 +381,18 @@ class LambdaClient extends BaseClient {
    * @param config.serviceName
    * @param config.functionName
    * @param {Object} deploymentParams
-   * @param {String} deploymentParams.environment
+   * @param {String} deploymentParams.environmentName
+   * @param {Object} deploymentParams.variables
    * @private
    * @returns {Object}
    */
   _cloneConfigObject (config, deploymentParams) {
     const resultConfig = JSON.parse(JSON.stringify(config));
 
-    const deployEnvironment = deploymentParams.environment.toLocaleLowerCase();
+    const deployEnvironment = deploymentParams.environmentName.toLocaleLowerCase();
     resultConfig.functionName = `${config.functionName}-${deployEnvironment}`;
+    resultConfig.Environment = {};
+    resultConfig.Environment.Variables = deploymentParams.variables || {};
 
     return resultConfig;
   }
@@ -475,7 +480,8 @@ class LambdaClient extends BaseClient {
 
   /**
    *
-   * @param config
+   * @param {Object} config
+   * @param {String} config.functionName
    * @returns {bluebird|exports|module.exports}
    * @private
    */
@@ -568,19 +574,19 @@ class LambdaClient extends BaseClient {
    *
    * @param {Object} params
    * @param {String} params.FunctionName
+   * @param {Object} params.Environment.Variables
+   * @return {Promise}
+   * @private
    */
-  updateLambdaConfig = (params) => {
-    return new BlueBirdPromise((resolve, reject) => {
-      this._awsLambdaClient.updateFunctionConfiguration(params, (err, data) => {
-        if (err) {
-          this.logError(`UpdateFunctionConfiguration Error: ${JSON.stringify(err)}`);
-          reject(err);
-        }
-        else {
-          this.logMessage(`Successfully updated lambda config [FunctionName: ${params.FunctionName}] [Data: ${JSON.stringify(data, null, 2)}]`);
-          resolve();
-        }
-      });
+  _updateLambdaConfig = (params) => {
+    this.logMessage('Starting _updateLambdaConfig.');
+    const updateFunctionConfigurationPromise = this._awsLambdaClient.updateFunctionConfiguration(params).promise();
+
+    return updateFunctionConfigurationPromise.then(data => {
+      this.logMessage(`Successfully updated lambda config [FunctionName: ${params.FunctionName}] [Data: ${JSON.stringify(data, null, 2)}]`);
+    }).catch(err => {
+      this.logError(`UpdateFunctionConfiguration Error: ${JSON.stringify(err)}`);
+      throw err;
     });
   };
 
@@ -599,8 +605,7 @@ class LambdaClient extends BaseClient {
     }
 
     return BlueBirdPromise.each(config.pushSource, (currentTopic, currentIndex, length) => {
-      this.logMessage(`Executing Topic ${currentIndex} of ${length}`);
-      this.logMessage(`Current Topic: ${JSON.stringify(currentTopic)}`);
+      this.logMessage(`Executing Topic ${currentIndex} of ${length} || Current Topic: ${JSON.stringify(currentTopic)}`);
       const currentTopicNameArn = currentTopic.TopicArn;
       const currentTopicStatementId = currentTopic.StatementId;
       const topicName = currentTopic.TopicArn.split(':').pop();
@@ -722,21 +727,21 @@ class LambdaClient extends BaseClient {
    *
    * @param {Object} config
    * @param {String} config.functionName
-   * @return {Promise.<TResult>}
+   * @return {Promise}
    */
   publishLambdaVersion = (config) => {
-    return this.retryAwsCall(this.publishVersion, 'publishVersion', config)
+    return this.retryAwsCall(this._publishVersion, '_publishVersion', config)
       .then(() => this.retryAwsCall(this._listVersionsByFunction, '_listVersionsByFunction', config))
       .then((listVersionsResult) => {
-        const versionsToDelete = [];
+        const versionsToDeletePromises = [];
         const last = listVersionsResult.Versions[listVersionsResult.Versions.length - 1].Version;
         for (let index = 0; index < listVersionsResult.Versions.length; ++index) {
           const version = listVersionsResult.Versions[index].Version;
           if (version !== '$LATEST' && version !== last) {
-            versionsToDelete.push(this.deleteLambdaFunctionVersion(config, version));
+            versionsToDeletePromises.push(this._deleteLambdaFunctionVersion(config, version));
           }
         }
-        return Promise.all(versionsToDelete);
+        return Promise.all(versionsToDeletePromises);
       });
   };
 
@@ -744,9 +749,11 @@ class LambdaClient extends BaseClient {
    *
    * @param {Object} config
    * @param {String} config.functionName
+   * @return {Promise}
+   * @private
    */
-  publishVersion = (config) => {
-    this.logMessage('Starting publishVersion');
+  _publishVersion = (config) => {
+    this.logMessage('Starting _publishVersion');
 
     const publishVersionParams = {FunctionName: config.functionName};
 
@@ -765,7 +772,7 @@ class LambdaClient extends BaseClient {
    *
    * @param {Object} config
    * @param {String} config.functionName
-   * @return {Promise.<TResult>}
+   * @return {Promise}
    * @private
    */
   _listVersionsByFunction = (config) => {
@@ -787,22 +794,20 @@ class LambdaClient extends BaseClient {
    * @param {String} config.functionName
    * @param version
    */
-  deleteLambdaFunctionVersion = (config, version) => {
-    return new BlueBirdPromise((resolve) => {
-      const deleteFunctionParams = {
-        FunctionName: config.functionName,
-        Qualifier: version
-      };
+  _deleteLambdaFunctionVersion = (config, version) => {
+    this.logMessage(`Starting _deleteLambdaFunctionVersion. [Version: ${version}]`);
+    const deleteFunctionParams = {
+      FunctionName: config.functionName,
+      Qualifier: version
+    };
 
-      this._awsLambdaClient.deleteFunction(deleteFunctionParams, (err) => {
-        if (err) {
-          this.logError(`Failed to delete lambda version. [FunctionName: ${config.functionName}] [Version: ${version}]`);
-        }
-        else {
-          this.logMessage(`Successfully deleted lambda version. [FunctionName: ${config.functionName}] [Version: ${version}]`);
-        }
-        resolve();
-      });
+
+    const deleteFunctionPromise = this._awsLambdaClient.deleteFunction(deleteFunctionParams).promise();
+
+    return deleteFunctionPromise.then(() => {
+      this.logMessage(`Successfully deleted lambda version. [FunctionName: ${config.functionName}] [Version: ${version}]`);
+    }).catch(err => {
+      this.logError(`Failed to delete lambda version. [FunctionName: ${config.functionName}] [Version: ${version}] [Error: ${JSON.stringify(err)}]`);
     });
   };
 
@@ -839,7 +844,7 @@ class LambdaClient extends BaseClient {
     }
 
 
-    return this.retryAwsCall(this.addLoggingLambdaPermissionToLambda, 'addLoggingLambdaPermissionToLambda', config)
+    return this.retryAwsCall(this._addLoggingLambdaPermissionToLambda, '_addLoggingLambdaPermissionToLambda', config)
       .then(() => this.updateCloudWatchLogsSubscription(cloudWatchLogsClient, config))
       .catch(err => {
         const parsedStatusCode = __.get(err, 'statusCode', '');
@@ -858,33 +863,28 @@ class LambdaClient extends BaseClient {
    * @param {String} config.logging.LambdaFunctionName
    * @param {String} config.logging.Principal
    */
-  addLoggingLambdaPermissionToLambda = (config) => {
-    this.logMessage(`Starting addLoggingLambdaPermissionToLambda.`);
-    return new BlueBirdPromise((resolve, reject) => {
-      // Need to add the permission once, but if it fails the second time no worries.
-      const permissionParams = {
-        Action: 'lambda:InvokeFunction',
-        FunctionName: config.logging.LambdaFunctionName,
-        Principal: config.logging.Principal,
-        StatementId: `${config.logging.LambdaFunctionName}LoggingId`
-      };
+  _addLoggingLambdaPermissionToLambda = (config) => {
+    this.logMessage(`Starting _addLoggingLambdaPermissionToLambda.`);
+    const permissionParams = {
+      Action: 'lambda:InvokeFunction',
+      FunctionName: config.logging.LambdaFunctionName,
+      Principal: config.logging.Principal,
+      StatementId: `${config.logging.LambdaFunctionName}LoggingId`
+    };
 
-      this._awsLambdaClient.addPermission(permissionParams, (err, data) => {
-        if (err) {
-          if (err.message.match(/The statement id \(.*?\) provided already exists. Please provide a new statement id, or remove the existing statement./i)) {
-            this.logMessage(`Lambda function already contains loggingIndex [Function: ${permissionParams.FunctionName}] [Permission StatementId: ${permissionParams.StatementId}]`);
-            resolve();
-          }
-          else {
-            this.logError(`Error Adding Logging Permission to Lambda. [Error: ${JSON.stringify(err)}]`, err.stack);
-            reject(err);
-          }
-        }
-        else {
-          this.logMessage(JSON.stringify(data, null, 2));
-          resolve();
-        }
-      });
+    const addPermissionPromise = this._awsLambdaClient.addPermission(permissionParams).promise();
+
+    return addPermissionPromise.then(data => {
+      this.logMessage(`_addLoggingLambdaPermissionToLambda success. [Data: ${JSON.stringify(data, null, 2)}`);
+    }).catch(err => {
+      if (err.message.match(/The statement id \(.*?\) provided already exists. Please provide a new statement id, or remove the existing statement./i)) {
+        this.logMessage(`Lambda function already contains loggingIndex [Function: ${permissionParams.FunctionName}] [Permission StatementId: ${permissionParams.StatementId}]`);
+        return;
+      }
+      else {
+        this.logError(`Error Adding Logging Permission to Lambda. [Error: ${JSON.stringify(err)}]`, err.stack);
+        throw err;
+      }
     });
   };
 

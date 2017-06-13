@@ -434,10 +434,6 @@ class Deployer {
     if (!__.has(lambdaConfig, 'environments')) {
       throw new Error('lambdaConfig must have field \'environments\'');
     }
-    // const deployEnvironment = deploymentParams.environment.toLocaleUpperCase();
-    // const lambdaConfig = require(path.join(process.cwd(), './lambdaConfig')); //eslint-disable-line
-    // const lambdasToDeploy = Object.keys(lambdaConfig);
-    // console.log(`Lambdas to deploy in ${deployEnvironment}: ${JSON.stringify(lambdasToDeploy, null, 2)}`);
 
     const envLambdas = [];
 
@@ -464,55 +460,6 @@ class Deployer {
     return Promise.all(envLambdas);
   }
 }
-
-
-const lambdaConfig = {
-  "region":"us-west-2",
-  "handler":"index.handler",
-  "role":"arn:aws:iam::***REMOVED***:role/lambda_basic_execution",
-  "functionName":"***REMOVED***-computeTrackGlobalResults",
-  "timeout":100,
-  "memorySize":256,
-  "publish":true,
-  "runtime":"nodejs6.10",
-  'zipFileName': '/Users/richard/src/lambda-cron/computeTrackGlobalResults/dist.zip',
-  environments: [
-    {
-      name: 'dev',
-      variables: {
-        'host': 'https://api.dev.***REMOVED***.net'
-      }
-    },
-    {
-      name: 'demo',
-      variables: {
-        'host': 'https://api.demo.***REMOVED***.net'
-      }
-    },
-    {
-      name: 'prod',
-      variables: {
-        'host': 'https://api.app.***REMOVED***.net'
-      }
-    }
-  ],
-  'logging': {
-    'Principal': 'logs.us-west-2.amazonaws.com',
-    'LambdaFunctionName': 'cloudwatch-logger',
-    'Arn': 'arn:aws:lambda:us-west-2:***REMOVED***:function:cloudwatch-logger'
-  },
-  'schedule': {
-    ruleName: 'ComputeTrackGlobalResultsHourly',
-    ruleDescription: 'some description',
-    ruleScheduleExpression: 'rate(10 minutes)'
-  }
-};
-
-
-const instance = new Deployer();
-instance.deployLambda(lambdaConfig);
-
-
 
 module.exports = function() {
   return Deployer;

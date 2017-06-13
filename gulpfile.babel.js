@@ -4,6 +4,7 @@ let runSequence = require('run-sequence').use(gulp);
 let plugins = require('gulp-load-plugins')();//loads all plugins matching gulp-*
 let del = require('del');
 let gulpUtil = require('gulp-util');
+let eslint = require('gulp-eslint');
 let fs = require('fs');
 let mocha = require('gulp-spawn-mocha');
 let util = require('util');
@@ -28,18 +29,15 @@ gulp.task('build:clean', () => {
 
 gulp.task('build:lint', () => {
   return gulp.src('src/**/*.js')
-    .pipe(plugins.jshint({
-      "node": true,
-      "esnext": 6
-    }))
-    .pipe(plugins.jshint.reporter('jshint-stylish'))
-    .pipe(plugins.jshint.reporter('fail'));
+    .pipe(eslint())
+    .pipe(eslint.formatEach())
+    .pipe(eslint.failAfterError());
 });
 
 gulp.task('build:babel', (callback) => {
   gulp.src(['src/**/*.js'], {base: "./src"})
     .pipe(plugins.sourcemaps.init())
-    .pipe(plugins.babel({presets: ['es2015']}))
+    .pipe(plugins.babel())
     .pipe(plugins.sourcemaps.write("."))
     .pipe(gulp.dest('build'))
     .on('end', () => {

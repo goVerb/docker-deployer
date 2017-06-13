@@ -11,11 +11,19 @@ class BaseClient {
 
 
   /**
-   * Logs messages
+   * Logs messages to stdout stream
    * @param msg
    */
   logMessage(msg) {
     console.log(`[${moment().format()}] ${msg}`);
+  }
+
+  /**
+   * Logs error messages to error stream
+   * @param msg
+   */
+  logError(msg) {
+    console.error(`[${moment().format()}] ${msg}`);
   }
 
 }

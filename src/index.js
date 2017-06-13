@@ -3,6 +3,7 @@ const VPC = require('./vpcClient.js');
 const ECS = require('./ecsClient.js');
 const ELB = require('./elbClient.js');
 const EC2 = require('./ec2Client.js');
+const Lambda = require('./lambdaClient.js');
 const AutoScaling = require('./autoScalingClient.js');
 const Route53 = require('./route53Client.js');
 const CloudFront = require('./cloudFrontClient.js');
@@ -11,8 +12,9 @@ const ApplicationAutoScaling = require('./applicationAutoScalingClient.js');
 const CloudWatch = require('./cloudWatchClient.js');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
-let util = require('util');
-let moment = require('moment');
+const util = require('util');
+const moment = require('moment');
+const path = require('path');
 
 
 
@@ -45,6 +47,7 @@ class Deployer {
     this._apiGatewayClient = new APIGateway(this._accessKey, this._secretKey, this._region);
     this._applicationAutoScalingClient = new ApplicationAutoScaling(this._accessKey, this._secretKey, this._region);
     this._cloudWatchClient = new CloudWatch(this._accessKey, this._secretKey, this._region);
+    this._lambdaClient = new Lambda(this._accessKey, this._secretKey, this._region);
   }
 
 
@@ -396,25 +399,106 @@ class Deployer {
       return this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
     });
   }
+
+  /**
+   *
+   * @param {Object} deploymentParams
+   * @param {String} deploymentParams.environment
+   * @param {Object} lambdaConfig
+   * @param {String} lambdaConfig.zipFileName
+   * @param {String} lambdaConfig.region
+   * @param {String} lambdaConfig.handler
+   * @param {String} lambdaConfig.role
+   * @param {String} lambdaConfig.functionName
+   * @param {Number} lambdaConfig.timeout This is a value in seconds
+   * @param {Number} lambdaConfig.memorySize 128 | 192 | 256 | .... | 1024 | 2048
+   * @param {Boolean} lambdaConfig.publish
+   * @param {String} lambdaConfig.runtime
+   * @param {String} [lambdaConfig.logging.Principal]
+   * @param {String} [lambdaConfig.logging.LambdaFunctionName]
+   * @param {String} [lambdaConfig.logging.Arn]
+   * @param {Object} [lambdaConfig.schedule]
+   * @param {String} [lambdaConfig.schedule.ruleName]
+   * @param {String} [lambdaConfig.schedule.ruleDescription]
+   * @param {String} [lambdaConfig.schedule.ruleScheduleExpression]
+   */
+  deployLambda(deploymentParams, lambdaConfig) {
+    if (!__.has(lambdaConfig, 'zipFileName')) {
+      throw new Error('lambdaConfig must have field \'zipFileName\'');
+    }
+    if (!__.has(deploymentParams, 'environment')) {
+      throw new Error('deploymentParams must have field \'environment\'');
+    }
+    // const deployEnvironment = deploymentParams.environment.toLocaleUpperCase();
+    // const lambdaConfig = require(path.join(process.cwd(), './lambdaConfig')); //eslint-disable-line
+    // const lambdasToDeploy = Object.keys(lambdaConfig);
+    // console.log(`Lambdas to deploy in ${deployEnvironment}: ${JSON.stringify(lambdasToDeploy, null, 2)}`);
+
+    const envLambdas = [];
+
+
+    envLambdas.push(this._lambdaClient.deployLambdaFunction(deploymentParams, lambdaConfig));
+
+    // const isEnvironmentDeployable = (element) => {
+    //   return element.toLocaleUpperCase() === deployEnvironment;
+    // };
+    //
+    //
+    // for (const lambdaName of lambdasToDeploy) {
+    //   const localLambdaConfig = lambdaConfig[lambdaName];
+    //
+    //   //multi environment
+    //   if (localLambdaConfig.deploymentEnvironment && localLambdaConfig.deploymentEnvironment.constructor === Array) {
+    //     console.log(`Using Array of environments`);
+    //     if (localLambdaConfig.deploymentEnvironment.find(isEnvironmentDeployable)) {
+    //       envLambdas.push(this._lambdaClient.deployLambdaFunction(deploymentParams, localLambdaConfig));
+    //     }
+    //   }
+    //
+    //   //single environment
+    //   if (localLambdaConfig.deploymentEnvironment && localLambdaConfig.deploymentEnvironment.constructor === String) {
+    //     console.log(`Using Single Environment`);
+    //     if (localLambdaConfig.deploymentEnvironment.toLocaleUpperCase() === deployEnvironment) {
+    //       envLambdas.push(this._lambdaClient.deployLambdaFunction(deploymentParams, localLambdaConfig));
+    //     }
+    //   }
+    // }
+    return Promise.all(envLambdas);
+  }
 }
 
 
-// const newDeployer = new Deployer({
-//   accessKey: '***REMOVED***',
-//   secretKey: '***REMOVED***',
-//   region: 'us-west-2'
-// });
+// const lambdaConfig = {
+//   //"accessKeyId":"***REMOVED***",
+//   //"secretAccessKey":"***REMOVED***",
+//   "region":"us-west-2",
+//   "handler":"index.handler",
+//   "role":"arn:aws:iam::***REMOVED***:role/lambda_basic_execution",
+//   "functionName":"***REMOVED***-computeTrackGlobalResults",
+//   "timeout":100,
+//   "memorySize":256,
+//   "publish":true,
+//   "runtime":"nodejs6.10",
+//   'zipFileName': '/Users/richard/src/lambda-cron/computeTrackGlobalResults/dist.zip',
+//   'logging': {
+//     'Principal': 'logs.us-west-2.amazonaws.com',
+//     'LambdaFunctionName': 'cloudwatch-logger',
+//     'Arn': 'arn:aws:lambda:us-west-2:***REMOVED***:function:cloudwatch-logger'
+//   },
+//   'schedule': {
+//     ruleName: 'ComputeTrackGlobalResultsHourly',
+//     ruleDescription: 'some description',
+//     ruleScheduleExpression: 'rate(5 minutes)'
+//   }
+// };
 //
-// const config = {
-//   name: '***REMOVED***-web-kill',
-//   enableHosting: true
+// const deploymentConfig = {
+//   environment: 'dev'
 // };
 //
 //
-// newDeployer.createS3BucketIfNecessary(config);
-
-
-
+// const instance = new Deployer();
+// instance.deployLambda(deploymentConfig, lambdaConfig);
 
 
 

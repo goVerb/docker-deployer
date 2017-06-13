@@ -1,0 +1,11 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    // in CommonJS
+    "node": true
+  },
+  "rules": {
+    "no-extra-semi": 2,
+    "semi": [2, "always"]
+  }
+}

@@ -612,7 +612,7 @@ class CloudFrontClient extends BaseClient {
         HTTPPort: 80, /* required */
         HTTPSPort: 443, /* required */
         OriginProtocolPolicy: originProtocolPolicy, /* required */
-        OriginKeepaliveTimeout: 5,
+        OriginKeepaliveTimeout: 60,
         OriginReadTimeout: 30,
         OriginSslProtocols: {
           Items: [ /* required */

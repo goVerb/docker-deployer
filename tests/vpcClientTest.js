@@ -1783,7 +1783,7 @@ describe('VPC Client', function() {
         expect(params).to.have.property('Filters');
         let nameFilter = __.filter(params.Filters, {Name: 'tag:Name'});
         expect(nameFilter[0]).to.have.property('Values');
-        expect(nameFilter[0].Values).to.be.array;
+        expect(nameFilter[0].Values).to.be.an('array');
         expect(nameFilter[0].Values.length).to.be.equal(1);
         expect(nameFilter[0].Values[0]).to.be.equal(vpcName);
       });
@@ -1978,10 +1978,10 @@ describe('VPC Client', function() {
         let params = awsEc2ClientMock.describeRouteTables.args[0][0];
 
         expect(params).to.have.property('Filters');
-        expect(params.Filters).to.be.array;
+        expect(params.Filters).to.be.an('array');
         expect(params.Filters[0]).to.have.property('Values');
         expect(params.Filters[0].Name).to.be.equal('vpc-id');
-        expect(params.Filters[0].Values).to.be.array
+        expect(params.Filters[0].Values).to.be.an('array')
         expect(params.Filters[0].Values.length).to.be.equal(1);
         expect(params.Filters[0].Values[0]).to.be.equal(vpcId);
       });
@@ -2196,7 +2196,7 @@ describe('VPC Client', function() {
         expect(params).to.have.property('Filters');
         let nameFilter = __.filter(params.Filters, {Name: 'tag:Name'});
         expect(nameFilter[0]).to.have.property('Values');
-        expect(nameFilter[0].Values).to.be.array;
+        expect(nameFilter[0].Values).to.be.an('array');
         expect(nameFilter[0].Values.length).to.be.equal(2);
       });
     });
@@ -2256,7 +2256,7 @@ describe('VPC Client', function() {
         expect(params).to.have.property('Filters');
         let vpcFilter = __.filter(params.Filters, {Name: 'vpc-id'});
         expect(vpcFilter[0]).to.have.property('Values');
-        expect(vpcFilter[0].Values).to.be.array;
+        expect(vpcFilter[0].Values).to.be.an('array');
         expect(vpcFilter[0].Values.length).to.be.equal(1);
         expect(vpcFilter[0].Values[0]).to.be.equal(vpcId);
       });
@@ -2373,7 +2373,7 @@ describe('VPC Client', function() {
         expect(params).to.have.property('Filters');
         let nameFilter = __.filter(params.Filters, {Name: 'tag:Name'});
         expect(nameFilter[0]).to.have.property('Values');
-        expect(nameFilter[0].Values).to.be.array;
+        expect(nameFilter[0].Values).to.be.an('array');
         expect(nameFilter[0].Values.length).to.be.equal(1);
         expect(nameFilter[0].Values[0]).to.be.equal(subnet1Name);
 
@@ -2430,7 +2430,7 @@ describe('VPC Client', function() {
 
       //Assert
       return resultPromise.then(subnetIds => {
-        expect(subnetIds).to.be.array;
+        expect(subnetIds).to.be.an('array');
         expect(subnetIds.length).to.be.equal(1);
         expect(subnetIds[0]).to.be.equal('subnet-9d4a7b6c');
 
@@ -2500,7 +2500,7 @@ describe('VPC Client', function() {
 
       //Assert
       return resultPromise.then(subnetIds => {
-        expect(subnetIds).to.be.array;
+        expect(subnetIds).to.be.an('array');
         expect(subnetIds.length).to.be.equal(2);
       });
     });
@@ -2541,7 +2541,7 @@ describe('VPC Client', function() {
 
       //Assert
       return resultPromise.then(subnetIds => {
-        expect(subnetIds).to.be.array;
+        expect(subnetIds).to.be.an('array');
         expect(subnetIds.length).to.be.equal(0);
       });
     });

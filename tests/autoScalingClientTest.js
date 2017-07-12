@@ -1886,7 +1886,7 @@ describe('Auto Scaling Client', function() {
         let params = awsAutoScalingClientMock.createAutoScalingGroup.args[0][0];
 
         expect(params).to.have.property('TargetGroupARNs');
-        expect(params.TargetGroupARNs).to.be.array;
+        expect(params.TargetGroupARNs).to.be.an('array');
         expect(params.TargetGroupARNs).to.be.deep.equal([targetGroupArns]);
 
       });
@@ -2226,7 +2226,7 @@ describe('Auto Scaling Client', function() {
         let params = awsAutoScalingClientMock.createAutoScalingGroup.args[0][0];
 
         expect(params).to.have.property('TargetGroupARNs');
-        expect(params.TargetGroupARNs).to.be.array;
+        expect(params.TargetGroupARNs).to.be.an('array');
         expect(params.TargetGroupARNs).to.be.deep.equal(targetGroupArns);
 
       });
@@ -2275,7 +2275,7 @@ describe('Auto Scaling Client', function() {
         let params = awsAutoScalingClientMock.createAutoScalingGroup.args[0][0];
 
         expect(params).to.have.property('VPCZoneIdentifier');
-        expect(params.VPCZoneIdentifier).to.be.array;
+        expect(params.VPCZoneIdentifier).to.be.an('array');
         expect(params.VPCZoneIdentifier).to.be.deep.equal(vpcSubnets);
 
       });

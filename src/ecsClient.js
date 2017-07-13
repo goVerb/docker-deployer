@@ -176,6 +176,8 @@ class EcsClient extends BaseClient {
 
     return updateServicePromise.then(result => {
       this.logMessage(`UpdateService Results: ${JSON.stringify(result)}`);
+    }).catch(err => {
+      this.logMessage(`UpdateService Error: ${JSON.stringify(err)}`);
     });
   }
 

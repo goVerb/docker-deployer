@@ -77,7 +77,7 @@ class EcsClient extends BaseClient {
       taskRoleArn: taskRoleArn,
       volumes: []
     };
-    
+
     let registerTaskDefinitionPromise = this._awsEcsClient.registerTaskDefinition(params).promise();
 
     return registerTaskDefinitionPromise;
@@ -150,7 +150,9 @@ class EcsClient extends BaseClient {
     this.logMessage(`Creating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
     let createServicePromise = this._awsEcsClient.createService(params).promise();
 
-    return createServicePromise;
+    return createServicePromise.then(result => {
+      this.logMessage(`CreateService Results: ${JSON.stringify(result)}`);
+    });
   }
 
   /**
@@ -172,7 +174,9 @@ class EcsClient extends BaseClient {
     this.logMessage(`Updating Service. [ClusterName: ${clusterName}] [ServiceName: ${serviceName}]`);
     let updateServicePromise = this._awsEcsClient.updateService(params).promise();
 
-    return updateServicePromise;
+    return updateServicePromise.then(result => {
+      this.logMessage(`UpdateService Results: ${JSON.stringify(result)}`);
+    });
   }
 
   /**

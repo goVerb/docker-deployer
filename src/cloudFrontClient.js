@@ -491,7 +491,7 @@ class CloudFrontClient extends BaseClient {
     if(enableLogging) {
       this.logMessage('Attaching logging parameters to Cloudfront.');
       cloudFrontParams.DistributionConfig.Logging = {
-        Bucket: 'cloudfront-***REMOVED***.s3.amazonaws.com', /* required */
+        Bucket: 'cloudfront-verb.s3.amazonaws.com', /* required */
         Enabled: true, /* required */
         IncludeCookies: false, /* required */
         Prefix: cname /* required */
@@ -529,10 +529,10 @@ class CloudFrontClient extends BaseClient {
         Headers: {
           Quantity: 6, /* required */
           Items: [
-            'x-***REMOVED***-version',
-            'x-***REMOVED***-session',
-            'x-***REMOVED***-correlation',
-            'x-***REMOVED***-test',
+            'x-verb-version',
+            'x-verb-session',
+            'x-verb-correlation',
+            'x-verb-test',
             'Content-Type',
             'authorization'
           ]

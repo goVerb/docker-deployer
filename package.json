@@ -1,5 +1,5 @@
 {
-  "name": "@go***REMOVED***/docker-deployer",
+  "name": "@goverb/docker-deployer",
   "version": "1.8.4",
   "description": "docker deployer utils",
   "main": "build/index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://go***REMOVED***@github.com/go***REMOVED***/docker-deployer.git"
+    "url": "git+https://goverb@github.com/goverb/docker-deployer.git"
   },
   "author": "Verb Dev Team",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/go***REMOVED***/docker-deployer/issues"
+    "url": "https://github.com/goverb/docker-deployer/issues"
   },
-  "homepage": "https://github.com/go***REMOVED***/docker-deployer#readme",
+  "homepage": "https://github.com/goverb/docker-deployer#readme",
   "dependencies": {
     "async": "^2.4.1",
     "aws-sdk": "^2.67.0",

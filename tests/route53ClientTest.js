@@ -172,7 +172,7 @@ describe('Route53 Client', function () {
           "ResourceRecordSetCount": 72
         }, {
           "Id": "/hostedzone/Z3AINN1K0A5DVI",
-          "Name": "go***REMOVED***u.com.",
+          "Name": "goverbu.com.",
           "CallerReference": "727A9EA3-44BB-E6D3-8C1E-F147513FF369",
           "Config": {"PrivateZone": false},
           "ResourceRecordSetCount": 4
@@ -226,13 +226,13 @@ describe('Route53 Client', function () {
           "ResourceRecordSetCount": 8
         }, {
           "Id": "/hostedzone/Z13N6CM2I15284",
-          "Name": "go***REMOVED***.org.",
+          "Name": "goverb.org.",
           "CallerReference": "7D4DC180-1D42-8A26-86E0-AB0754F7EAD6",
           "Config": {"PrivateZone": false},
           "ResourceRecordSetCount": 4
         }, {
           "Id": "/hostedzone/Z155FA63YXRCQL",
-          "Name": "***REMOVED***.vc.",
+          "Name": "verb.vc.",
           "CallerReference": "4E24B127-9357-FC70-B282-F678DF61B003",
           "Config": {"PrivateZone": false},
           "ResourceRecordSetCount": 2

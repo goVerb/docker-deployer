@@ -93,7 +93,7 @@ class AutoScalingClient extends BaseClient {
       instanceType
     } = launchConfigurationConfig;
 
-    // Disabled for now because the versions won't match.  (E.g. '***REMOVED*** ECS LC - Dev' !== '***REMOVED*** ECS LC - Dev - v26')
+    // Disabled for now because the versions won't match.  (E.g. 'APP ECS LC - Dev' !== 'APP ECS LC - Dev - v26')
     // if(name !== foundLaunchConfiguration.LaunchConfigurationName) {
     //   return true;
     // }

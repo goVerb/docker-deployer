@@ -166,7 +166,7 @@ describe('Route53 Client', function () {
           "ResourceRecordSetCount": 7
         }, {
           "Id": "/hostedzone/Z13J8T9LEUCQ7S",
-          "Name": "go***REMOVED***.com.",
+          "Name": "yoursite1.com.",
           "CallerReference": "3028E821-6BE2-C16F-A791-0005402AA87E",
           "Config": {"PrivateZone": false},
           "ResourceRecordSetCount": 72
@@ -220,7 +220,7 @@ describe('Route53 Client', function () {
           "ResourceRecordSetCount": 5
         }, {
           "Id": "/hostedzone/Z1PJUNE0O0S76K",
-          "Name": "***REMOVED***.net.",
+          "Name": "yoursite2.com.",
           "CallerReference": "C55A8461-F513-A2FF-A7E2-9DB576D169FA",
           "Config": {"PrivateZone": false},
           "ResourceRecordSetCount": 8
@@ -270,7 +270,7 @@ describe('Route53 Client', function () {
         }
       };
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite2.com';
 
       const mocks = {
         'aws-sdk': mockAwsSdk
@@ -320,7 +320,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
       const mocks = {
         'aws-sdk': mockAwsSdk
@@ -372,7 +372,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
       const mocks = {
         'aws-sdk': mockAwsSdk
@@ -424,7 +424,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
       const mocks = {
         'aws-sdk': mockAwsSdk
@@ -476,7 +476,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
       const mocks = {
         'aws-sdk': mockAwsSdk
@@ -528,7 +528,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -580,7 +580,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
       const ELB_DNSName = 'magic.dns.name';
       const ELB_HostedZone = 'safjdkaslfjdas';
 
@@ -644,7 +644,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
       const ELB_DNSName = 'magic.dns.name';
       const ELB_HostedZone = 'safjdkaslfjdas';
 
@@ -708,7 +708,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -767,7 +767,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -818,7 +818,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -870,7 +870,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -922,7 +922,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -974,7 +974,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -1026,7 +1026,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
       const cloudFrontDNSName = 'magic.dns.name';
 
             const mocks = {
@@ -1089,7 +1089,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
       const cloudFrontDNSName = 'magic.dns.name';
 
             const mocks = {
@@ -1152,7 +1152,7 @@ describe('Route53 Client', function () {
       };
 
 
-      const domainName = 'apple.dev-internal.***REMOVED***.net';
+      const domainName = 'apple.dev-internal.yoursite.com';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -1263,7 +1263,7 @@ describe('Route53 Client', function () {
     it('should pass hostedZoneId to listResourceRecordSets', () => {
       //Arrange
 
-      const listResourceRecordSetResult = {"ResourceRecordSets":[{"Name":"dev.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"dev.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"***REMOVED***api.prod-internal.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"***REMOVED***-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"***REMOVED***api.prod-internal.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"***REMOVED***-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"wordpress.prod.***REMOVED***.net.","Type":"A","TTL":300,"ResourceRecords":[{"Value":"35.167.2.48"}]},{"Name":"www.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"www.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}}],"IsTruncated":false,"MaxItems":"100"};
+      const listResourceRecordSetResult = {"ResourceRecordSets":[{"Name":"dev.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"dev.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"yourapi.prod-internal.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"yourapi.prod-internal.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"wordpress.prod.yoursite.com.","Type":"A","TTL":300,"ResourceRecords":[{"Value":"35.167.2.48"}]},{"Name":"www.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"www.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}}],"IsTruncated":false,"MaxItems":"100"};
 
       //setting up awsRoute53Client Mock
       let awsRoute53Mock = {
@@ -1292,7 +1292,7 @@ describe('Route53 Client', function () {
       const route53ClientService = new Route53();
 
       let hostedZoneId = 'Z1PJUNE0O0S76K';
-      let dnsName = 'dev.***REMOVED***.net';
+      let dnsName = 'dev.yoursite.com';
 
       //Act
       let resultPromise = route53ClientService._getResourceRecordSetsByName(hostedZoneId, dnsName);
@@ -1307,7 +1307,7 @@ describe('Route53 Client', function () {
     it('should pass dnsName to listResourceRecordSets', () => {
       //Arrange
 
-      const listResourceRecordSetResult = {"ResourceRecordSets":[{"Name":"dev.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"dev.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"***REMOVED***api.prod-internal.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"***REMOVED***-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"***REMOVED***api.prod-internal.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"***REMOVED***-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"wordpress.prod.***REMOVED***.net.","Type":"A","TTL":300,"ResourceRecords":[{"Value":"35.167.2.48"}]},{"Name":"www.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"www.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}}],"IsTruncated":false,"MaxItems":"100"};
+      const listResourceRecordSetResult = {"ResourceRecordSets":[{"Name":"dev.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"dev.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"yourapi.prod-internal.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"yourapi.prod-internal.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"wordpress.prod.yoursite.com.","Type":"A","TTL":300,"ResourceRecords":[{"Value":"35.167.2.48"}]},{"Name":"www.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"www.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}}],"IsTruncated":false,"MaxItems":"100"};
 
       //setting up awsRoute53Client Mock
       let awsRoute53Mock = {
@@ -1336,7 +1336,7 @@ describe('Route53 Client', function () {
       const route53ClientService = new Route53();
 
       let hostedZoneId = 'Z1PJUNE0O0S76K';
-      let dnsName = 'dev.***REMOVED***.net';
+      let dnsName = 'dev.yoursite.com';
 
       //Act
       let resultPromise = route53ClientService._getResourceRecordSetsByName(hostedZoneId, dnsName);
@@ -1351,7 +1351,7 @@ describe('Route53 Client', function () {
     it('should return the results that match the resource Name', () => {
       //Arrange
 
-      const listResourceRecordSetResult = {"ResourceRecordSets":[{"Name":"dev.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"dev.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"***REMOVED***api.prod-internal.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"***REMOVED***-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"***REMOVED***api.prod-internal.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"***REMOVED***-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"wordpress.prod.***REMOVED***.net.","Type":"A","TTL":300,"ResourceRecords":[{"Value":"35.167.2.48"}]},{"Name":"www.***REMOVED***.net.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"www.***REMOVED***.net.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}}],"IsTruncated":false,"MaxItems":"100"};
+      const listResourceRecordSetResult = {"ResourceRecordSets":[{"Name":"dev.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"dev.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2gzlhvii4ajca.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"api.dev.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d2296tvo3hsqb0.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"yourapi.prod-internal.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"yourapi.prod-internal.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z1H1FL5HABSF5","DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.","EvaluateTargetHealth":false}},{"Name":"wordpress.prod.yoursite.com.","Type":"A","TTL":300,"ResourceRecords":[{"Value":"35.167.2.48"}]},{"Name":"www.yoursite.com.","Type":"A","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}},{"Name":"www.yoursite.com.","Type":"AAAA","ResourceRecords":[],"AliasTarget":{"HostedZoneId":"Z2FDTNDATAQYW2","DNSName":"d1l7hx7of1tvg6.cloudfront.net.","EvaluateTargetHealth":false}}],"IsTruncated":false,"MaxItems":"100"};
 
       //setting up awsRoute53Client Mock
       let awsRoute53Mock = {
@@ -1380,7 +1380,7 @@ describe('Route53 Client', function () {
       const route53ClientService = new Route53();
 
       let hostedZoneId = 'Z1PJUNE0O0S76K';
-      let dnsName = 'dev.***REMOVED***.net';
+      let dnsName = 'dev.yoursite.com';
 
       //Act
       let resultPromise = route53ClientService._getResourceRecordSetsByName(hostedZoneId, dnsName);
@@ -1403,9 +1403,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
 
       const currentParameters = {
-        domainName: 'somethingUnique.***REMOVED***.net',
+        domainName: 'somethingUnique.yoursite.com',
         dnsName: 'jfkldsjafjadskfljads.cloudfront.com',
-        domainNameHostedZoneId: '***REMOVED***.nets hosted zone'
+        domainNameHostedZoneId: 'yoursite.coms hosted zone'
       };
       const expectedHostedZoneId = 'madeupexpectedhostedId';
 
@@ -1426,9 +1426,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
 
       const currentParameters = {
-        domainName: 'somethingUnique.***REMOVED***.net',
+        domainName: 'somethingUnique.yoursite.com',
         dnsName: 'jfkldsjafjadskfljads.cloudfront.com',
-        domainNameHostedZoneId: '***REMOVED***.nets hosted zone'
+        domainNameHostedZoneId: 'yoursite.coms hosted zone'
       };
       const expectedHostedZoneId = 'madeupexpectedhostedId';
 
@@ -1448,7 +1448,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1463,9 +1463,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'somethingUnique.***REMOVED***.net',
+        domainName: 'somethingUnique.yoursite.com',
         dnsName: 'jfkldsjafjadskfljads.cloudfront.com',
-        domainNameHostedZoneId: '***REMOVED***.nets hosted zone'
+        domainNameHostedZoneId: 'yoursite.coms hosted zone'
       };
       const expectedHostedZoneId = 'madeupexpectedhostedId';
 
@@ -1486,7 +1486,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1501,9 +1501,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'somethingUnique.***REMOVED***.net',
+        domainName: 'somethingUnique.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.nets hosted zone'
+        domainNameHostedZoneId: 'yoursite.coms hosted zone'
       };
       const expectedHostedZoneId = 'madeupexpectedhostedId';
 
@@ -1524,7 +1524,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [],
           "AliasTarget": {
@@ -1534,7 +1534,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [],
           "AliasTarget": {
@@ -1548,9 +1548,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1571,7 +1571,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1583,7 +1583,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1598,9 +1598,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1621,7 +1621,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1633,7 +1633,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1648,9 +1648,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1671,7 +1671,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1683,7 +1683,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1698,9 +1698,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1721,26 +1721,26 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
           ],
           "AliasTarget": {
             "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "***REMOVED***-ecs-app-load-balancer-dev-840139107.us-west-2.elb.amazonaws.com.",
+            "DNSName": "app-ecs-app-load-balancer-dev-840139107.us-west-2.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
           ],
           "AliasTarget": {
             "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
+            "DNSName": 'APP-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
             "EvaluateTargetHealth": false
           }
         }];
@@ -1748,9 +1748,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
-        dnsName: '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainName: 'dev.yoursite.com',
+        dnsName: 'APP-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1771,26 +1771,26 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
           ],
           "AliasTarget": {
             "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com.',
+            "DNSName": 'APP-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com.',
             "EvaluateTargetHealth": false
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
           ],
           "AliasTarget": {
             "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "***REMOVED***-ecs-app-load-balancer-dev-840139107.us-west-2.elb.amazonaws.com.",
+            "DNSName": "app-ecs-app-load-balancer-dev-840139107.us-west-2.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
         }];
@@ -1798,9 +1798,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
-        dnsName: '***REMOVED***-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainName: 'dev.yoursite.com',
+        dnsName: 'APP-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1821,7 +1821,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1833,7 +1833,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1848,9 +1848,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1871,7 +1871,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1883,7 +1883,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1898,9 +1898,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1921,7 +1921,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "PTR",
           "ResourceRecords": [
 
@@ -1933,7 +1933,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1948,9 +1948,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
@@ -1971,7 +1971,7 @@ describe('Route53 Client', function () {
 
       const results = [
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "A",
           "ResourceRecords": [
 
@@ -1983,7 +1983,7 @@ describe('Route53 Client', function () {
           }
         },
         {
-          "Name": "dev.***REMOVED***.net.",
+          "Name": "dev.yoursite.com.",
           "Type": "AAAA",
           "ResourceRecords": [
 
@@ -1998,9 +1998,9 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
 
       const currentParameters = {
-        domainName: 'dev.***REMOVED***.net',
+        domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: '***REMOVED***.netshostedzone'
+        domainNameHostedZoneId: 'yoursite.comshostedzone'
       };
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 

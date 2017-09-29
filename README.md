@@ -5,7 +5,7 @@
 This is the sample JSON configs required to create infrastructure
 ```
 let vpcDefinition = {
-  name: '***REMOVED*** VPC',
+  name: 'APP VPC',
   cidrBlock: '10.0.0.0/16',
   subnets: [
     { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl'},
@@ -23,8 +23,8 @@ let vpcDefinition = {
 };
 
 let elbSecurityGroupDefinition = {
-  name: '***REMOVED*** ALB SG',
-  description: 'Applied to the application load balancer for the ***REMOVED*** ECS Cluster.',
+  name: 'APP ALB SG',
+  description: 'Applied to the application load balancer for the APP ECS Cluster.',
   vpcName: vpcDefinition.name,
   rules: [
     {egress: false, protocol: '-1', fromPort: 0, toPort: 65535, allowedIpCidrBlock: '0.0.0.0/0'}
@@ -32,8 +32,8 @@ let elbSecurityGroupDefinition = {
 };
 
 let ec2SecurityGroupDefinition = {
-  name: '***REMOVED*** EC2 SG',
-  description: 'Applied to the EC2 instances for the ***REMOVED*** ECS Cluster.',
+  name: 'APP EC2 SG',
+  description: 'Applied to the EC2 instances for the APP ECS Cluster.',
   vpcName: vpcDefinition.name,
   rules: [
     {egress: false, protocol: 'tcp', fromPort: 32768, toPort: 51677, allowedSecurityGroupName: elbSecurityGroupDefinition.name},
@@ -44,7 +44,7 @@ let ec2SecurityGroupDefinition = {
 };
 
 let launchConfigurationDefinition = {
-  name: '***REMOVED*** ECS LC',
+  name: 'APP ECS LC',
   baseImageId: 'ami-7abc111a',
   vpcName: vpcDefinition.name,
   securityGroupName: ec2SecurityGroupDefinition.name,
@@ -52,7 +52,7 @@ let launchConfigurationDefinition = {
 };
 
 let targetGroupDefinition = {
-  name: '***REMOVED***-Target-Group',
+  name: 'APP-Target-Group',
   port: 80,
   protocol: 'HTTP',
   vpcName: vpcDefinition.name,
@@ -62,7 +62,7 @@ let targetGroupDefinition = {
 };
 
 let applicationLoadBalancerDefinition = {
-  name: '***REMOVED***-ECS-App-Load-Balancer',
+  name: 'APP-ECS-App-Load-Balancer',
   scheme: 'internet-facing',
   securityGroupName: elbSecurityGroupDefinition.name,
   vpcName: vpcDefinition.name,
@@ -71,14 +71,14 @@ let applicationLoadBalancerDefinition = {
 
 let infrastructureDefinition = {
   environment: 'Dev',
-  dnsHostname: '***REMOVED***api.dev-internal.***REMOVED***.net',
-  ecsClusterName: '***REMOVED***-Cluster',
+  dnsHostname: 'yourapi.dev-internal.yoursite.com',
+  ecsClusterName: 'APP-Cluster',
   vpc: vpcDefinition,
   securityGroups: [elbSecurityGroupDefinition, ec2SecurityGroupDefinition],
   launchConfiguration: launchConfigurationDefinition,
   targetGroup: targetGroupDefinition,
   autoScaleGroup: {
-    name: '***REMOVED***-ECS-ASG',
+    name: 'APP-ECS-ASG',
     launchConfigurationName: launchConfigurationDefinition.name,
     minSize: 1,
     maxSize: 3,
@@ -98,8 +98,8 @@ let infrastructureDefinition = {
 };
 
 let containerDefinitions = [{
-  name: '***REMOVED***-API-Container',
-  image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/***REMOVED***-api:beta1',
+  name: 'APP-API-Container',
+  image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
   disableNetworking: false,
   privileged: false,
   readonlyRootFilesystem: true,
@@ -135,7 +135,7 @@ let containerDefinitions = [{
 }];
 
 let taskDefinition = {
-  taskName: '***REMOVED***-API-Task',
+  taskName: 'APP-API-Task',
   networkMode: 'bridge',
   taskRoleArn: 'arn:aws:iam::***REMOVED***:role/ecsTaskRole',
   containerDefintions: containerDefinitions
@@ -143,7 +143,7 @@ let taskDefinition = {
 
 let serviceDefinition = {
   clusterName: infrastructureDefinition.ecsClusterName,
-  serviceName: '***REMOVED***-ECS-Service',
+  serviceName: 'APP-ECS-Service',
   taskName: taskDefinition.taskName,
   desiredCount: 2,
   containerName: containerDefinitions[0].name,
@@ -168,9 +168,9 @@ Input
 ```
 {
   callerReference: '',
-  cname: 'api.dev.***REMOVED***.net',
+  cname: 'api.dev.yoursite.com',
   comment: 'title',
-  originName: '***REMOVED*** API Gateway - Dev',
+  originName: 'APP API Gateway - Dev',
   originDomainName: '***REMOVED***.execute-api.us-west-2.amazonaws.com',
   originPath: '/'
 }
@@ -196,19 +196,19 @@ Input
     {
       name: 'dev',
       variables: {
-        host: 'https://sampledev.***REMOVED***.net'
+        host: 'https://sampledev.yoursite.com'
       }
     },
     {
       name: 'demo',
       variables: {
-        host: 'https://sampledemo.***REMOVED***.net'
+        host: 'https://sampledemo.yoursite.com'
       }
     },
     {
       name: 'prod',
       variables: {
-        host: 'https://sampleapp.***REMOVED***.net'
+        host: 'https://sampleapp.yoursite.com'
       }
     }
   ],

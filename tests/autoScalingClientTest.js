@@ -415,7 +415,7 @@ describe('Auto Scaling Client', function() {
   describe('_newLaunchConfigurationName', () => {
     it('should take a boring old name with no versioning and add in " - v1""', () => {
       //Arrange
-      const oldLaunchConfigurationName = '***REMOVED*** ECS LC - Dev';
+      const oldLaunchConfigurationName = 'APP ECS LC - Dev';
 
 
       //Setting up AutoScaling clients
@@ -431,7 +431,7 @@ describe('Auto Scaling Client', function() {
 
     it('should take a name with versioning and increment it', () => {
       //Arrange
-      const oldLaunchConfigurationName = '***REMOVED*** ECS LC - Dev - v12345';
+      const oldLaunchConfigurationName = 'APP ECS LC - Dev - v12345';
 
 
       //Setting up AutoScaling clients
@@ -2433,7 +2433,7 @@ describe('Auto Scaling Client', function() {
         LaunchConfigurations: [
           {
             LaunchConfigurationName: 'LCName',
-            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/***REMOVED*** ECS LC'
+            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/APP ECS LC'
           }
         ]
       };
@@ -2479,7 +2479,7 @@ describe('Auto Scaling Client', function() {
         LaunchConfigurations: [
           {
             LaunchConfigurationName: 'LCName',
-            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/***REMOVED*** ECS LC'
+            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/APP ECS LC'
           }
         ]
       };
@@ -2696,7 +2696,7 @@ describe('Auto Scaling Client', function() {
       let describeAutoScalingGroupsResponse = {
         AutoScalingGroups: [
           {
-            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/***REMOVED***-ECS-ASG'
+            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/APP-ECS-ASG'
           }
         ]
       };
@@ -2742,7 +2742,7 @@ describe('Auto Scaling Client', function() {
       let describeAutoScalingGroupsResponse = {
         AutoScalingGroups: [
           {
-            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/***REMOVED***-ECS-ASG'
+            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/APP-ECS-ASG'
           }
         ]
       };

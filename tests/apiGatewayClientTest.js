@@ -160,7 +160,7 @@ describe('APIGateway Client', function() {
           id: 'ciqzr3g5ti',
           name: 'Platform API'
         }, {
-          id: 'my***REMOVED***Id',
+          id: 'myAppId',
           name: 'Test API',
           version: 'v1'
         }]
@@ -202,7 +202,7 @@ describe('APIGateway Client', function() {
       //Assert
       getPromise.then(url => {
         console.log(url);
-        expect(url).to.be.equal('my***REMOVED***Id.execute-api.us-west-2.amazonaws.com');
+        expect(url).to.be.equal('myAppId.execute-api.us-west-2.amazonaws.com');
         done();
       });
 
@@ -215,7 +215,7 @@ describe('APIGateway Client', function() {
           id: 'ciqzr3g5ti',
           name: 'Platform API'
         }, {
-          id: 'my***REMOVED***Id',
+          id: 'myAppId',
           name: 'CLEARLY NOT MY API!',
           version: 'v1'
         }]
@@ -273,7 +273,7 @@ describe('APIGateway Client', function() {
           id: 'ciqzr3g5ti',
           name: 'Platform API'
         }, {
-          id: 'my***REMOVED***Id',
+          id: 'myAppId',
           name: 'Test API',
           version: 'v1'
         }]
@@ -322,7 +322,7 @@ describe('APIGateway Client', function() {
 
       //Assert
       getPromise.then(url => {
-        expect(url).to.be.equal('https://my***REMOVED***Id.execute-api.us-west-2.amazonaws.com/SomeStage');
+        expect(url).to.be.equal('https://myAppId.execute-api.us-west-2.amazonaws.com/SomeStage');
         done();
       });
 
@@ -335,7 +335,7 @@ describe('APIGateway Client', function() {
           id: 'ciqzr3g5ti',
           name: 'Platform API'
         }, {
-          id: 'my***REMOVED***Id',
+          id: 'myAppId',
           name: 'NOT MY TEST API',
           version: 'v1'
         }]
@@ -398,7 +398,7 @@ describe('APIGateway Client', function() {
           id: 'ciqzr3g5ti',
           name: 'Platform API'
         }, {
-          id: 'my***REMOVED***Id',
+          id: 'myAppId',
           name: 'Test API',
           version: 'v1'
         }]

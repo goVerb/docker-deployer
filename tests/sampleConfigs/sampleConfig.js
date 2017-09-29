@@ -1,5 +1,5 @@
 let vpcDefinition = {
-  name: '***REMOVED*** VPC',
+  name: 'APP VPC',
   cidrBlock: '10.0.0.0/16',
   subnets: [
     { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl'},
@@ -17,8 +17,8 @@ let vpcDefinition = {
 };
 
 let elbSecurityGroupDefinition = {
-  name: '***REMOVED*** ALB SG',
-  description: 'Applied to the application load balancer for the ***REMOVED*** ECS Cluster.',
+  name: 'APP ALB SG',
+  description: 'Applied to the application load balancer for the APP ECS Cluster.',
   vpcName: vpcDefinition.name,
   rules: [
     {egress: false, protocol: '-1', fromPort: 0, toPort: 65535, allowedIpCidrBlock: '0.0.0.0/0'}
@@ -26,8 +26,8 @@ let elbSecurityGroupDefinition = {
 };
 
 let ec2SecurityGroupDefinition = {
-  name: '***REMOVED*** EC2 SG',
-  description: 'Applied to the EC2 instances for the ***REMOVED*** ECS Cluster.',
+  name: 'APP EC2 SG',
+  description: 'Applied to the EC2 instances for the APP ECS Cluster.',
   vpcName: vpcDefinition.name,
   rules: [
     {egress: false, protocol: 'tcp', fromPort: 32768, toPort: 51677, allowedSecurityGroupName: elbSecurityGroupDefinition.name},
@@ -38,7 +38,7 @@ let ec2SecurityGroupDefinition = {
 };
 
 let launchConfigurationDefinition = {
-  name: '***REMOVED*** ECS LC',
+  name: 'APP ECS LC',
   baseImageId: 'ami-7abc111a',
   vpcName: vpcDefinition.name,
   securityGroupName: ec2SecurityGroupDefinition.name,
@@ -46,7 +46,7 @@ let launchConfigurationDefinition = {
 };
 
 let targetGroupDefinition = {
-  name: '***REMOVED***-Target-Group',
+  name: 'APP-Target-Group',
   port: 80,
   protocol: 'HTTP',
   vpcName: vpcDefinition.name,
@@ -56,7 +56,7 @@ let targetGroupDefinition = {
 };
 
 let applicationLoadBalancerDefinition = {
-  name: '***REMOVED***-ECS-App-Load-Balancer',
+  name: 'APP-ECS-App-Load-Balancer',
   scheme: 'internet-facing',
   securityGroupName: elbSecurityGroupDefinition.name,
   vpcName: vpcDefinition.name,
@@ -65,14 +65,14 @@ let applicationLoadBalancerDefinition = {
 
 let infrastructureDefinition = {
   environment: 'Dev',
-  dnsHostname: '***REMOVED***api.dev-internal.***REMOVED***.net',
-  ecsClusterName: '***REMOVED***-Cluster',
+  dnsHostname: 'yourapi.dev-internal.yoursite.com',
+  ecsClusterName: 'APP-Cluster',
   vpc: vpcDefinition,
   securityGroups: [elbSecurityGroupDefinition, ec2SecurityGroupDefinition],
   launchConfiguration: launchConfigurationDefinition,
   targetGroup: targetGroupDefinition,
   autoScaleGroup: {
-    name: '***REMOVED***-ECS-ASG',
+    name: 'APP-ECS-ASG',
     launchConfigurationName: launchConfigurationDefinition.name,
     minSize: 1,
     maxSize: 3,

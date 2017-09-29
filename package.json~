@@ -1,5 +1,5 @@
 {
-  "name": "docker-deployer",
+  "name": "@goverb/docker-deployer",
   "version": "1.8.4",
   "description": "docker deployer utils",
   "main": "build/index.js",

@@ -171,7 +171,7 @@ Input
   cname: 'api.dev.yoursite.com',
   comment: 'title',
   originName: 'APP API Gateway - Dev',
-  originDomainName: '***REMOVED***.execute-api.us-west-2.amazonaws.com',
+  originDomainName: 'apigatewayID.execute-api.us-west-2.amazonaws.com',
   originPath: '/'
 }
 ```

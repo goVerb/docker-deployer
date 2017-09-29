@@ -2433,7 +2433,7 @@ describe('Auto Scaling Client', function() {
         LaunchConfigurations: [
           {
             LaunchConfigurationName: 'LCName',
-            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/APP ECS LC'
+            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:000000000000:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/APP ECS LC'
           }
         ]
       };
@@ -2479,7 +2479,7 @@ describe('Auto Scaling Client', function() {
         LaunchConfigurations: [
           {
             LaunchConfigurationName: 'LCName',
-            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/APP ECS LC'
+            LaunchConfigurationARN: 'arn:aws:autoscaling:us-west-2:000000000000:launchConfiguration:166f9840-acd1-4cdf-9dce-415468284685:launchConfigurationName/APP ECS LC'
           }
         ]
       };
@@ -2696,7 +2696,7 @@ describe('Auto Scaling Client', function() {
       let describeAutoScalingGroupsResponse = {
         AutoScalingGroups: [
           {
-            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/APP-ECS-ASG'
+            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:000000000000:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/APP-ECS-ASG'
           }
         ]
       };
@@ -2742,7 +2742,7 @@ describe('Auto Scaling Client', function() {
       let describeAutoScalingGroupsResponse = {
         AutoScalingGroups: [
           {
-            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:***REMOVED***:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/APP-ECS-ASG'
+            AutoScalingGroupARN: 'arn:aws:autoscaling:us-west-2:000000000000:autoScalingGroup:c2c3fe59-962b-497d-bbfa-bbf556e68ab4:autoScalingGroupName/APP-ECS-ASG'
           }
         ]
       };

@@ -276,7 +276,7 @@ describe('ECS Client', function() {
       const containerDefinitions = [
         {
           name: 'APP-API-Container',
-          image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
+          image: '000000000000.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
           disableNetworking: false,
           privileged: false,
           readonlyRootFilesystem: true,
@@ -353,7 +353,7 @@ const mockAwsSdk = {
       const containerDefinitions = [
         {
           name: 'APP-API-Container',
-          image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
+          image: '000000000000.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
           disableNetworking: false,
           privileged: false,
           readonlyRootFilesystem: true,
@@ -430,7 +430,7 @@ const mockAwsSdk = {
       const containerDefinitions = [
         {
           name: 'APP-API-Container',
-          image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
+          image: '000000000000.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
           disableNetworking: false,
           privileged: false,
           readonlyRootFilesystem: true,
@@ -507,7 +507,7 @@ const mockAwsSdk = {
       const containerDefinitions = [
         {
           name: 'APP-API-Container',
-          image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
+          image: '000000000000.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
           disableNetworking: false,
           privileged: false,
           readonlyRootFilesystem: true,
@@ -585,7 +585,7 @@ const mockAwsSdk = {
       const containerDefinitions = [
         {
           name: 'APP-API-Container',
-          image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
+          image: '000000000000.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
           disableNetworking: false,
           privileged: false,
           readonlyRootFilesystem: true,

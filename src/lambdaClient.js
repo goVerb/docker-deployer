@@ -445,7 +445,7 @@ class LambdaClient extends BaseClient {
     }
     else {
       params = {
-        Role: config.role || 'arn:aws:iam::***REMOVED***:role/lambda_basic_execution'
+        Role: config.role || 'arn:aws:iam::000000000000:role/lambda_basic_execution'
       };
     }
     return params;

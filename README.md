@@ -99,7 +99,7 @@ let infrastructureDefinition = {
 
 let containerDefinitions = [{
   name: 'APP-API-Container',
-  image: '***REMOVED***.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
+  image: '000000000000.dkr.ecr.us-west-2.amazonaws.com/your-api:beta1',
   disableNetworking: false,
   privileged: false,
   readonlyRootFilesystem: true,
@@ -137,7 +137,7 @@ let containerDefinitions = [{
 let taskDefinition = {
   taskName: 'APP-API-Task',
   networkMode: 'bridge',
-  taskRoleArn: 'arn:aws:iam::***REMOVED***:role/ecsTaskRole',
+  taskRoleArn: 'arn:aws:iam::000000000000:role/ecsTaskRole',
   containerDefintions: containerDefinitions
 };
 

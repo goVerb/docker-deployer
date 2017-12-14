@@ -159,17 +159,14 @@ describe('EC2 Client', function() {
       //Arrange
       const EC2 = require('../src/ec2Client.js');
       const ec2ClientService = new EC2();
-      let getSecurityGroupIdFromNameStub = sandbox.stub(ec2ClientService, 'getSecurityGroupIdFromName', () => {
-        return Promise.resolve('uniqueSGId1');
-      });
-
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('uniqueSGId1');
 
       //Act
       let resultPromise = ec2ClientService.createSecurityGroupFromConfig(ENVIRONMENT, {name: 'dupeName', vpcId: '123abc'});
 
       //Assert
       return resultPromise.then(() => {
-        expect(getSecurityGroupIdFromNameStub.args[0][0]).to.be.equal('dupeName');
+        expect(ec2ClientService.getSecurityGroupIdFromName.args[0][0]).to.be.equal('dupeName');
       });
     });
 
@@ -177,16 +174,15 @@ describe('EC2 Client', function() {
       //Arrange
       const EC2 = require('../src/ec2Client.js');
       const ec2ClientService = new EC2();
-      let getSecurityGroupIdFromNameStub = sandbox.stub(ec2ClientService, 'getSecurityGroupIdFromName', () => {
-        return Promise.resolve('uniqueSGId1');
-      });
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('uniqueSGId1');
+      
 
       //Act
       let resultPromise = ec2ClientService.createSecurityGroupFromConfig(ENVIRONMENT, {name: 'dupeName', vpcId: '123abc'});
 
       //Assert
       return resultPromise.then(() => {
-        expect(getSecurityGroupIdFromNameStub.args[0][1]).to.be.equal('123abc');
+        expect(ec2ClientService.getSecurityGroupIdFromName.args[0][1]).to.be.equal('123abc');
       });
     });
 
@@ -194,9 +190,7 @@ describe('EC2 Client', function() {
       //Arrange
       const EC2 = require('../src/ec2Client.js');
       const ec2ClientService = new EC2();
-      sandbox.stub(ec2ClientService, 'getSecurityGroupIdFromName', () => {
-        return Promise.resolve('uniqueSGId1');
-      });
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('uniqueSGId1');
 
       let createSecurityGroupStub = sandbox.stub(ec2ClientService, '_createSecurityGroup');
 
@@ -213,9 +207,7 @@ describe('EC2 Client', function() {
       //Arrange
       const EC2 = require('../src/ec2Client.js');
       const ec2ClientService = new EC2();
-      sandbox.stub(ec2ClientService, 'getSecurityGroupIdFromName', () => {
-        return Promise.resolve('');
-      });
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
 
       let createSecurityGroupStub = sandbox.stub(ec2ClientService, '_createSecurityGroup');
 
@@ -232,9 +224,7 @@ describe('EC2 Client', function() {
       //Arrange
       const EC2 = require('../src/ec2Client');
       const ec2ClientService = new EC2();
-      sandbox.stub(ec2ClientService, 'getSecurityGroupIdFromName', () => {
-        return Promise.resolve('');
-      });
+      ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('');
 
       let createSecurityGroupStub = sandbox.stub(ec2ClientService, '_createSecurityGroup');
 

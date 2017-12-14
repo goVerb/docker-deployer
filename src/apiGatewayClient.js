@@ -37,123 +37,127 @@ class APIGatewayClient extends BaseClient {
     return `${restApiId}.execute-api.${region}.amazonaws.com`;
   }
 
-  lookupApiGatewayByName(name) {
+  async lookupApiGatewayByName(name) {
     const params = {};
-    return this._apiGatewayClient.getRestApis(params).promise().then(data => {
-      return data.items.find(api => api.name === name);
-    });
+    const data = await this._apiGatewayClient.getRestApis(params).promise();
+
+    return data.items.find(api => api.name === name);
   }
 
-  lookupStageByStageName(restApiId, stageName) {
+  async lookupStageByStageName(restApiId, stageName) {
     const params = {
       restApiId,
       stageName
     };
-    return this._apiGatewayClient.getStage(params).promise();
+    return await this._apiGatewayClient.getStage(params).promise();
   }
 
-  lookupApiGatewayURL(apiName, stageName) {
+  async lookupApiGatewayURL(apiName, stageName) {
     let restApiId;
-    return this.lookupApiGatewayByName(apiName).then(api => {
-      if(!api) {
-        this.logMessage(`No API avaialble for [RestAPI Name ${apiName}]`);
-        return null;
-      }
-      restApiId = api.id;
-      // We are only looking up the StageName to make sure it exists
-      return this.lookupStageByStageName(restApiId, stageName);
-    }).then(stage => {
-      if(!stage) {
-        this.logMessage(`No Stage avaialble for [RestAPI Id ${restApiId}][StageName: ${stageName}]`);
-        return null;
-      }
-      return this._getInvokeUrl(restApiId, stageName);
-    });
+    const api = await this.lookupApiGatewayByName(apiName);
+
+    if(!api) {
+      this.logMessage(`No API avaialble for [RestAPI Name ${apiName}]`);
+      return null;
+    }
+
+    restApiId = api.id;
+    // We are only looking up the StageName to make sure it exists
+    const stage= await this.lookupStageByStageName(restApiId, stageName);
+
+    if(!stage) {
+      this.logMessage(`No Stage avaialble for [RestAPI Id ${restApiId}][StageName: ${stageName}]`);
+      return null;
+    }
+
+    return this._getInvokeUrl(restApiId, stageName);
   }
 
-  lookupApiGatewayDomainName(apiName) {
-    return this.lookupApiGatewayByName(apiName).then(api => {
-      if(!api) {
-        this.logMessage(`No API avaialble for [RestAPI Name ${apiName}]`);
-        return null;
-      }
-      this.logMessage(`API available: [API ID: ${api.id}]`);
-      return this._getDomainName(api.id);
-    });
+  async lookupApiGatewayDomainName(apiName) {
+    const api = await this.lookupApiGatewayByName(apiName);
+
+    if(!api) {
+      this.logMessage(`No API avaialble for [RestAPI Name ${apiName}]`);
+      return null;
+    }
+
+    this.logMessage(`API available: [API ID: ${api.id}]`);
+    return this._getDomainName(api.id);
   }
 
-  createDeployment(restApiId, stageName, variableCollection) {
-    if (util.isNullOrUndefined(stageName) || stageName === "") {
-      return BlueBirdPromise.reject("stageName must be populated");
-    }
+  async createDeployment(restApiId, stageName, variableCollection) {
 
-    if (util.isNullOrUndefined(restApiId) || restApiId === "") {
-      return BlueBirdPromise.reject("restApiId must be populated");
-    }
+    try {
+      if (util.isNullOrUndefined(stageName) || stageName === "") {
+        throw new Error("stageName must be populated");
+      }
 
-    if (util.isNullOrUndefined(variableCollection) || variableCollection.length === 0) {
-      return BlueBirdPromise.reject("variableCollection must be populated");
-    }
+      if (util.isNullOrUndefined(restApiId) || restApiId === "") {
+        throw new Error("restApiId must be populated");
+      }
 
-    return BlueBirdPromise.resolve().then(() => {
+      if (util.isNullOrUndefined(variableCollection) || variableCollection.length === 0) {
+        throw new Error("variableCollection must be populated");
+      }
 
-      let createParams = {
-        restApiId: restApiId, /* required */
-        stageName: stageName, /* required */
-        cacheClusterEnabled: false,
-        description: '',
-        variables: variableCollection
-      };
 
-      this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-      return this._apiGatewayClient.createDeployment(createParams).promise();
-    }).then(data => {
-      const params = {
-        restApiId: restApiId,
-        stageName: stageName,
-        patchOperations: [
-          {
-            op: 'replace',
-            path: '/*/*/logging/loglevel',
-            value: 'INFO'
-          },
-          {
-            op: 'replace',
-            path: '/*/*/metrics/enabled',
-            value: 'true'
-          },
-          {
-            op: 'replace',
-            path: '/*/*/logging/dataTrace',
-            value: 'true'
-          }]
-      };
-      this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-      return this._apiGatewayClient.updateStage(params).promise();
-    }).then(data => {
-      this.logMessage(`Success: ${JSON.stringify(data)}`);
-    }).catch(err => {
+        let createParams = {
+          restApiId: restApiId, /* required */
+          stageName: stageName, /* required */
+          cacheClusterEnabled: false,
+          description: '',
+          variables: variableCollection
+        };
+
+        this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
+        await this._apiGatewayClient.createDeployment(createParams).promise();
+        const params = {
+          restApiId: restApiId,
+          stageName: stageName,
+          patchOperations: [
+            {
+              op: 'replace',
+              path: '/*/*/logging/loglevel',
+              value: 'INFO'
+            },
+            {
+              op: 'replace',
+              path: '/*/*/metrics/enabled',
+              value: 'true'
+            },
+            {
+              op: 'replace',
+              path: '/*/*/logging/dataTrace',
+              value: 'true'
+            }]
+        };
+        this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
+        const data = await this._apiGatewayClient.updateStage(params).promise();
+        this.logMessage(`Success: ${JSON.stringify(data)}`);
+
+    } catch (err) {
       this.logMessage(err);
       throw err;
-    });
+    }
   }
 
-  _deployApiGatewayToStage(apiGatewayId, stageName, stageFullName) {
-    if (util.isNullOrUndefined(apiGatewayId)) {
-      return BlueBirdPromise.reject("apiGatewayId is null or undefined");
-    }
+  async _deployApiGatewayToStage(apiGatewayId, stageName, stageFullName) {
 
-    if (util.isNullOrUndefined(stageName)) {
-      return BlueBirdPromise.reject("stageName is null or undefined");
-    }
+    try {
+      if (util.isNullOrUndefined(apiGatewayId)) {
+        throw new Error("apiGatewayId is null or undefined");
+      }
 
-    if (util.isNullOrUndefined(stageFullName)) {
-      return BlueBirdPromise.reject("stageFullName is null or undefined");
-    }
+      if (util.isNullOrUndefined(stageName)) {
+        throw new Error("stageName is null or undefined");
+      }
 
-    this.logMessage(`Deploying to '${stageFullName}' Environment`);
+      if (util.isNullOrUndefined(stageFullName)) {
+        throw new Error("stageFullName is null or undefined");
+      }
 
-    return BlueBirdPromise.resolve().then(() => {
+      this.logMessage(`Deploying to '${stageFullName}' Environment`);
+
       let params = {
         restApiId: apiGatewayId, /* required */
         stageName: stageName, /* required */
@@ -162,8 +166,11 @@ class APIGatewayClient extends BaseClient {
         stageDescription: `${stageFullName} - ${moment.utc().format()}`
       };
 
-      this._apiGatewayClient.createDeployment(params).promise();
-    });
+      return await this._apiGatewayClient.createDeployment(params).promise();
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
   }
 
   _deployApiGatewayToStageForEnvByGatewayName(environment, apiName, delayInMilliseconds = 16000) {

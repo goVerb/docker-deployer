@@ -668,8 +668,8 @@ describe('APIGateway Client', function() {
       response.then(data => {
         expect(apiGatewayService._createSwagger.calledOnce).to.be.true;
         done();
-      })
-    })
+      });
+    });
   });
 
   describe('createDeployment', () => {
@@ -719,9 +719,10 @@ describe('APIGateway Client', function() {
       let response = apiGatewayService.createDeployment(null,'IAMSTAGE',{variable: 'amvar'});
       //Assert
       response.catch(err => {
-        expect(err).to.equal("restApiId must be populated");
+        expect(err.name).to.equal('Error');
+        expect(err.message).to.equal("restApiId must be populated");
         done();
-      })
+      });
     });
     it('should error if no stagename is passed to it', (done) => {
       //Arrange
@@ -734,9 +735,10 @@ describe('APIGateway Client', function() {
       let response = apiGatewayService.createDeployment('IAMANID',null,{variable: 'amvar'});
       //Assert
       response.catch(err => {
-        expect(err).to.equal("stageName must be populated");
+        expect(err.name).to.equal('Error');
+        expect(err.message).to.equal('stageName must be populated');
         done();
-      })
+      });
     });
     it('should error if no variableCollection is passed to it', () => {
       //Arrange
@@ -749,8 +751,9 @@ describe('APIGateway Client', function() {
       let response = apiGatewayService.createDeployment('IAMANID','IAMSTAGE',[]);
       //Assert
       return response.catch(err => {
-        expect(err).to.equal("variableCollection must be populated");
-      })
+        expect(err.name).to.equal('Error');
+        expect(err.message).to.equal("variableCollection must be populated");
+      });
     });
 
     it('should call createDeployment from apiGatewayClient once', () => {
@@ -804,6 +807,418 @@ describe('APIGateway Client', function() {
         console.log(err)
         expect(err).to.have.property('message', 'You got an error');
       });
+    });
+  });
+
+  describe('_deployApiGatewaytoStage', () => {
+
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let createStub;
+    beforeEach(() => {
+      createStub = sandbox.stub().returns(BluebirdPromise.resolve());
+      APIGatewayMock = {
+        createDeployment: () => ({promise: createStub}),
+      };
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+
+      };
+    });
+
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      createStub = null;
+    });
+
+    it('should throw an error if no apiGatewayId is passed', async () => {
+      //Arrange
+      const idParam = null;
+      const stageNameParam = 'iAmTheStageName';
+      const stageFullNameParam = 'iAmTheStageFullName';
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      apiGatewayService = new APIGateway('acckey', 'secret');
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStage(idParam, stageNameParam, stageFullNameParam);
+      } catch (err) {
+        // Assert
+        expect(err.name).to.be.equal('Error');
+        expect(err.message).to.be.equal('apiGatewayId is null or undefined')
+      }
+    });
+
+    it('should throw an error if no stageName is passed', async () => {
+      //Arrange
+      const idParam = 'iAmTheId';
+      const stageNameParam = null;
+      const stageFullNameParam = 'iAmTheStageFullName';
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      apiGatewayService = new APIGateway('acckey', 'secret');
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStage(idParam, stageNameParam, stageFullNameParam);
+      } catch (err) {
+        // Assert
+        expect(err.name).to.be.equal('Error');
+        expect(err.message).to.be.equal('stageName is null or undefined')
+      }
+    });
+
+    it('should throw an error if no stageFullName is passed', async () => {
+      //Arrange
+      const idParam = 'iAmTheId';
+      const stageNameParam = 'iAmTheStageName';
+      const stageFullNameParam = null;
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      apiGatewayService = new APIGateway('acckey', 'secret');
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStage(idParam, stageNameParam, stageFullNameParam);
+      } catch (err) {
+        // Assert
+        expect(err.name).to.be.equal('Error');
+        expect(err.message).to.be.equal('stageFullName is null or undefined')
+      }
+    });
+
+    it('should call apiGatewayClient.createDeployment once', async () => {
+      //Arrange
+      const idParam = 'iAmTheId';
+      const stageNameParam = 'iAmTheStageName';
+      const stageFullNameParam = 'iAmTheStageFullName';
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      apiGatewayService = new APIGateway('acckey', 'secret');
+
+      // Act
+      await apiGatewayService._deployApiGatewayToStage(idParam, stageNameParam, stageFullNameParam);
+
+      // Assert
+      expect(createStub.callCount).to.be.equal(1);
+    });
+
+    it('should throw error if AWS SDK throws one', async () => {
+      //Arrange
+      const idParam = 'iAmTheId';
+      const stageNameParam = 'iAmTheStageName';
+      const stageFullNameParam = 'iAmTheStageFullName';
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      createStub = sandbox.stub().rejects(new Error('AWS SDK Error'));
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      apiGatewayService = new APIGateway('acckey', 'secret');
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStage(idParam, stageNameParam, stageFullNameParam);
+      } catch (err) {
+        // Assert
+        expect(err.name).to.be.equal('Error');
+        expect(err.message).to.be.equal('AWS SDK Error');
+      }
+    });
+  });
+
+  describe('deployApiGatewayToStageForEnvByGatewayName', () => {
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let createStub;
+    let getRestApisStub;
+    let updateStub;
+    let mocks;
+    beforeEach(() => {
+      createStub = sandbox.stub().resolves({});
+      getRestApisStub = sandbox.stub().resolves({});
+      updateStub = sandbox.stub().resolves({});
+
+      APIGatewayMock = {
+        createDeployment: () => ({ promise: createStub }),
+        getRestApis: () => ({ promise: getRestApisStub} ),
+        updateStage: () => ({ promise: updateStub })
+      };
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: () => {
+          return APIGatewayMock;
+        }
+      };
+
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      apiGatewayService = new APIGateway('acckey', 'secret');
+    });
+
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      createStub = null;
+    });
+
+    it('should throw an error if environment is null or undefined', async () => {
+      // Arrange
+      const environment = null;
+
+      const apiName = 'myApi';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal(`environment is not valid [environment: ]`);
+      }
+    });
+
+    it('should throw an error if environment.FullName is null or undefined', async () => {
+      // Arrange
+      const environment = {
+        FullName: null,
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myApi';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal(`environment is not valid [environment: ${JSON.stringify(environment)}]`);
+      }
+    });
+
+    it('should throw an error if environment.FullName is unknown', async () => {
+      // Arrange
+      const environment = {
+        FullName: 'UNK',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myApi';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal(`environment is not valid [environment: ${JSON.stringify(environment)}]`);
+      }
+    });
+
+    it('should throw an error if environment.ShortName is null or undefined', async () => {
+      // Arrange
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: null
+      };
+
+      const apiName = 'myApi';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal(`environment is not valid [environment: ${JSON.stringify(environment)}]`);
+      }
+    });
+
+    it('should throw an error if environment.ShortName is unknown', async () => {
+      // Arrange
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'UNK'
+      };
+
+      const apiName = 'myApi';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal(`environment is not valid [environment: ${JSON.stringify(environment)}]`);
+      }
+    });
+
+    it('should throw an error if apiName is falsy value', async () => {
+      // Arrange
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = '';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal(`apiName is null or undefined`);
+      }
+    });
+
+    it('should call lookupApiGatewayByName once', async () => {
+      // Arrange
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve(null));
+
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myAPI';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName, 0);
+      } catch (err) {
+
+        // Assert
+        expect(apiGatewayService.lookupApiGatewayByName.callCount).to.be.equal(1);
+      }
+    });
+
+    it('should throw an error if no apiId is found by lookupApiGatewayByName', async () => {
+      // Arrange
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve(null));
+
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myAPI';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName, 0);
+      } catch (err) {
+
+        // Assert
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+        expect(err.message).to.be.equal('foundApiId is null or undefined (no match found)');
+      }
+    });
+
+    it('should call _deployApiGatewayToStage once', async () => {
+      // Arrange
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('apiName'));
+      apiGatewayService._deployApiGatewayToStage = sandbox.stub().returns(BluebirdPromise.resolve(null));
+
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myAPI';
+
+      // Act
+      await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName, 0);
+
+      // Assert
+      expect(apiGatewayService._deployApiGatewayToStage.callCount).to.be.equal(1);
+    });
+
+
+    it('should pass params to _deployApiGatewayToStage', async () => {
+      // Arrange
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('apiName'));
+      apiGatewayService._deployApiGatewayToStage = sandbox.stub().returns(BluebirdPromise.resolve(null));
+
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myAPI';
+
+      // Act
+      await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName, 0);
+
+      // Assert
+      expect(apiGatewayService._deployApiGatewayToStage.args[0][0]).to.be.equal('apiName');
+      expect(apiGatewayService._deployApiGatewayToStage.args[0][1]).to.be.equal(environment.ShortName);
+      expect(apiGatewayService._deployApiGatewayToStage.args[0][2]).to.be.equal(environment.FullName);
+    });
+
+    it('should thrown an error if _deployApiGatewayToStage errors', async () => {
+      // Arrange
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('apiName'));
+      apiGatewayService._deployApiGatewayToStage = sandbox.stub().returns(BluebirdPromise.reject());
+
+      const environment = {
+        FullName: 'myEnvironment',
+        ShortName: 'myEnv'
+      };
+
+      const apiName = 'myAPI';
+
+      // Act
+      try {
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName, 0);
+      } catch (err) {
+        expect(err.plugin).to.be.equal('deployApiGatewayToStageForEnvByGatewayName');
+      }
     });
   });
 });

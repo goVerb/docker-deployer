@@ -226,6 +226,26 @@ describe('ECS Client', function() {
         expect(ecsClientService._createCluster.callCount).to.be.equal(1);
       });
     });
+
+    it('should call _createCluster if ClusterNotFoundException thrown', () => {
+      //Arrange
+      const clusterName = 'clusterName';
+
+      //Setting up ECS clients
+      const ECS = require('../src/ecsClient');
+      const ecsClientService = new ECS();
+      ecsClientService.getClusterArn = sandbox.stub().rejects({code: 'ClusterNotFoundException'});
+      ecsClientService._createCluster = sandbox.stub().resolves({});
+
+
+      //Act
+      let resultPromise = ecsClientService.createCluster(clusterName);
+
+      //Assert
+      return resultPromise.catch(() => {
+        expect(ecsClientService._createCluster.callCount).to.be.equal(1);
+      });
+    });
   });
 
   describe('_createCluster', () => {

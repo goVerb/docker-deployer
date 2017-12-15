@@ -28,19 +28,25 @@ class EcsClient extends BaseClient {
    * @param clusterName
    * @return {Promise.<TResult>|*}
    */
-  createCluster(clusterName) {
-    return this.getClusterArn(clusterName).then(clusterArn => {
+  async createCluster(clusterName) {
+
+    try {
+      const clusterArn = await this.getClusterArn(clusterName);
+
       if(!clusterArn) {
         return this._createCluster(clusterName);
       } else {
         this.logMessage(`Cluster already exists.  No action taken. [ClusterName: ${clusterName}] [ClusterArn: ${clusterArn}]`);
       }
-    }).catch(err => {
+
+    } catch (err) {
       if (err.code === 'ClusterNotFoundException') {
         this.logMessage(`Cluster does not exist.  Creating Cluster. [ClusterName: ${clusterName}]`);
         return this._createCluster(clusterName);
       }
-    });
+
+    }
+
   }
 
   /**

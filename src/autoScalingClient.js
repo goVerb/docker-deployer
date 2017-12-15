@@ -38,14 +38,14 @@ class AutoScalingClient extends BaseClient {
    * @param launchConfigurationConfig.ecsClusterName (Optional) <This is the ECS cluster that will be associated with the launch configuration
    * @return {Promise.<TResult>}
    */
-  createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig) {
+  async createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig) {
     let launchConfigurationNameToDelete = ''; // default, assuming that the LC doesn't exist therefore nothing needs to be deleted
     let launchConfigurationNameToReturn = launchConfigurationConfig.name; // default, assuming that the LC doesn't exist and will be created
 
-    return this.getLaunchConfiguration(launchConfigurationConfig.name).then(foundLaunchConfiguration => {
+    const foundLaunchConfiguration = await this.getLaunchConfiguration(launchConfigurationConfig.name);
       if (!foundLaunchConfiguration) {
         this.logMessage(`LaunchConfiguration not found. Creating [LaunchConfigurationName: ${launchConfigurationConfig.name}]`);
-        return this._createOrUpdateLaunchConfiguration(launchConfigurationConfig.name,
+        await this._createOrUpdateLaunchConfiguration(launchConfigurationConfig.name,
           launchConfigurationConfig.baseImageId,
           launchConfigurationConfig.securityGroupId,
           launchConfigurationConfig.instanceType,
@@ -54,26 +54,23 @@ class AutoScalingClient extends BaseClient {
       } else if (this._isLaunchConfigurationOutOfDate(launchConfigurationConfig, foundLaunchConfiguration)) {
         this.logMessage(`LaunchConfiguration already exists but is out of date. Updating [LaunchConfigurationName: ${launchConfigurationConfig.name}] [FoundLaunchConfiguration: ${JSON.stringify(foundLaunchConfiguration)}]`);
         launchConfigurationConfig.name = this._newLaunchConfigurationName(foundLaunchConfiguration.LaunchConfigurationName);
-        return this._createOrUpdateLaunchConfiguration(launchConfigurationConfig.name,
+        await this._createOrUpdateLaunchConfiguration(launchConfigurationConfig.name,
           launchConfigurationConfig.baseImageId,
           launchConfigurationConfig.securityGroupId,
           launchConfigurationConfig.instanceType,
           launchConfigurationConfig.sshKeyName,
-          launchConfigurationConfig.ecsClusterName)
-          .then(() => {
-            launchConfigurationNameToDelete = foundLaunchConfiguration.LaunchConfigurationName;
-            launchConfigurationNameToReturn = launchConfigurationConfig.name;
-          });
+          launchConfigurationConfig.ecsClusterName);
+
+          launchConfigurationNameToDelete = foundLaunchConfiguration.LaunchConfigurationName;
+          launchConfigurationNameToReturn = launchConfigurationConfig.name;
       } else {
         this.logMessage(`LaunchConfiguration already exists and is up to date. No action taken. [LaunchConfigurationName: ${JSON.stringify(launchConfigurationConfig)}] [FoundLaunchConfiguration: ${JSON.stringify(foundLaunchConfiguration)}]`);
         launchConfigurationNameToReturn = foundLaunchConfiguration.LaunchConfigurationName;
       }
-    }).then(() => {
       return {
         newLaunchConfigName: launchConfigurationNameToReturn,
         oldLaunchConfigName: launchConfigurationNameToDelete
       };
-    });
   }
 
 
@@ -145,7 +142,7 @@ class AutoScalingClient extends BaseClient {
    * @param ecsClusterName (Optional)
    * @return {Promise<D>}
    */
-  _createOrUpdateLaunchConfiguration(name, imageId, securityGroupId, instanceType, sshKeyName = null, ecsClusterName = null) {
+  async _createOrUpdateLaunchConfiguration(name, imageId, securityGroupId, instanceType, sshKeyName = null, ecsClusterName = null) {
 
     let params = {
       LaunchConfigurationName: name, /* required */
@@ -175,9 +172,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
     }
 
     this.logMessage(`Creating Launch Configuration. [Name: ${name}] [Params: ${JSON.stringify(params)}]`);
-    let createLaunchConfigurationPromise = this._awsAutoScalingClient.createLaunchConfiguration(params).promise();
-
-    return createLaunchConfigurationPromise;
+    return await this._awsAutoScalingClient.createLaunchConfiguration(params).promise();
   }
 
 
@@ -194,31 +189,30 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @param launchConfigToDeleteName
    * @return {Promise.<TResult>|*}
    */
-  createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName) {
-    let {environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets} = params;
-    return this.getAutoScalingGroup(name).then(foundAutoScalingGroup => {
-      if(!foundAutoScalingGroup) {
-        return this._createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+  async createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName) {
+    const { environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets } = params;
+    const foundAutoScalingGroup = await this.getAutoScalingGroup(name);
+
+    if(!foundAutoScalingGroup) {
+      return this._createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+    } else {
+      if(this._isAutoScalingGroupOutOfDate(params, foundAutoScalingGroup)) {
+        this.logMessage(`AutoScalingGroup already exists but is out of date. Updating [AutoScalingGroupName: ${name}] [FoundAutoScalingGroup: ${JSON.stringify(foundAutoScalingGroup)}]`);
+        await this._updateAutoScalingGroup(environment,
+          name,
+          launchConfigurationName,
+          minSize,
+          maxSize,
+          desiredCapacity,
+          targetGroupArns,
+          vpcSubnets);
       } else {
-        if(this._isAutoScalingGroupOutOfDate(params, foundAutoScalingGroup)) {
-          this.logMessage(`AutoScalingGroup already exists but is out of date. Updating [AutoScalingGroupName: ${name}] [FoundAutoScalingGroup: ${JSON.stringify(foundAutoScalingGroup)}]`);
-          return this._updateAutoScalingGroup(environment,
-            name,
-            launchConfigurationName,
-            minSize,
-            maxSize,
-            desiredCapacity,
-            targetGroupArns,
-            vpcSubnets);
-        } else {
-          this.logMessage(`AutoScalingGroup already exists and is up to date. No Action taken. [AutoScalingGroupName: ${name}] [FoundAutoScalingGroup: ${JSON.stringify(foundAutoScalingGroup)}]`);
-        }
+        this.logMessage(`AutoScalingGroup already exists and is up to date. No Action taken. [AutoScalingGroupName: ${name}] [FoundAutoScalingGroup: ${JSON.stringify(foundAutoScalingGroup)}]`);
       }
-    }).then(() => {
-      if(launchConfigToDeleteName) {
-        return this.deleteLaunchConfiguration(launchConfigToDeleteName);
-      }
-    });
+    }
+    if(launchConfigToDeleteName) {
+      return await this.deleteLaunchConfiguration(launchConfigToDeleteName);
+    }
   }
 
 
@@ -306,7 +300,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @return {Promise.<TResult>|*}
    */
   _generateAutoScalingParams(config, isCreate = true) {
-    const {environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets} = config;
+    const { environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets } = config;
     let formattedTargetGroupArns = targetGroupArns;
     if(isCreate && !__.isArray(formattedTargetGroupArns)) {
       formattedTargetGroupArns = [targetGroupArns];
@@ -364,14 +358,11 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @param vpcSubnets This is a CSV of subnets where the instances will be launched into
    * @return {Promise<D>}
    */
-  _createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
+  async _createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
     const config = {environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets};
+    const params = this._generateAutoScalingParams(config, true);
 
-    let params = this._generateAutoScalingParams(config, true);
-
-    let createAutoScalingGroupPromise = this._awsAutoScalingClient.createAutoScalingGroup(params).promise();
-
-    return createAutoScalingGroupPromise;
+    return await this._awsAutoScalingClient.createAutoScalingGroup(params).promise();
   }
 
 
@@ -385,16 +376,14 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @param desiredCapacity
    * @param targetGroupArns This is an array of TargetGroupArns
    * @param vpcSubnets This is a CSV of subnets where the instances will be launched into
-   * @return {Promise<D>}
+   * @return {Promise}
    */
-  _updateAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
+  async _updateAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
     const config = {environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets};
 
     let params = this._generateAutoScalingParams(config, false);
 
-    let updateAutoScalingGroupPromise = this._awsAutoScalingClient.updateAutoScalingGroup(params).promise();
-
-    return updateAutoScalingGroupPromise;
+    return await this._awsAutoScalingClient.updateAutoScalingGroup(params).promise();
   }
 
 
@@ -403,22 +392,19 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @param launchConfigurationName
    * @return {Promise.<TResult>}
    */
-  getLaunchConfiguration(launchConfigurationName) {
+  async getLaunchConfiguration(launchConfigurationName) {
     let params = {
       // Disabled launch config for now
       // LaunchConfigurationNames: [launchConfigurationName]
     };
 
-    let describeLaunchConfigurationPromise = this._awsAutoScalingClient.describeLaunchConfigurations(params).promise();
+    const launchConfigurationResult = await this._awsAutoScalingClient.describeLaunchConfigurations(params).promise();
 
-    return describeLaunchConfigurationPromise.then(result => {
-      if(result && result.LaunchConfigurations && result.LaunchConfigurations.length > 0) {
-        return this._getLatestLaunchConfig(result.LaunchConfigurations, launchConfigurationName);
-      } else {
-        return '';
-      }
-    });
-
+    if(launchConfigurationResult && launchConfigurationResult.LaunchConfigurations && launchConfigurationResult.LaunchConfigurations.length > 0) {
+      return this._getLatestLaunchConfig(launchConfigurationResult.LaunchConfigurations, launchConfigurationName);
+    } else {
+      return '';
+    }
   }
 
 
@@ -459,14 +445,12 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @param name (Required)
    * @return {Promise<D>}
    */
-  deleteLaunchConfiguration(name) {
+  async deleteLaunchConfiguration(name) {
     const params = {
       LaunchConfigurationName: name
     };
 
-    let deleteLaunchConfigurationPromise = this._awsAutoScalingClient.deleteLaunchConfiguration(params).promise();
-
-    return deleteLaunchConfigurationPromise;
+    return await this._awsAutoScalingClient.deleteLaunchConfiguration(params).promise();
   }
 
 
@@ -475,20 +459,18 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
    * @param autoScalingGroupName
    * @return {object|string}
    */
-  getAutoScalingGroup(autoScalingGroupName) {
+  async getAutoScalingGroup(autoScalingGroupName) {
     let params = {
       AutoScalingGroupNames: [autoScalingGroupName]
     };
 
-    let describeAutoScalingGroupsPromise = this._awsAutoScalingClient.describeAutoScalingGroups(params).promise();
+    const result = await this._awsAutoScalingClient.describeAutoScalingGroups(params).promise();
 
-    return describeAutoScalingGroupsPromise.then(result => {
-      if(result && result.AutoScalingGroups && result.AutoScalingGroups.length > 0) {
-        return result.AutoScalingGroups[0];
-      } else {
-        return '';
-      }
-    });
+    if(result && result.AutoScalingGroups && result.AutoScalingGroups.length > 0) {
+      return result.AutoScalingGroups[0];
+    } else {
+      return '';
+    }
   }
 }
 

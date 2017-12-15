@@ -530,7 +530,7 @@ describe('APIGateway Client', function() {
         importRestApi: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve()
         })
-      }
+      };
 
       mockAwsSdk = {
         config: {
@@ -548,18 +548,18 @@ describe('APIGateway Client', function() {
       APIGateway = proxyquire('../src/apiGatewayClient', mocks);
 
       apiGatewayService = new APIGateway('acckey', 'secret');
-    })
+    });
 
     afterEach(() => {
       APIGatewayMock = null;
       mockAwsSdk = null;
       APIGateway = null;
       apiGatewayService = null;
-    })
+    });
 
     it('should call apiGatewayClient.putRestApi', (done) => {
       //Act
-      const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}})
+      const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}});
       //Assert
       promiseResult.then(data => {
         expect(APIGatewayMock.importRestApi.calledOnce).to.be.true;
@@ -569,15 +569,15 @@ describe('APIGateway Client', function() {
 
     it('should pass options apiGatewayClient.putRestApi', (done) => {
       //Arrange
-      let options = {"body":"{\"info\":{\"title\":\"test\"}}","failOnWarnings":false}
+      let options = {"body":"{\"info\":{\"title\":\"test\"}}","failOnWarnings":false};
       //Act
-      const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}})
+      const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}});
       //Assert
       promiseResult.then(data => {
         console.log(JSON.stringify(APIGatewayMock.importRestApi.args[0][0]))
         expect(APIGatewayMock.importRestApi.args[0][0]).to.deep.equal(options);
         done();
-      })
+      });
     });
   });
 

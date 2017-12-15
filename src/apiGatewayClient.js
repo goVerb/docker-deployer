@@ -213,91 +213,78 @@ class APIGatewayClient extends BaseClient {
     }
   }
 
-  _createSwagger(swaggerEntity, failOnWarnings = false) {
+  async _createSwagger(swaggerEntity, failOnWarnings = false) {
     this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}]`);
 
-    var options = {
-      body: JSON.stringify(swaggerEntity),
-      failOnWarnings: failOnWarnings
-    };
+    try {
+      const options = {
+        body: JSON.stringify(swaggerEntity),
+        failOnWarnings: failOnWarnings
+      };
 
-    return new BlueBirdPromise((resolve, reject) => {
-      this._apiGatewayClient.importRestApi(options).promise()
-      .then(data => {
-        this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}] completed`);
-        resolve(data);
-      })
-      .catch(err => {
-        reject(err);
-      });
-    });
+      const data = await this._apiGatewayClient.importRestApi(options).promise();
+      this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}] completed`);
+      return data;
+
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
+
   }
 
-  _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false) {
+  async _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false) {
     this.logMessage(`overwriting swagger for [ApiGatewayId: ${apiGatewayId}]`);
 
-    var options = {
-      restApiId: apiGatewayId,
-      body: JSON.stringify(swaggerEntity),
-      failOnWarnings: failOnWarnings,
-      mode: "overwrite"
-    };
+    try {
+      const options = {
+        restApiId: apiGatewayId,
+        body: JSON.stringify(swaggerEntity),
+        failOnWarnings: failOnWarnings,
+        mode: "overwrite"
+      };
 
-    return new BlueBirdPromise((resolve, reject) => {
-      this._apiGatewayClient.putRestApi(options).promise()
-      .then(data => {
-        resolve(data);
-      })
-      .catch(err => {
-        reject(err);
-      });
-    });
+      return await this._apiGatewayClient.putRestApi(options).promise();
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
   }
 
-  createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false){
-    let methodName = 'createOrOverwriteApiSwagger';
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false){
 
-    if (util.isNullOrUndefined(swaggerEntity)){
-      return BlueBirdPromise.reject({
-        plugin: methodName,
-        message: `swaggerEntity is null or undefined [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`
-      });
-    }
+    try {
+      let methodName = 'createOrOverwriteApiSwagger';
 
-    if (!swaggerEntity.hasOwnProperty("info") || !swaggerEntity.info.hasOwnProperty("title")){
-      return BlueBirdPromise.reject({
-        plugin: methodName,
-        message: `swaggerEntity must contain info and title [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`
-      });
-    }
+      if (util.isNullOrUndefined(swaggerEntity)){
+          throw new Error(`swaggerEntity is null or undefined [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`);
+      }
 
-    if (util.isNullOrUndefined(swaggerEntity.info.title) || swaggerEntity.info.title === ""){
-      return BlueBirdPromise.reject({
-        plugin: methodName,
-        message: `swaggerEntity.info.title is null, undefined, or empty [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`
-      });
-    }
+      if (!swaggerEntity.hasOwnProperty("info") || !swaggerEntity.info.hasOwnProperty("title")){
+          throw new Error(`swaggerEntity must contain info and title [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`);
+      }
 
-    return this.lookupApiGatewayByName(swaggerEntity.info.title).then((foundApi)=> {
+      if (util.isNullOrUndefined(swaggerEntity.info.title) || swaggerEntity.info.title === ""){
+          throw new Error(`swaggerEntity.info.title is null, undefined, or empty [swaggerEntity: ${this._getObjectAsString(swaggerEntity)}]`);
+      }
+
+      const foundApi = await this.lookupApiGatewayByName(swaggerEntity.info.title);
+
       if (util.isNullOrUndefined(foundApi)) {
         this.logMessage(`${methodName}: creating api gateway`);
-        return this._createSwagger(swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
+        return await this._createSwagger(swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
       }
 
       this.logMessage(`${methodName}: Found the [foundApid: ${JSON.stringify(foundApi.id)}]`);
 
-      return this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings).delay(delayInMilliseconds).then((data) => {
-        this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
-        return BlueBirdPromise.resolve(data);
-      }).catch((error) => {
-        return BlueBirdPromise.reject({
-          plugin: methodName,
-          message: this._getObjectAsString(error)
-        });
-      });
-    }).catch((err)=> {
-      return BlueBirdPromise.reject(err);
-    });
+      const data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
+      this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
+      return data;
+
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
   }
 
 

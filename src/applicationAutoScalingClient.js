@@ -34,8 +34,8 @@ class ApplicationAutoScalingClient extends BaseClient {
    * @param {string} params.RoleARN
    * @return {Promise.<TResult>|*}
    */
-  registerScalableTarget(params) {
-    return this._awsApplicationAutoScalingClient.registerScalableTarget(params).promise();
+  async registerScalableTarget(params) {
+    return await this._awsApplicationAutoScalingClient.registerScalableTarget(params).promise();
   }
 
 
@@ -50,8 +50,8 @@ class ApplicationAutoScalingClient extends BaseClient {
    * @param {object} params.StepScalingPolicyConfiguration
    * @return {Promise.<TResult>|*}
    */
-  putScalingPolicy(params) {
-    return this._awsApplicationAutoScalingClient.putScalingPolicy(params).promise();
+  async putScalingPolicy(params) {
+    return await this._awsApplicationAutoScalingClient.putScalingPolicy(params).promise();
   }
 
 }

@@ -1841,6 +1841,256 @@ describe('Auto Scaling Client', function() {
 
   });
 
+  describe('_updateAutoScalingGroup', () => {
+
+    let createOrUpdateAutoScalingGroupResponse;
+    let awsAutoScalingClientMock;
+    let mockAwsSdk;
+    let mocks;
+    let AutoScaling;
+    let autoScalingClientService;
+    beforeEach(() => {
+      createOrUpdateAutoScalingGroupResponse = {};
+
+      //setting up autoScalingClient Mock
+      awsAutoScalingClientMock = {
+        updateAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+      };
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        AutoScaling: () => {
+          return awsAutoScalingClientMock;
+        }
+      };
+
+      //Setting up AutoScaling clients
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      AutoScaling = proxyquire('../src/autoScalingClient', mocks);
+      autoScalingClientService = new AutoScaling();
+    });
+
+    it('should not attach TargetGroup ARNS to params', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = 'targetGroupArn';
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.not.have.property('TargetGroupARNs');
+    });
+
+    it('should not attach tags to params', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.not.have.property('Tags');
+    });
+
+    it('should pass name parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('AutoScalingGroupName', autoScalingGroupName);
+
+    });
+
+    it('should pass launchConfigurationName parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('LaunchConfigurationName', launchConfigurationName);
+    });
+
+    it('should pass minSize parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('MinSize', minSize);
+
+    });
+
+    it('should pass maxSize parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('MaxSize', maxSize);
+    });
+
+    it('should pass desiredCapacity parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('DesiredCapacity', desiredCapacity);
+    });
+
+    it('should pass vpcSubnets parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('VPCZoneIdentifier');
+      expect(params.VPCZoneIdentifier).to.be.an('array');
+      expect(params.VPCZoneIdentifier).to.be.deep.equal(vpcSubnets);
+
+    });
+
+    it('should pass DefaultCooldown=300 parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('DefaultCooldown', 300);
+
+    });
+
+    it('should pass HealthCheckGracePeriod=0 parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('HealthCheckGracePeriod', 0);
+
+    });
+
+    it('should pass NewInstancesProtectedFromScaleIn=false parameter to createOrUpdateAutoScalingGroup method', async () => {
+      //Arrange
+      const environment = 'testEnvironment';
+      const autoScalingGroupName = 'asgName';
+      const launchConfigurationName = 'lcName';
+      const minSize = 1;
+      const maxSize = 3;
+      const desiredCapacity = 2;
+      const targetGroupArns = ['targetGroupArn'];
+      const vpcSubnets = ['subnet-123abc', 'subnet-456def'];
+
+      //Act
+      await autoScalingClientService._updateAutoScalingGroup(environment, autoScalingGroupName, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
+
+      //Assert
+      const params = awsAutoScalingClientMock.updateAutoScalingGroup.args[0][0];
+      expect(params).to.have.property('NewInstancesProtectedFromScaleIn', false);
+    });
+  });
+
 
   describe('_createAutoScalingGroup', () => {
     it('should convert targetGroupArns from single string to array', () => {

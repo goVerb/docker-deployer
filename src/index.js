@@ -224,8 +224,8 @@ class Deployer {
   /**
    *
    * @param launchConfigurationConfig
-   * @param ecsClusterName
-   * @return {Promise.<TResult>}
+   * @param {string} ecsClusterName
+   * @return {PromiseLike<T>}
    * @public
    */
   _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
@@ -245,7 +245,7 @@ class Deployer {
    *
    * @param environment
    * @param targetGroupConfig
-   * @return {Promise.<TResult>}
+   * @return {* | PromiseLike<T> | Promise<T>}
    * @private
    */
   _createTargetGroup(environment, targetGroupConfig) {
@@ -263,7 +263,6 @@ class Deployer {
    * @param environment
    * @param asgConfig
    * @param launchConfigToDeleteName
-   * @public
    */
   _createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDeleteName) {
 

@@ -1,9 +1,6 @@
 const AWS = require('aws-sdk');
-const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
-const base64 = require('base-64');
-const util = require('util');
 const awspublish = require('gulp-awspublish');
 
 const BaseClient = require('./baseClient');
@@ -33,8 +30,7 @@ class S3Client extends BaseClient {
   /**
    *
    * @param s3BucketName
-   * @param callback
-   * @returns {Promise.<*>}
+   * @returns {Promise<T>}
    */
   LookupS3BucketByName(s3BucketName) {
     let params = {
@@ -53,8 +49,8 @@ class S3Client extends BaseClient {
 
   /**
    *
-   * @param s3BucketName
-   * @returns {Promise.<*>}
+   * @param {string} s3BucketName
+   * @returns {Promise<T>}
    */
   createBucket(s3BucketName /*, stageName, variableCollection*/ ) {
     // return new BlueBirdPromise((resolve, reject) => {
@@ -105,8 +101,8 @@ class S3Client extends BaseClient {
 
   /**
    *
-   * @param s3BucketName
-   * @returns {Promise.<*>}
+   * @param {string} s3BucketName
+   * @returns {Promise<T>}
    */
   enableHosting(s3BucketName /*, stageName, variableCollection*/ ) {
     // return new BlueBirdPromise((resolve, reject) => {
@@ -169,13 +165,14 @@ class S3Client extends BaseClient {
   /**
    * This will do the following: 1. lookup S3 by name, 2. delay 3a. if S3 not found create the new S3, 3b. if S3 found it will update it 4. delay again
    * @param {Object} options
-   * @param {Object} options.name
+   * @param {string} options.name
    * @param {boolean} options.enableHosting
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
-   * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
+   * @return {Promise<T>}
    */
   createBucketIfNecessary(options, delayInMilliseconds = 5000) {
-    let methodName = 'createOrOverwriteS3Bucket';
+    const methodName = 'createOrOverwriteS3Bucket';
+
     this.logMessage(`LookupS3BucketByName: [options: ${JSON.stringify(options)}]`);
     return this.LookupS3BucketByName(options.name).delay(delayInMilliseconds).then((foundS3Bucket) => {
       if(__.isEmpty(foundS3Bucket)) {
@@ -195,6 +192,7 @@ class S3Client extends BaseClient {
   /**
    * This will do the following: 1. lookup S3 by name, 2. delay 3a. if S3 not found create the new S3, 3b. if S3 found it will update it 4. delay again
    * @param {Object} options
+   * @param {string} options.name
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
   publishToBucket(options) {

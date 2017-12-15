@@ -173,30 +173,27 @@ class APIGatewayClient extends BaseClient {
     }
   }
 
-  _deployApiGatewayToStageForEnvByGatewayName(environment, apiName, delayInMilliseconds = 16000) {
-    let methodName = 'deployApiGatewayToStageForEnvByGatewayName';
-    let unknown = "UNK";
+  async _deployApiGatewayToStageForEnvByGatewayName(environment, apiName, delayInMilliseconds = 16000) {
 
-    if (util.isNullOrUndefined(environment) ||
-      util.isNullOrUndefined(environment.FullName) ||
-      environment.FullName.toLocaleUpperCase() === unknown ||
-      util.isNullOrUndefined(environment.ShortName) ||
-      environment.ShortName.toLocaleUpperCase() === unknown) {
+    try {
+      let methodName = 'deployApiGatewayToStageForEnvByGatewayName';
+      let unknown = "UNK";
 
-      return BlueBirdPromise.reject({
-        plugin: methodName,
-        message: `environment is not valid [environment: ${this._getObjectAsString(environment)}]`
-      });
-    }
+      if (util.isNullOrUndefined(environment) ||
+        util.isNullOrUndefined(environment.FullName) ||
+        environment.FullName.toLocaleUpperCase() === unknown ||
+        util.isNullOrUndefined(environment.ShortName) ||
+        environment.ShortName.toLocaleUpperCase() === unknown) {
 
-    if (util.isNullOrUndefined(apiName) || apiName === '') {
-      return BlueBirdPromise.reject({
-        plugin: methodName,
-        message: 'apiName is null or undefined'
-      });
-    }
+        throw new Error(`environment is not valid [environment: ${this._getObjectAsString(environment)}]`);
+      }
 
-    return this.lookupApiGatewayByName(apiName).delay(delayInMilliseconds).then((foundApiId)=> {
+      if (util.isNullOrUndefined(apiName) || apiName === '') {
+        throw new Error('apiName is null or undefined')
+      }
+
+      const foundApiId = await this.lookupApiGatewayByName(apiName).delay(delayInMilliseconds);
+
       if (util.isNullOrUndefined(foundApiId)) {
         return BlueBirdPromise.reject({
           plugin: methodName,
@@ -206,21 +203,14 @@ class APIGatewayClient extends BaseClient {
 
       this.logMessage(`Found the foundApid: ${foundApiId}`);
 
-      return this._deployApiGatewayToStage(
-        foundApiId,
-        environment.ShortName,
-        environment.FullName).delay(delayInMilliseconds).then((data) => {
-        this.logMessage(`deployApiGatewayToStageForEnvByGatewayName was a success ${this._getObjectAsString(data)}`);
-        return BlueBirdPromise.resolve(data);
-      }).catch((error) => {
-        return BlueBirdPromise.reject({
-          plugin: methodName,
-          message: this._getObjectAsString(error)
-        });
-      });
-    }).catch((err)=> {
-      return BlueBirdPromise.reject(err);
-    });
+      const data = await this._deployApiGatewayToStage(foundApiId, environment.ShortName, environment.FullName).delay(delayInMilliseconds);
+      this.logMessage(`deployApiGatewayToStageForEnvByGatewayName was a success ${this._getObjectAsString(data)}`);
+      return data;
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+
+    }
   }
 
   _createSwagger(swaggerEntity, failOnWarnings = false) {

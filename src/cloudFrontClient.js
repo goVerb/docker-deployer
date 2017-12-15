@@ -34,20 +34,20 @@ class CloudFrontClient extends BaseClient {
    * @param params
    * @return {Promise.<D>}
    */
-  createOrUpdateCloudFrontDistribution(params) {
-    return this._getDistributionByCName(params.cname).then(distribution => {
-      if(!__.isEmpty(distribution) && !__.isNil(distribution)) {
-        if(!this._isDistributionOutOfDate(distribution, params)) {
-          this.logMessage(`CloudFront Distribution already exist. No action taken. [Cname: ${params.cname}]`);
-          return distribution;
-        } else {
-          this.logMessage(`CloudFront distribution already exist, but out of date.  Updating Cloudfront. [Cname: ${params.cname}]`);
-          return this._updateCloudFrontDistribution(distribution, params);
-        }
+  async createOrUpdateCloudFrontDistribution(params) {
+    const distribution = await this._getDistributionByCName(params.cname);
+
+    if(!__.isEmpty(distribution) && !__.isNil(distribution)) {
+      if(!this._isDistributionOutOfDate(distribution, params)) {
+        this.logMessage(`CloudFront Distribution already exist. No action taken. [Cname: ${params.cname}]`);
+        return distribution;
       } else {
-        return this._createCloudFrontDistribution(params);
+        this.logMessage(`CloudFront distribution already exist, but out of date.  Updating Cloudfront. [Cname: ${params.cname}]`);
+        return await this._updateCloudFrontDistribution(distribution, params);
       }
-    });
+    } else {
+      return await this._createCloudFrontDistribution(params);
+    }
   }
 
   /**
@@ -56,31 +56,31 @@ class CloudFrontClient extends BaseClient {
    * @return {Promise<D>}
    * @private
    */
-  _createCloudFrontDistribution(params) {
+  async _createCloudFrontDistribution(params) {
     this.logMessage(`Creating Cloud Front Distribution. [Cname: ${params.cname}]`);
-
-    const cloudFrontParams = this._buildDistributionConfig(params);
-
-
     let distribution;
-    let createDistributionPromise = this._awsCloudFrontClient.createDistribution(cloudFrontParams).promise();
-    return createDistributionPromise.then(result => {
+    let waitForParams;
+
+    try {
+      const cloudFrontParams = this._buildDistributionConfig(params);
+      const result = await this._awsCloudFrontClient.createDistribution(cloudFrontParams).promise();
 
       distribution = result.Distribution;
 
-      const waitForParams = {
+      waitForParams = {
         Id: distribution.Id
       };
 
       this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
-      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise().catch(err => {
-        this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
-        return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
-      });
-    }).then(() => {
+      await this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+
       this.logMessage(`Distribution deployed! [CloudFront Id: ${distribution.Id}] [Cname: ${params.cname}]`);
       return distribution;
-    });
+
+    } catch (err) {
+      this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
+      return await this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+    }
   }
 
   /**
@@ -90,32 +90,35 @@ class CloudFrontClient extends BaseClient {
    * @return {Promise.<TResult>}
    * @private
    */
-  _updateCloudFrontDistribution(distribution, params) {
+  async _updateCloudFrontDistribution(distribution, params) {
     this.logMessage(`Updating Cloud Front Distribution. [Cname: ${params.cname}]`);
 
-    let cloudFrontParams = this._buildDistributionConfig(params, distribution.DistributionConfig.CallerReference);
-    cloudFrontParams.Id = distribution.Id;
-    cloudFrontParams.IfMatch = distribution.ETag;
-
     let updatedDistribution;
-    let updateDistributionPromise = this._awsCloudFrontClient.updateDistribution(cloudFrontParams).promise();
-    return updateDistributionPromise.then(result => {
+    let waitForParams;
+    try {
+      let cloudFrontParams = this._buildDistributionConfig(params, distribution.DistributionConfig.CallerReference);
+      cloudFrontParams.Id = distribution.Id;
+      cloudFrontParams.IfMatch = distribution.ETag;
+
+      const result = await this._awsCloudFrontClient.updateDistribution(cloudFrontParams).promise();
 
       updatedDistribution = result.Distribution;
 
-      const waitForParams = {
-        Id: updatedDistribution.Id
-      };
+        waitForParams = {
+          Id: updatedDistribution.Id
+        };
 
       this.logMessage(`Waiting for CloudFront Distribution to deploy. [CloudFront Id: ${updatedDistribution.Id}] [Cname: ${params.cname}]`);
-      return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise().catch(err => {
-        this.logMessage(`First waitFor failed for [CloudFront Id: ${updatedDistribution.Id}] TRYING AGAIN!`);
-        return this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
-      });
-    }).then(() => {
+      await this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+
       this.logMessage(`Distribution deployed! [CloudFront Id: ${updatedDistribution.Id}] [Cname: ${params.cname}]`);
       return updatedDistribution;
-    });
+
+    } catch (err) {
+      this.logMessage(`First waitFor failed for [CloudFront Id: ${updatedDistribution.Id}] TRYING AGAIN!`);
+      return await this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
+    }
+
   }
 
   /**
@@ -124,41 +127,37 @@ class CloudFrontClient extends BaseClient {
    * @return {Promise.<CloudFrontDistribution>}
    * @private
    */
-  _getDistributionByCName(cname) {
+  async _getDistributionByCName(cname) {
     this.logMessage(`Executing getDistributionByCName. [Cname: ${cname}]`);
-    const params = {};
+    let params = {};
+    let distribution = {};
 
-    let listDistributionsPromise = this._awsCloudFrontClient.listDistributions(params).promise();
+    const distributionData = await this._awsCloudFrontClient.listDistributions(params).promise();
 
-    return listDistributionsPromise.then(data => {
-      let distribution = {};
-      if(data && data.DistributionList && data.DistributionList.Items && data.DistributionList.Items.length > 0) {
-        const distributionList = data.DistributionList.Items;
-        distribution = distributionList.find(obj => {
-          return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
-        });
-      }
+    if(distributionData && distributionData.DistributionList && distributionData.DistributionList.Items && distributionData.DistributionList.Items.length > 0) {
+      const distributionList = distributionData.DistributionList.Items;
+      distribution = distributionList.find(obj => {
+        return obj.Aliases.Quantity > 0 && __.includes(obj.Aliases.Items, cname);
+      });
+    }
 
-      if(!__.isNil(distribution) && !__.isEmpty(distribution)) {
-        this.logMessage(`Distribution found! [Cname: ${cname}]`);
-        let getDistributionParams = {
-          Id: distribution.Id
-        };
+    if(!__.isNil(distribution) && !__.isEmpty(distribution)) {
+      this.logMessage(`Distribution found! [Cname: ${cname}]`);
+      let getDistributionParams = {
+        Id: distribution.Id
+      };
 
-        let getDistributionPromise = this._awsCloudFrontClient.getDistribution(getDistributionParams).promise();
+      const getDistributionResult = await this._awsCloudFrontClient.getDistribution(getDistributionParams).promise();
 
-        return getDistributionPromise.then(getDistributionResult => {
+      //we add the ETag to the distribution
+      let localDistribution = getDistributionResult.Distribution;
+      localDistribution.ETag = getDistributionResult.ETag;
 
-          //we add the ETag to the distribution
-          let localDistribution = getDistributionResult.Distribution;
-          localDistribution.ETag = getDistributionResult.ETag;
-          return localDistribution;
-        });
-      } else {
-        this.logMessage(`Distribution not found! [Cname: ${cname}]`);
-        return {};
-      }
-    });
+      return localDistribution;
+    } else {
+      this.logMessage(`Distribution not found! [Cname: ${cname}]`);
+      return {};
+    }
   }
 
   /**
@@ -360,6 +359,13 @@ class CloudFrontClient extends BaseClient {
     return false;
   }
 
+  /**
+   *
+   * @param params
+   * @param callerReference
+   * @returns {{DistributionConfig: {CallerReference: string|*, Comment: *, DefaultCacheBehavior: null, Enabled: boolean, Origins: {Quantity: number, Items: Array}, Aliases: {Quantity: number, Items: *[]}, CacheBehaviors: {Quantity: number, Items: Array}, CustomErrorResponses: {Quantity: number, Items: Array}, DefaultRootObject: string, HttpVersion: string, IsIPV6Enabled: boolean, Logging: {Bucket: string, Enabled: boolean, IncludeCookies: boolean, Prefix: string}, PriceClass: string, Restrictions: {GeoRestriction: {Quantity: number, RestrictionType: string, Items: Array}}, WebACLId: string}}}
+   * @private
+   */
   _buildDistributionConfig(params, callerReference = '') {
     const {
       cname,
@@ -644,7 +650,7 @@ class CloudFrontClient extends BaseClient {
       ErrorCachingMinTTL: errorCachingMinTTL,
     };
 
-    //responseCode and responsePagePath have to valid in order for the values to be populated
+    //responseCode and responsePagePath have to be valid in order for the values to be populated
 
     if(!(__.isEmpty(responseCode) || __.isEmpty(responsePagePath))) {
       resultObject.ResponseCode = responseCode;

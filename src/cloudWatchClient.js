@@ -40,8 +40,8 @@ class CloudWatchClient extends BaseClient {
    * @param {string} params.Unit
    * @return {Promise.<TResult>|*}
    */
-  putMetricAlarm(params) {
-    return  this._awsCloudWatchClient.putMetricAlarm(params).promise();
+  async putMetricAlarm(params) {
+    return await this._awsCloudWatchClient.putMetricAlarm(params).promise();
   }
 
 }

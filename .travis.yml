@@ -12,7 +12,10 @@ script:
 - gulp test
 - gulp build
 - gulp npmrc
-- npm publish
+- 'export PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: ''{
+  print $2 }'' | sed ''s/[",]//g'' | tr -d ''[[:space:]]'')'
+- 'export DEPLOYED_PACKAGE_VERSION=$(npm view docker-deployer | grep version: | head -1 | awk -F: ''{ print $2 }'' | sed ''s/[",]//g'' | tr -d ''[[:space:]]'' | tr -d "''")'
+- if [[ "${PACKAGE_VERSION}" == "${DEPLOYED_PACKAGE_VERSION}" ]]; then npm publish; else echo "Not publishing package" fi
 notifications:
   slack:
     secure: sEPigkYODYIMz6vNGfvm6BhdCrLLEtcv9SNbsClxV0GaI5qvkEwdNR4qzaq0uJV0ofVyxts84vv1GVaDlT6xYnrZBi7Gu10IehXW08IaIGWTnfNzlbHEaHt5gOUUTG9B1MNtwWulSKA2Zuf52k2XikpI+LOvcy8qir7hemnR1pp/8aPvvllIz5qU41R10bbQJzl+fHmcrI5OD2jR9+0eZ8OPICfrf7u/rPb2zsfQmmYULkaCPF5W3MxgHVlyuyqRTULqMivmt5CgyVALkOEXnCo2mo02ID4Z38y1QBCKQzox0Lq2on66e89ZinIr+NkcI8Qs64EXW90xF5WD8ISndsPwKjk5RCaolaE2oAOOwnmWO7IbHKHFGkLNcoJ6RE9fK8kVjlvWqnzz0hkOQjnI3KeCiYQxjK9ldgHBGWXhCwMoNisTUdAp+vU/8W8nXKU5tZ+a3HsyCClLApZtrvoIK7R9z2Vvzca5RyqvLHxK8rDKI+5egKpaKFnubuVoNnsrS79yfRsCBvWYuott0DV8QArQ82ykqq20XJjZFstEzaY5il/hA5rxZtWqvK9ZO1X94kcGRT2nWdbeEniSIcrmu2hqluE10qPNJx8dTm0Rbo2NnESgcczJATZ/IE4aDJY1fFJFnzvywjMzjIZaCQdJDFMScaK9MU9X2auH3LxU7eQ=

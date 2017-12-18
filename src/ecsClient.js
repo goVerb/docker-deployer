@@ -97,7 +97,7 @@ class EcsClient extends BaseClient {
    * @param desiredCount
    * @param containerName
    * @param containerPort
-   * @param targetGroupArn
+   * @param {string} targetGroupArn
    * @return {Promise.<TResult>}
    */
   createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn) {

@@ -33,7 +33,6 @@ describe('CloudFront Client', function() {
           }
         },
         CloudFront: sandbox.stub()
-
       };
 
       //Setting up Cloudfront clients
@@ -270,12 +269,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -328,12 +327,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -386,12 +385,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -449,12 +448,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -508,12 +507,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -568,12 +567,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -629,12 +628,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -689,12 +688,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -748,12 +747,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -812,12 +811,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -876,12 +875,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -941,12 +940,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -998,12 +997,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1055,12 +1054,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1111,12 +1110,12 @@ describe('CloudFront Client', function() {
       let waitForStub = sandbox.stub();
       waitForStub.onCall(0).returns({
         promise: () => {
-          return BluebirdPromise.reject({})
+          return BluebirdPromise.reject({});
         }
       });
       waitForStub.onCall(1).returns({
         promise: () => {
-          return BluebirdPromise.resolve({})
+          return BluebirdPromise.resolve({});
         }
       });
 
@@ -1124,7 +1123,7 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         createDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createDistributionResponse)
+            return BluebirdPromise.resolve(createDistributionResponse);
           }
         }),
         waitFor: waitForStub
@@ -1184,12 +1183,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1249,12 +1248,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1312,12 +1311,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1380,12 +1379,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1444,12 +1443,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1509,12 +1508,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1575,12 +1574,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1641,12 +1640,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1706,12 +1705,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1771,12 +1770,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1835,12 +1834,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1904,12 +1903,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1966,12 +1965,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -2028,12 +2027,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -2089,12 +2088,12 @@ describe('CloudFront Client', function() {
       let waitForStub = sandbox.stub();
       waitForStub.onCall(0).returns({
         promise: () => {
-          return BluebirdPromise.reject({})
+          return BluebirdPromise.reject({});
         }
       });
       waitForStub.onCall(1).returns({
         promise: () => {
-          return BluebirdPromise.resolve({})
+          return BluebirdPromise.resolve({});
         }
       });
 
@@ -2102,7 +2101,7 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         updateDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(updateDistributionResponse)
+            return BluebirdPromise.resolve(updateDistributionResponse);
           }
         }),
         waitFor: waitForStub
@@ -2153,7 +2152,7 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         listDistributions: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
+            return BluebirdPromise.resolve(listDistributionsResponse);
           }
         })
       };
@@ -2507,12 +2506,12 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         listDistributions: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
+            return BluebirdPromise.resolve(listDistributionsResponse);
           }
         }),
         getDistribution: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(getDistributionResult)
+            return BluebirdPromise.resolve(getDistributionResult);
           }
         })
       };
@@ -2863,7 +2862,7 @@ describe('CloudFront Client', function() {
       let awsCloudFrontServiceMock = {
         listDistributions: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listDistributionsResponse)
+            return BluebirdPromise.resolve(listDistributionsResponse);
           }
         })
       };

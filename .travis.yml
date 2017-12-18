@@ -1,13 +1,13 @@
 language: node_js
 node_js:
-- 6.9.1
+- 8.9.0
 branches:
   only:
   - master
 install:
-- npm install
+- yarn install
 before_script:
-- npm install -g gulp
+- yarn global add gulp
 script:
 - gulp test
 - gulp npmrc

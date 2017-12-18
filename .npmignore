@@ -6,3 +6,4 @@ wallaby.js
 .npmrc
 .babelrc
 .editorconfig
+.travis.yml

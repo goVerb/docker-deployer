@@ -36,7 +36,7 @@ describe('CloudFront Client', function() {
 
       };
 
-      //Setting up ELB clients
+      //Setting up Cloudfront clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
 
@@ -285,7 +285,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -343,7 +343,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -401,7 +401,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -464,7 +464,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -523,7 +523,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -583,7 +583,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -644,7 +644,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -704,7 +704,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -763,7 +763,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -827,7 +827,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -891,7 +891,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -956,7 +956,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1013,7 +1013,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1070,7 +1070,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1135,7 +1135,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1199,7 +1199,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1264,7 +1264,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1327,7 +1327,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1395,7 +1395,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1459,7 +1459,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1524,7 +1524,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1590,7 +1590,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1656,7 +1656,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1721,7 +1721,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1786,7 +1786,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1850,7 +1850,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1919,7 +1919,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -1981,7 +1981,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -2043,7 +2043,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -2113,7 +2113,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -2163,7 +2163,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -2522,7 +2522,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };
@@ -2873,7 +2873,7 @@ describe('CloudFront Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        CloudFront: () => {
+        CloudFront: function() {
           return awsCloudFrontServiceMock;
         }
       };

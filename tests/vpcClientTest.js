@@ -1228,7 +1228,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1286,7 +1286,7 @@ describe('VPC Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1344,7 +1344,7 @@ describe('VPC Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1400,7 +1400,7 @@ describe('VPC Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1455,7 +1455,7 @@ describe('VPC Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1502,7 +1502,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1551,7 +1551,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1600,7 +1600,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1647,7 +1647,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1697,7 +1697,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1760,7 +1760,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1821,7 +1821,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1877,7 +1877,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1917,7 +1917,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1957,7 +1957,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2019,7 +2019,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2075,7 +2075,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2115,7 +2115,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2173,7 +2173,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2233,7 +2233,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2294,7 +2294,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2350,7 +2350,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2412,7 +2412,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2482,7 +2482,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2523,7 +2523,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2565,7 +2565,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2615,7 +2615,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2665,7 +2665,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2715,7 +2715,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2765,7 +2765,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2813,7 +2813,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2863,7 +2863,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2913,7 +2913,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -2961,7 +2961,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3011,7 +3011,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3061,7 +3061,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3109,7 +3109,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3161,7 +3161,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3206,7 +3206,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3253,7 +3253,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3300,7 +3300,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3345,7 +3345,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3392,7 +3392,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3439,7 +3439,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3484,7 +3484,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3530,7 +3530,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3576,7 +3576,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3622,7 +3622,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3668,7 +3668,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3712,7 +3712,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3754,7 +3754,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3795,7 +3795,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3836,7 +3836,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3879,7 +3879,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3920,7 +3920,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -3961,7 +3961,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4009,7 +4009,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4057,7 +4057,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4114,7 +4114,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4171,7 +4171,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4226,7 +4226,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4282,7 +4282,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4337,7 +4337,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4381,7 +4381,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4425,7 +4425,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4469,7 +4469,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4513,7 +4513,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4557,7 +4557,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4601,7 +4601,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4645,7 +4645,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4693,7 +4693,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4737,7 +4737,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4783,7 +4783,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4839,7 +4839,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4888,7 +4888,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4926,7 +4926,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -4966,7 +4966,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5007,7 +5007,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5049,7 +5049,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5091,7 +5091,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5134,7 +5134,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5173,7 +5173,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5214,7 +5214,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5258,7 +5258,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5308,7 +5308,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5356,7 +5356,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5398,7 +5398,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5442,7 +5442,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5485,7 +5485,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5527,7 +5527,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -5569,7 +5569,7 @@ describe('VPC Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };

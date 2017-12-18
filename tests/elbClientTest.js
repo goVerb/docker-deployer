@@ -151,104 +151,95 @@ describe('ELB Client', function() {
   });
 
   describe('createApplicationLoadBalancer', () => {
-    it('should pass name to getApplicationLoadBalancerArnFromName method', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'uniqueAppElbName';
-      const subnetIds = ['subnet-123abc', 'subnet-456def'];
-      const scheme = 'internet-facing';
-      const securityGroupIds = ['sg-123abc'];
+
+    let environment;
+    let name;
+    let subnetIds;
+    let scheme;
+    let securityGroupIds;
+    let elbClientService;
+
+    beforeEach(() => {
+      environment = 'testENV';
+      name = 'uniqueAppElbName';
+      subnetIds = ['subnet-123abc', 'subnet-456def'];
+      scheme = 'internet-facing';
+      securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
       const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
+      elbClientService = new ELB();
       elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('');
       elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
-
-
-      //Act
-      let resultPromise = elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
-
-      //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService.getApplicationLoadBalancerArnFromName.args[0][0]).to.be.equal(name);
-      });
     });
 
-    it('should not call _createApplicationLoadBalancer if applicationLoadBalancer already exists', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'uniqueAppElbName';
-      const subnetIds = ['subnet-123abc', 'subnet-456def'];
-      const scheme = 'internet-facing';
-      const securityGroupIds = ['sg-123abc'];
 
-      //Setting up VPC clients
-      const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
+    it('should pass name to getApplicationLoadBalancerArnFromName method', async () => {
+      //Act
+      await elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
+
+      //Assert
+      expect(elbClientService.getApplicationLoadBalancerArnFromName.args[0][0]).to.be.equal(name);
+    });
+
+    it('should not call _createApplicationLoadBalancer if applicationLoadBalancer already exists', async () => {
+      //Arrange
       elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('existingAppLoadBalancerArn');
-      elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
-
 
       //Act
-      let resultPromise = elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
+      await elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService._createApplicationLoadBalancer.callCount).to.be.equal(0);
-      });
+      expect(elbClientService._createApplicationLoadBalancer.callCount).to.be.equal(0);
     });
 
-    it('should pass parameters to _createApplicationLoadBalancer', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'uniqueAppElbName';
-      const subnetIds = ['subnet-123abc', 'subnet-456def'];
-      const scheme = 'internet-facing';
-      const securityGroupIds = ['sg-123abc'];
-
-      //Setting up VPC clients
-      const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
-      elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('');
-      elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
-
-
+    it('should pass parameters to _createApplicationLoadBalancer', async () => {
       //Act
-      let resultPromise = elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
+      await elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService._createApplicationLoadBalancer.args[0][0]).to.be.equal(environment);
-        expect(elbClientService._createApplicationLoadBalancer.args[0][1]).to.be.equal(name);
-        expect(elbClientService._createApplicationLoadBalancer.args[0][2]).to.be.deep.equal(subnetIds);
-        expect(elbClientService._createApplicationLoadBalancer.args[0][3]).to.be.equal(scheme);
-        expect(elbClientService._createApplicationLoadBalancer.args[0][4]).to.be.deep.equal(securityGroupIds);
-      });
+      expect(elbClientService._createApplicationLoadBalancer.args[0][0]).to.be.equal(environment);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][1]).to.be.equal(name);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][2]).to.be.deep.equal(subnetIds);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][3]).to.be.equal(scheme);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][4]).to.be.deep.equal(securityGroupIds);
     });
 
-    it('should call _createApplicationLoadBalancer once if ApplicationLoadBalancer doesnt exist', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'uniqueAppElbName';
-      const subnetIds = ['subnet-123abc', 'subnet-456def'];
-      const scheme = 'internet-facing';
-      const securityGroupIds = ['sg-123abc'];
-
-      //Setting up VPC clients
-      const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
-      elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().resolves('');
-      elbClientService._createApplicationLoadBalancer = sandbox.stub().resolves('');
-
-
+    it('should call _createApplicationLoadBalancer once if ApplicationLoadBalancer doesnt exist', async () => {
       //Act
-      let resultPromise = elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
+      await elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService._createApplicationLoadBalancer.callCount).to.be.equal(1);
-      });
+      expect(elbClientService._createApplicationLoadBalancer.callCount).to.be.equal(1);
+    });
+
+    it('should call _createApplicationLoadBalancer if getApplicationLoadBalancerArnFromName throws error', async () => {
+      // Arrange
+      elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().rejects({ code: 'LoadBalancerNotFound' });
+      elbClientService.logMessage = sandbox.stub();
+      const expectedLog = `Application Load Balancer does not exist. Creating TargetGroup. [AppLoadBalancerName: ${name}]`;
+
+      // Act
+      await elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
+
+      // Assert
+      expect(elbClientService.logMessage.args[0][0]).to.be.equal(expectedLog);
+      expect(elbClientService._createApplicationLoadBalancer.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _createApplicationLoadBalancer if getApplicationLoadBalancerArnFromName throws error', async () => {
+      // Arrange
+      elbClientService.getApplicationLoadBalancerArnFromName = sandbox.stub().rejects({ code: 'LoadBalancerNotFound' });
+
+      // Act
+      await elbClientService.createApplicationLoadBalancer(environment, name, subnetIds, scheme, securityGroupIds);
+
+      // Assert
+      expect(elbClientService._createApplicationLoadBalancer.args[0][0]).to.be.equal(environment);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][1]).to.be.equal(name);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][2]).to.be.deep.equal(subnetIds);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][3]).to.be.equal(scheme);
+      expect(elbClientService._createApplicationLoadBalancer.args[0][4]).to.be.deep.equal(securityGroupIds);
     });
   });
 
@@ -272,7 +263,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -284,7 +275,7 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-            const mocks = {
+      const mocks = {
         'aws-sdk': mockAwsSdk
       };
 
@@ -322,7 +313,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -373,7 +364,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -423,7 +414,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -474,7 +465,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -527,7 +518,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -580,7 +571,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -622,7 +613,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -653,109 +644,95 @@ describe('ELB Client', function() {
   });
 
   describe('createTargetGroup', () => {
-    it('should pass name to getTargetGroupArnFromName method', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'targetGroupName';
-      const vpcId = 'vpc-123test';
-      const port = 80;
-      const protocol = 'abc';
-      const healthCheckSettingOverrides = {};
+
+    let environment;
+    let name;
+    let vpcId;
+    let port;
+    let protocol;
+    let healthCheckSettingOverrides;
+    let elbClientService;
+    beforeEach(() => {
+      environment = 'testENV';
+      name = 'targetGroupName';
+      vpcId = 'vpc-123test';
+      port = 80;
+      protocol = 'abc';
+      healthCheckSettingOverrides = {};
 
       //Setting up VPC clients
       const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
+      elbClientService = new ELB();
       elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('');
       elbClientService._createTargetGroup = sandbox.stub().resolves('');
-
-
+    });
+    it('should pass name to getTargetGroupArnFromName method', async () => {
       //Act
-      let resultPromise = elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      await elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService.getTargetGroupArnFromName.args[0][0]).to.be.equal(name);
-      });
+      expect(elbClientService.getTargetGroupArnFromName.args[0][0]).to.be.equal(name);
     });
 
-    it('should not call _createTargetGroup if targetGroup already exist', () => {
+    it('should not call _createTargetGroup if targetGroup already exist', async () => {
       //Arrange
-      const environment = 'testENV';
-      const name = 'targetGroupName';
-      const vpcId = 'vpc-123test';
-      const port = 80;
-      const protocol = 'abc';
-      const healthCheckSettingOverrides = {};
-
-      //Setting up VPC clients
-      const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
       elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('targetGroupArn');
-      elbClientService._createTargetGroup = sandbox.stub().resolves('');
-
 
       //Act
-      let resultPromise = elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      await elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService._createTargetGroup.callCount).to.be.equal(0);
-      });
+      expect(elbClientService._createTargetGroup.callCount).to.be.equal(0);
     });
 
-    it('should pass parameters to _createTargetGroup method', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'targetGroupName';
-      const vpcId = 'vpc-123test';
-      const port = 80;
-      const protocol = 'abc';
-      const healthCheckSettingOverrides = {};
-
-      //Setting up VPC clients
-      const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
-      elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('');
-      elbClientService._createTargetGroup = sandbox.stub().resolves('');
-
-
+    it('should pass parameters to _createTargetGroup method', async () => {
       //Act
-      let resultPromise = elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      await elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService._createTargetGroup.args[0][0]).to.be.equal(environment);
-        expect(elbClientService._createTargetGroup.args[0][1]).to.be.equal(name);
-        expect(elbClientService._createTargetGroup.args[0][2]).to.be.equal(port);
-        expect(elbClientService._createTargetGroup.args[0][3]).to.be.equal(protocol);
-        expect(elbClientService._createTargetGroup.args[0][4]).to.be.equal(vpcId);
-        expect(elbClientService._createTargetGroup.args[0][5]).to.be.deep.equal(healthCheckSettingOverrides);
-      });
+      expect(elbClientService._createTargetGroup.args[0][0]).to.be.equal(environment);
+      expect(elbClientService._createTargetGroup.args[0][1]).to.be.equal(name);
+      expect(elbClientService._createTargetGroup.args[0][2]).to.be.equal(port);
+      expect(elbClientService._createTargetGroup.args[0][3]).to.be.equal(protocol);
+      expect(elbClientService._createTargetGroup.args[0][4]).to.be.equal(vpcId);
+      expect(elbClientService._createTargetGroup.args[0][5]).to.be.deep.equal(healthCheckSettingOverrides);
     });
 
-    it('should call _createTargetGroup once if targetGroup doesnt exist', () => {
-      //Arrange
-      const environment = 'testENV';
-      const name = 'targetGroupName';
-      const vpcId = 'vpc-123test';
-      const port = 80;
-      const protocol = 'abc';
-      const healthCheckSettingOverrides = {};
-
-      //Setting up VPC clients
-      const ELB = require('../src/elbClient');
-      const elbClientService = new ELB();
-      elbClientService.getTargetGroupArnFromName = sandbox.stub().resolves('');
-      elbClientService._createTargetGroup = sandbox.stub().resolves('');
-
-
+    it('should call _createTargetGroup once if targetGroup doesnt exist', async () => {
       //Act
-      let resultPromise = elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+      await elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(elbClientService._createTargetGroup.callCount).to.be.equal(1);
-      });
+      expect(elbClientService._createTargetGroup.callCount).to.be.equal(1);
+    });
+
+    it('should log message and call createTarget group once if getTargetGroupArnFromName throws an error', async () => {
+      elbClientService.getTargetGroupArnFromName = sandbox.stub().rejects({ code: 'TargetGroupNotFound' });
+      elbClientService.logMessage = sandbox.stub();
+      const expectedMessage = `TargetGroup does not exist.  Creating TargetGroup. [TargetGroupName: ${name}]`;
+
+      // Act
+      await elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+
+      // Assert
+      expect(elbClientService.logMessage.args[0][0]).to.be.equal(expectedMessage);
+      expect(elbClientService._createTargetGroup.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _createTargetGroup if getTargetGroupArnFromName throws an error', async () => {
+      // Arrange
+      elbClientService.getTargetGroupArnFromName = sandbox.stub().rejects({ code: 'TargetGroupNotFound' });
+
+      // Act
+      await elbClientService.createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
+
+      // Assert
+      expect(elbClientService._createTargetGroup.args[0][0]).to.be.equal(environment);
+      expect(elbClientService._createTargetGroup.args[0][1]).to.be.equal(name);
+      expect(elbClientService._createTargetGroup.args[0][2]).to.be.equal(port);
+      expect(elbClientService._createTargetGroup.args[0][3]).to.be.equal(protocol);
+      expect(elbClientService._createTargetGroup.args[0][4]).to.be.equal(vpcId);
+      expect(elbClientService._createTargetGroup.args[0][5]).to.be.deep.equal(healthCheckSettingOverrides);
     });
   });
 
@@ -804,7 +781,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -857,7 +834,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -910,7 +887,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -963,7 +940,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1016,7 +993,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1071,7 +1048,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1124,7 +1101,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1179,7 +1156,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1232,7 +1209,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1287,7 +1264,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1340,7 +1317,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1395,7 +1372,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1448,7 +1425,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1503,7 +1480,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1556,7 +1533,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1611,7 +1588,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1664,7 +1641,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1722,7 +1699,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1775,7 +1752,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1830,7 +1807,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1883,7 +1860,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1942,7 +1919,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1993,7 +1970,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2007,7 +1984,7 @@ describe('ELB Client', function() {
 
 
       //Setting up VPC clients
-            const mocks = {
+      const mocks = {
         'aws-sdk': mockAwsSdk
       };
 
@@ -2198,7 +2175,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2241,7 +2218,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2285,7 +2262,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2328,7 +2305,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2371,7 +2348,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2417,7 +2394,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2462,7 +2439,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2511,7 +2488,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2554,7 +2531,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2589,7 +2566,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2626,7 +2603,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2669,7 +2646,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2704,7 +2681,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2741,7 +2718,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2785,7 +2762,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2823,7 +2800,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2863,7 +2840,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2901,7 +2878,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2938,7 +2915,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2978,7 +2955,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3026,7 +3003,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3073,7 +3050,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3111,7 +3088,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3148,7 +3125,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3188,7 +3165,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3236,7 +3213,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3284,7 +3261,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3339,7 +3316,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3389,7 +3366,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };

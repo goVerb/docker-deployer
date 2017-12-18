@@ -227,7 +227,7 @@ describe('ECS Client', function() {
       });
     });
 
-    it('should call _createCluster if ClusterNotFoundException thrown', () => {
+    it('should call _createCluster if ClusterNotFoundException thrown', async () => {
       //Arrange
       const clusterName = 'clusterName';
 
@@ -236,15 +236,14 @@ describe('ECS Client', function() {
       const ecsClientService = new ECS();
       ecsClientService.getClusterArn = sandbox.stub().rejects({code: 'ClusterNotFoundException'});
       ecsClientService._createCluster = sandbox.stub().resolves({});
-
+      ecsClientService.logMessage = sandbox.stub()
 
       //Act
-      let resultPromise = ecsClientService.createCluster(clusterName);
+      await ecsClientService.createCluster(clusterName);
 
       //Assert
-      return resultPromise.catch(() => {
-        expect(ecsClientService._createCluster.callCount).to.be.equal(1);
-      });
+      expect(ecsClientService.logMessage.args[0][0]).to.be.equal(`Cluster does not exist.  Creating Cluster. [ClusterName: clusterName]`)
+      expect(ecsClientService._createCluster.callCount).to.be.equal(1);
     });
   });
 
@@ -263,7 +262,7 @@ describe('ECS Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -338,11 +337,11 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -419,7 +418,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -496,7 +495,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -573,7 +572,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -651,7 +650,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -677,127 +676,108 @@ const mockAwsSdk = {
   });
 
   describe('createOrUpdateService', () => {
-    it('should call _updateService if getServiceArn returns a serviceArn', () => {
-      //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      const containerName = 'test-container-name';
-      const containerPort = 8080;
-      const targetGroupArn = 'targetGroupArn';
+
+    let clusterName;
+    let serviceName;
+    let taskDefinition;
+    let desiredCount;
+    let containerName;
+    let containerPort;
+    let targetGroupArn;
+    let ecsClientService;
+
+    beforeEach(() => {
+      clusterName = 'testClusterName';
+      serviceName = 'testServiceName';
+      taskDefinition = 'task-Test';
+      desiredCount = '123';
+      containerName = 'test-container-name';
+      containerPort = 8080;
+      targetGroupArn = 'targetGroupArn';
 
       //Setting up ECS clients
       const ECS = require('../src/ecsClient');
-      const ecsClientService = new ECS();
+      ecsClientService = new ECS();
+
       ecsClientService.getServiceArn = sandbox.stub().resolves('existingArn');
       ecsClientService._updateService = sandbox.stub().resolves({});
       ecsClientService._createService = sandbox.stub().resolves({});
-
-
-
+    });
+    it('should call _updateService if getServiceArn returns a serviceArn', async () => {
       //Act
-      let resultPromise = ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+      await ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(ecsClientService._updateService.callCount).to.be.equal(1);
-        expect(ecsClientService._createService.callCount).to.be.equal(0);
-      });
+      expect(ecsClientService._updateService.callCount).to.be.equal(1);
+      expect(ecsClientService._createService.callCount).to.be.equal(0);
     });
 
-    it('should pass parameters to _updateService if getServiceArn returns a serviceArn', () => {
-      //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      const containerName = 'test-container-name';
-      const containerPort = 8080;
-      const targetGroupArn = 'targetGroupArn';
-
-      //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
-      const ecsClientService = new ECS();
-      ecsClientService.getServiceArn = sandbox.stub().resolves('existingArn');
-      ecsClientService._updateService = sandbox.stub().resolves({});
-      ecsClientService._createService = sandbox.stub().resolves({});
-
-
-
+    it('should pass parameters to _updateService if getServiceArn returns a serviceArn', async () => {
       //Act
-      let resultPromise = ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+      await ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(ecsClientService._updateService.args[0][0]).to.be.equal(clusterName);
-        expect(ecsClientService._updateService.args[0][1]).to.be.equal(serviceName);
-        expect(ecsClientService._updateService.args[0][2]).to.be.equal(taskDefinition);
-        expect(ecsClientService._updateService.args[0][3]).to.be.equal(desiredCount);
-      });
+      expect(ecsClientService._updateService.args[0][0]).to.be.equal(clusterName);
+      expect(ecsClientService._updateService.args[0][1]).to.be.equal(serviceName);
+      expect(ecsClientService._updateService.args[0][2]).to.be.equal(taskDefinition);
+      expect(ecsClientService._updateService.args[0][3]).to.be.equal(desiredCount);
     });
 
-    it('should call _createService if getServiceArn doesnt return a serviceArn', () => {
+    it('should call _createService if getServiceArn does n0t return a serviceArn', async () => {
       //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      const containerName = 'test-container-name';
-      const containerPort = 8080;
-      const targetGroupArn = 'targetGroupArn';
-
-      //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
-      const ecsClientService = new ECS();
       ecsClientService.getServiceArn = sandbox.stub().resolves('');
-      ecsClientService._updateService = sandbox.stub().resolves({});
-      ecsClientService._createService = sandbox.stub().resolves({});
-
-
 
       //Act
-      let resultPromise = ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+      await ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(ecsClientService._updateService.callCount).to.be.equal(0);
-        expect(ecsClientService._createService.callCount).to.be.equal(1);
-      });
+      expect(ecsClientService._updateService.callCount).to.be.equal(0);
+      expect(ecsClientService._createService.callCount).to.be.equal(1);
     });
 
-    it('should pass parameters to _createService if getServiceArn doesnt return a serviceArn', () => {
+    it('should pass parameters to _createService if getServiceArn does not return a serviceArn', async () => {
       //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      const containerName = 'test-container-name';
-      const containerPort = 8080;
-      const targetGroupArn = 'targetGroupArn';
-
-      //Setting up ECS clients
-      const ECS = require('../src/ecsClient');
-      const ecsClientService = new ECS();
       ecsClientService.getServiceArn = sandbox.stub().resolves('');
-      ecsClientService._updateService = sandbox.stub().resolves({});
-      ecsClientService._createService = sandbox.stub().resolves({});
-
-
 
       //Act
-      let resultPromise = ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+      await ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
 
       //Assert
-      return resultPromise.then(() => {
-        expect(ecsClientService._createService.args[0][0]).to.be.equal(clusterName);
-        expect(ecsClientService._createService.args[0][1]).to.be.equal(serviceName);
-        expect(ecsClientService._createService.args[0][2]).to.be.equal(taskDefinition);
-        expect(ecsClientService._createService.args[0][3]).to.be.equal(desiredCount);
-        expect(ecsClientService._createService.args[0][4]).to.be.equal(containerName);
-        expect(ecsClientService._createService.args[0][5]).to.be.equal(containerPort);
-        expect(ecsClientService._createService.args[0][6]).to.be.equal(targetGroupArn);
-      });
+      expect(ecsClientService._createService.args[0][0]).to.be.equal(clusterName);
+      expect(ecsClientService._createService.args[0][1]).to.be.equal(serviceName);
+      expect(ecsClientService._createService.args[0][2]).to.be.equal(taskDefinition);
+      expect(ecsClientService._createService.args[0][3]).to.be.equal(desiredCount);
+      expect(ecsClientService._createService.args[0][4]).to.be.equal(containerName);
+      expect(ecsClientService._createService.args[0][5]).to.be.equal(containerPort);
+      expect(ecsClientService._createService.args[0][6]).to.be.equal(targetGroupArn);
+    });
+
+    it('should call createService if getServiceArn throws ClusterNotFoundException', async () => {
+      // Arrange
+      ecsClientService.getServiceArn = sandbox.stub().rejects({ code: 'ClusterNotFoundException' });
+
+      // Act
+      await ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+
+      // Assert
+      expect(ecsClientService._createService.callCount).to.be.equal(1);
+    });
+
+    it('should call createService if getServiceArn throws ClusterNotFoundException', async () => {
+      // Arrange
+      ecsClientService.getServiceArn = sandbox.stub().rejects({ code: 'ClusterNotFoundException' });
+
+      // Act
+      await ecsClientService.createOrUpdateService(clusterName, serviceName, taskDefinition, desiredCount, containerName, containerPort, targetGroupArn);
+
+      // Assert
+      expect(ecsClientService._createService.args[0][0]).to.be.equal(clusterName);
+      expect(ecsClientService._createService.args[0][1]).to.be.equal(serviceName);
+      expect(ecsClientService._createService.args[0][2]).to.be.equal(taskDefinition);
+      expect(ecsClientService._createService.args[0][3]).to.be.equal(desiredCount);
+      expect(ecsClientService._createService.args[0][4]).to.be.equal(containerName);
+      expect(ecsClientService._createService.args[0][5]).to.be.equal(containerPort);
+      expect(ecsClientService._createService.args[0][6]).to.be.equal(targetGroupArn);
     });
   });
 
@@ -822,7 +802,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -865,7 +845,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -908,7 +888,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -951,7 +931,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -994,7 +974,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1037,7 +1017,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1080,7 +1060,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1123,7 +1103,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1166,7 +1146,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1191,36 +1171,46 @@ const mockAwsSdk = {
   });
 
   describe('_updateService', () => {
-    it('should pass clusterName to updateService method', () => {
-      //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      let updateServiceResponse = {};
+
+    let clusterName;
+    let serviceName;
+    let taskDefinition;
+    let desiredCount;
+    let updateServiceResponse;
+    let mocks;
+    let ECS;
+    let ecsClientService;
+    let awsEcsClientMock;
+
+    beforeEach(() => {
+      clusterName = 'testClusterName';
+      serviceName = 'testServiceName';
+      taskDefinition = 'task-Test';
+      desiredCount = '123';
+      updateServiceResponse = {};
 
       //setting up ec2Client Mock
-      let awsEcsClientMock = {
+      awsEcsClientMock = {
         updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
-
       //Setting up ECS clients
-            const mocks = {
+      mocks = {
         'aws-sdk': mockAwsSdk
       };
-      const ECS = proxyquire('../src/ecsClient', mocks);
-      const ecsClientService = new ECS();
+      ECS = proxyquire('../src/ecsClient', mocks);
+      ecsClientService = new ECS();
+    });
 
-
+    it('should pass clusterName to updateService method', () => {
       //Act
       let resultPromise = ecsClientService._updateService(clusterName, serviceName, taskDefinition, desiredCount);
 
@@ -1232,34 +1222,6 @@ const mockAwsSdk = {
     });
 
     it('should pass serviceName to updateService method', () => {
-      //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      let updateServiceResponse = {};
-
-      //setting up ec2Client Mock
-      let awsEcsClientMock = {
-        updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
-      };
-
-      const mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {}
-        },
-        ECS: () => {
-          return awsEcsClientMock;
-        }
-      };
-
-      //Setting up ECS clients
-      const mocks = {
-        'aws-sdk': mockAwsSdk
-      };
-      const ECS = proxyquire('../src/ecsClient', mocks);
-      const ecsClientService = new ECS();
-
 
       //Act
       let resultPromise = ecsClientService._updateService(clusterName, serviceName, taskDefinition, desiredCount);
@@ -1272,36 +1234,6 @@ const mockAwsSdk = {
     });
 
     it('should pass taskDefinition to updateService method', () => {
-      //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = '123';
-      let updateServiceResponse = {};
-
-      //setting up ec2Client Mock
-      let awsEcsClientMock = {
-        updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
-      };
-
-
-      const mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {}
-        },
-        ECS: () => {
-          return awsEcsClientMock;
-        }
-      };
-
-      //Setting up ECS clients
-      const mocks = {
-        'aws-sdk': mockAwsSdk
-      };
-      const ECS = proxyquire('../src/ecsClient', mocks);
-      const ecsClientService = new ECS();
-
-
       //Act
       let resultPromise = ecsClientService._updateService(clusterName, serviceName, taskDefinition, desiredCount);
 
@@ -1313,34 +1245,6 @@ const mockAwsSdk = {
     });
 
     it('should pass desiredCount to updateService method', () => {
-      //Arrange
-      const clusterName = 'testClusterName';
-      const serviceName = 'testServiceName';
-      const taskDefinition = 'task-Test';
-      const desiredCount = 123;
-      let updateServiceResponse = {};
-
-      //setting up ec2Client Mock
-      let awsEcsClientMock = {
-        updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
-      };
-
-      const mockAwsSdk = {
-        config: {
-          setPromisesDependency: (promise) => {}
-        },
-        ECS: () => {
-          return awsEcsClientMock;
-        }
-      };
-
-      //Setting up ECS clients
-      const mocks = {
-        'aws-sdk': mockAwsSdk
-      };
-      const ECS = proxyquire('../src/ecsClient', mocks);
-      const ecsClientService = new ECS();
-
 
       //Act
       let resultPromise = ecsClientService._updateService(clusterName, serviceName, taskDefinition, desiredCount);
@@ -1379,7 +1283,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1427,7 +1331,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1476,7 +1380,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1535,7 +1439,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1582,7 +1486,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1622,7 +1526,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1669,7 +1573,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1715,7 +1619,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1772,7 +1676,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1819,7 +1723,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1860,7 +1764,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };

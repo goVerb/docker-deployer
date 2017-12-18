@@ -3,6 +3,8 @@ const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 import proxyquire from 'proxyquire';
+import { Promise as BluebirdPromise } from 'bluebird';
+
 
 
 chai.use(chaiAsPromised);
@@ -594,6 +596,166 @@ describe('Deployer', function() {
 
       // Act
       const result = await deployerClient._createTargetGroup(environment, config);
+
+      // Assert
+      expect(result).to.be.deep.equal({});
+    });
+  });
+
+  describe('_createOrUpdateAutoScaleGroup', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let mocks;
+    let deployerClient;
+    let asgConfig;
+    let environment;
+    let launchConfigToDelete;
+    beforeEach(() => {
+
+      vpcClientStub = {
+        getVpcIdFromName: sandbox.usingPromise(BluebirdPromise).stub().resolves('returnedVpcId'),
+        getSubnetIdsFromSubnetName: sandbox.usingPromise(BluebirdPromise).stub().resolves(['123', '456'])
+      };
+
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = {
+        getTargetGroupArnFromName: sandbox.stub().resolves('returnedTargetGroupArn'),
+      };
+      autoScaleClientStub = {
+        createOrUpdateAutoScalingGroup: sandbox.stub()
+      };
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': function () {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': function () {
+          return autoScaleClientStub;
+        },
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      asgConfig = {
+        name: 'myName',
+        vpcName: 'myVpcName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        targetGroupName: 'myTargetGroupName',
+        minSize: 0,
+        maxSize: 2,
+        desiredSize: 1,
+        vpcSubnets: 'mySubnets'
+      };
+      environment = 'myEnv';
+      launchConfigToDelete = 'deleteThisOne';
+    });
+
+    it('should call _vpcClient.getVpcIdFromName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcName to _vpeClient.getVpcIdFromName', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.args[0][0]).to.be.equal(asgConfig.vpcName);
+    });
+
+    it('should call _vpcClient.getSubnetIdsFromSubnetName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcId and vpcSubnets to getSubnetIdsFromSubnetName', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.args[0][0]).to.be.equal('returnedVpcId');
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.args[0][1]).to.be.equal(asgConfig.vpcSubnets);
+    });
+
+    it('should call _elbClient.getTargetGroupArnFromName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass targetGroupName to _elbClient.getTargetGroupArnFromName', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.args[0][0]).to.be.equal(asgConfig.targetGroupName);
+    });
+
+    it('should call _autoScalingClient.createOrUpdateAutoScalingGroup once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(autoScaleClientStub.createOrUpdateAutoScalingGroup.callCount).to.be.equal(1);
+    });
+
+    it('should pass params and launchConfigToDelete to _autoScalingClient.createOrUpdateAutoScalingGroup', async () => {
+      // Arrange
+      const expected = {
+        environment: 'myEnv',
+        name: 'myName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        minSize: 0,
+        maxSize: 2,
+        desiredCapacity: 1,
+        targetGroupArns: ['returnedTargetGroupArn'],
+        vpcSubnets: '123,456'
+      };
+
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(autoScaleClientStub.createOrUpdateAutoScalingGroup.args[0][0]).to.be.deep.equal(expected);
+    });
+
+    it('should return the result of _autoScalingClient.createOrUpdateAutoScalingGroup', async () => {
+      // Arrange
+      autoScaleClientStub.createOrUpdateAutoScalingGroup = sandbox.stub().resolves({});
+
+      // Act
+      const result = await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
 
       // Assert
       expect(result).to.be.deep.equal({});

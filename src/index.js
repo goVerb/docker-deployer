@@ -258,32 +258,26 @@ class Deployer {
    * @param asgConfig
    * @param launchConfigToDeleteName
    */
-  _createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDeleteName) {
+  async _createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDeleteName) {
 
-    return this._vpcClient.getVpcIdFromName(asgConfig.vpcName).then(vpcId => {
+    const vpcId = await this._vpcClient.getVpcIdFromName(asgConfig.vpcName);
+    const subnetIds = await this._vpcClient.getSubnetIdsFromSubnetName(vpcId, asgConfig.vpcSubnets);
+    const targetGroupArn = await this._elbClient.getTargetGroupArnFromName(asgConfig.targetGroupName);
 
-      return BlueBirdPromise.all([
-        this._vpcClient.getSubnetIdsFromSubnetName(vpcId, asgConfig.vpcSubnets),
-        this._elbClient.getTargetGroupArnFromName(asgConfig.targetGroupName)
-      ]);
-    }).spread((subnetIds, targetGroupArn) => {
+    let subnetIdsAsString = subnetIds.join(',');
 
-      let subnetIdsAsString = subnetIds.join(',');
+    let params = {
+      environment,
+      name: asgConfig.name,
+      launchConfigurationName: asgConfig.launchConfigurationName,
+      minSize: asgConfig.minSize,
+      maxSize: asgConfig.maxSize,
+      desiredCapacity: asgConfig.desiredSize,
+      targetGroupArns: [targetGroupArn],
+      vpcSubnets: subnetIdsAsString
+    };
 
-      let params = {
-        environment,
-        name: asgConfig.name,
-        launchConfigurationName: asgConfig.launchConfigurationName,
-        minSize: asgConfig.minSize,
-        maxSize: asgConfig.maxSize,
-        desiredCapacity: asgConfig.desiredSize,
-        targetGroupArns: [targetGroupArn],
-        vpcSubnets: subnetIdsAsString
-      };
-
-
-      return this._autoScalingClient.createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName);
-    });
+    return await this._autoScalingClient.createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName);
   }
 
 

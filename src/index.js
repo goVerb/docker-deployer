@@ -287,15 +287,12 @@ class Deployer {
    * @param appLoadBalancerConfig
    * @private
    */
-  _createApplicationLoadBalancer(environment, appLoadBalancerConfig) {
-    return this._vpcClient.getVpcIdFromName(appLoadBalancerConfig.vpcName).then(vpcId => {
-      return BlueBirdPromise.all([
-        this._vpcClient.getSubnetIdsFromSubnetName(vpcId, appLoadBalancerConfig.vpcSubnets),
-        this._ec2Client.getSecurityGroupIdFromName(appLoadBalancerConfig.securityGroupName, vpcId)
-      ]);
-    }).spread((subnetIds, securityGroupId) => {
-      return this._elbClient.createApplicationLoadBalancer(environment, appLoadBalancerConfig.name, subnetIds, appLoadBalancerConfig.scheme, [securityGroupId]);
-    });
+  async _createApplicationLoadBalancer(environment, appLoadBalancerConfig) {
+    const vpcId = await this._vpcClient.getVpcIdFromName(appLoadBalancerConfig.vpcName);
+    const subnetIds = await this._vpcClient.getSubnetIdsFromSubnetName(vpcId, appLoadBalancerConfig.vpcSubnets);
+    const securityGroupId = await this._ec2Client.getSecurityGroupIdFromName(appLoadBalancerConfig.securityGroupName, vpcId);
+
+    return await this._elbClient.createApplicationLoadBalancer(environment, appLoadBalancerConfig.name, subnetIds, appLoadBalancerConfig.scheme, [securityGroupId]);
   }
 
 

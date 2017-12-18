@@ -51,65 +51,62 @@ class Deployer {
   }
 
 
-  createInfrastructure(config) {
+  async createInfrastructure(config) {
 
     let vpcId = '';
     let launchConfigToDeleteName;
 
     //create Vpc
-    return this._vpcClient.createVpcFromConfig(config.environment, config.vpc).then(createdVpcId => {
-      vpcId = createdVpcId;
-    }).then(() => {
-      //Create security groups
-      let securityGroupPromises = [];
-      for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
-        let securityGroupConfig = config.securityGroups[sgIndex];
-        securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
-      }
-      return BlueBirdPromise.all(securityGroupPromises);
-    }).then(() => {
-      // Create file hosting buckets if they do not exist already
-      return this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
-    }).then(() => {
-      //Create Launch configuration
-      return this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
-    }).then(launchConfigNames => {
-      // Apply the launch configuration name that was actually used
-      config.autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
-      launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
-      //Create Target Group
-      return this._createTargetGroup(config.environment, config.targetGroup);
-    }).then(() => {
-      //Create Auto Scale Group
-      return this._createOrUpdateAutoScaleGroup(config.environment, config.autoScaleGroup, launchConfigToDeleteName);
-    }).then(() => {
-      //Create Application Load Balancer
-      return this._createApplicationLoadBalancer(config.environment, config.appLoadBalancer);
-    }).then(() => {
-      //Create Listener (Application LB to Target Group Association)
-      return this._createApplicationLoadBalancerListener(config.appListener);
-    }).then(() => {
-      //associate Load balancer with DNS Entry
-      return this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
-    }).then(() => {
-      //Create ECS Cluster
+    await this._vpcClient.createVpcFromConfig(config.environment, config.vpc);
 
-      return this._ecsClient.createCluster(config.ecsClusterName);
-    }).then(() => {
-      console.log('Infrastructure Deployed');
-    });
+    //Create security groups
+    let securityGroupPromises = [];
+    for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
+      let securityGroupConfig = config.securityGroups[sgIndex];
+      securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
+    }
+    await BlueBirdPromise.all(securityGroupPromises);
+
+    // Create file hosting buckets if they do not exist already
+    await this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
+
+    //Create Launch configuration
+    const launchConfigNames = await this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
+
+    // Apply the launch configuration name that was actually used
+    config.autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
+    launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
+
+    //Create Target Group
+    await this._createTargetGroup(config.environment, config.targetGroup);
+
+    //Create Auto Scale Group
+    await this._createOrUpdateAutoScaleGroup(config.environment, config.autoScaleGroup, launchConfigToDeleteName);
+
+    //Create Application Load Balancer
+    await this._createApplicationLoadBalancer(config.environment, config.appLoadBalancer);
+
+    //Create Listener (Application LB to Target Group Association)
+    await this._createApplicationLoadBalancerListener(config.appListener);
+
+    //associate Load balancer with DNS Entry
+    await this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
+
+    //Create ECS Cluster
+
+    await this._ecsClient.createCluster(config.ecsClusterName);
+    console.log('Infrastructure Deployed');
   }
 
 
-  deploy(serviceConfig, taskDefintionConfig) {
-    return this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions).then(() => {
-      return this._createECSService(serviceConfig);
-    });
+  async deploy(serviceConfig, taskDefintionConfig) {
+    await this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions);
+    return await this._createECSService(serviceConfig);
   }
 
 
-  lookupApiGatewayByName(name) {
-    return this._apiGatewayClient.lookupApiGatewayByName(name);
+  async lookupApiGatewayByName(name) {
+    return await this._apiGatewayClient.lookupApiGatewayByName(name);
   }
 
 
@@ -124,8 +121,8 @@ class Deployer {
    * @param StageName
    * @return {Promise.<D>}
    */
-  lookupApiGatewayURL(apiName, stageName) {
-    return this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
+  async lookupApiGatewayURL(apiName, stageName) {
+    return await this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
   }
 
   /**
@@ -133,8 +130,8 @@ class Deployer {
    * @param apiName
    * @return {Promise.<D>}
    */
-  lookupApiGatewayDomainName(apiName) {
-    return this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
+  async lookupApiGatewayDomainName(apiName) {
+    return await this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
 
 
@@ -145,31 +142,30 @@ class Deployer {
    * @param {boolean} [failOnWarnings=false]
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
-   createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
-     return this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
-   }
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
+    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
+  }
 
 
   /**
    * Creates a CloudFront Client and associates it to a hosted zone
    * @param cloudfrontConfig
-   * @return {Promise.<D>}
+   * @return {Promise}
    */
-  createCloudfront(cloudFrontConfig) {
+  async createCloudfront(cloudFrontConfig) {
     const cname = cloudFrontConfig.cname;
-    return this._cloudFrontClient.createOrUpdateCloudFrontDistribution(cloudFrontConfig).then(distribution => {
-      return this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
-    });
+    const distribution = await this._cloudFrontClient.createOrUpdateCloudFrontDistribution(cloudFrontConfig);
+    return await this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
   }
 
 
   /**
    * Creates an S3 bucket if needed
    * @param config
-   * @return {Promise.<D>}
+   * @return {Promise}
    */
-  createS3BucketIfNecessary(config) {
-    return this._s3Client.createBucketIfNecessary(config);
+  async createS3BucketIfNecessary(config) {
+    return await this._s3Client.createBucketIfNecessary(config);
   }
 
 
@@ -179,8 +175,8 @@ class Deployer {
    * @param config.name
    * @return {Promise.<D>}
    */
-  publishChangesToBucket(config) {
-    return this._s3Client.publishToBucket(config);
+  async publishChangesToBucket(config) {
+    return await this._s3Client.publishToBucket(config);
   }
 
 
@@ -191,8 +187,8 @@ class Deployer {
    * @param variableCollection
    * @returns {Promise.<*>}
    */
-  createDeployment(restApiId, stageName, variableCollection) {
-    return this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
+  async createDeployment(restApiId, stageName, variableCollection) {
+    return await this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
   }
 
 
@@ -209,15 +205,14 @@ class Deployer {
    * @return {Promise.<TResult>}
    * @private
    */
-  _createSecurityGroup(environment, securityGroupConfig) {
+  async _createSecurityGroup(environment, securityGroupConfig) {
     //convert vpcName to vpcId
-    return this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName)
-      .then(vpcId => {
-        //add vpcId
-        securityGroupConfig.vpcId = vpcId;
+    const vpcId = await this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName);
 
-        return this._ec2Client.createSecurityGroupFromConfig(environment, securityGroupConfig);
-      });
+    //add vpcId
+    securityGroupConfig.vpcId = vpcId;
+
+    return await this._ec2Client.createSecurityGroupFromConfig(environment, securityGroupConfig);
   }
 
 
@@ -228,16 +223,15 @@ class Deployer {
    * @return {PromiseLike<T>}
    * @public
    */
-  _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
+  async _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
     //convert vpcName to vpcId
-    return this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName).then(vpcId => {
-      return this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
-    }).then(securityGroupId => {
-      launchConfigurationConfig.ecsClusterName = ecsClusterName;
-      launchConfigurationConfig.securityGroupId = securityGroupId;
+    const vpcId = await this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName)
+    const securityGroupId = await this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
 
-      return this._autoScalingClient.createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig);
-    });
+    launchConfigurationConfig.ecsClusterName = ecsClusterName;
+    launchConfigurationConfig.securityGroupId = securityGroupId;
+
+    return await this._autoScalingClient.createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig);
   }
 
 

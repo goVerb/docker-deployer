@@ -189,7 +189,7 @@ class APIGatewayClient extends BaseClient {
       }
 
       if (util.isNullOrUndefined(apiName) || apiName === '') {
-        throw new Error('apiName is null or undefined')
+        throw new Error('apiName is null or undefined');
       }
 
       const foundApiId = await this.lookupApiGatewayByName(apiName).delay(delayInMilliseconds);

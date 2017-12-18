@@ -32,19 +32,22 @@ class ElbClient extends BaseClient {
    * @param securityGroupIds
    * @return {Promise.<TResult>}
    */
-  createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
-    return this.getApplicationLoadBalancerArnFromName(appElbName).then(applicationLoadBalancerArn => {
+  async createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
+
+    try {
+      const applicationLoadBalancerArn = await this.getApplicationLoadBalancerArnFromName(appElbName);
+
       if(!applicationLoadBalancerArn) {
-        return this._createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds);
+        return await this._createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds);
       } else {
         this.logMessage(`Application Load Balancer already exists. No action taken. [AppLoadBalancerName: ${appElbName}] [AppLoadBalancerArn: ${applicationLoadBalancerArn}]`);
       }
-    }).catch(err => {
+    } catch (err) {
       if (err.code === 'LoadBalancerNotFound') {
-        this.logMessage(`Application Load Balancer does not exist.  Creating TargetGroup. [AppLoadBalancerName: ${appElbName}]`);
-        return this._createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds);
+        this.logMessage(`Application Load Balancer does not exist. Creating TargetGroup. [AppLoadBalancerName: ${appElbName}]`);
+        return await this._createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds);
       }
-    });
+    }
   }
 
   /**
@@ -55,7 +58,7 @@ class ElbClient extends BaseClient {
    * @param scheme Possible Values: 'internet-facing' | 'internal'
    * @param securityGroupIds
    */
-  _createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
+  async _createApplicationLoadBalancer(environment, appElbName, subnetIds, scheme, securityGroupIds) {
     let params = {
       Name: appElbName, /* required */
       Subnets: subnetIds,
@@ -68,15 +71,13 @@ class ElbClient extends BaseClient {
     };
 
     this.logMessage(`Creating Application Load Balancer. [Name: ${appElbName}]`);
-    let createAppLoadBalancerPromise = this._awsElbv2Client.createLoadBalancer(params).promise();
+    const albResult = await this._awsElbv2Client.createLoadBalancer(params).promise();
 
-    return createAppLoadBalancerPromise.then(result => {
-      if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
-        return result.LoadBalancers[0].LoadBalancerArn;
-      } else {
-        return '';
-      }
-    });
+    if(albResult && albResult.LoadBalancers && albResult.LoadBalancers.length > 0) {
+      return albResult.LoadBalancers[0].LoadBalancerArn;
+    } else {
+      return '';
+    }
   }
 
   /**
@@ -89,20 +90,24 @@ class ElbClient extends BaseClient {
    * @param healthCheckSettingOverrides (Optional)
    * @return {Promise<D>}
    */
-  createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
-    return this.getTargetGroupArnFromName(name).then(targetGroupArn => {
+  async createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
+
+    try {
+      const targetGroupArn = await this.getTargetGroupArnFromName(name);
+
       if(!targetGroupArn) {
         this.logMessage(`TargetGroup does not exist.  Creating TargetGroup. [TargetGroupName: ${name}]`);
         return this._createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
       } else {
         this.logMessage(`TargetGroup already exist. No action taken. [TargetGroupName: ${name}] [TargetGroupArn: ${targetGroupArn}]`);
       }
-    }).catch(err => {
+
+    } catch (err) {
       if (err.code === 'TargetGroupNotFound') {
         this.logMessage(`TargetGroup does not exist.  Creating TargetGroup. [TargetGroupName: ${name}]`);
         return this._createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides);
       }
-    });
+    }
   }
 
   /**
@@ -116,77 +121,78 @@ class ElbClient extends BaseClient {
    * @return {*}
    * @private
    */
-  _createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
-    if(protocol.toLocaleUpperCase() !== 'HTTP' && protocol.toLocaleUpperCase() !== 'HTTPS') {
-      return BlueBirdPromise.reject(new Error(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`));
-    }
+  async _createTargetGroup(environment, name, port, protocol, vpcId, healthCheckSettingOverrides = {}) {
 
-    let params = {
-      Name: name, /* required */
-      Port: port, /* required */
-      Protocol: protocol, /* required */
-      VpcId: vpcId, /* required */
-    };
+    try {
+      let params = {
+        Name: name, /* required */
+        Port: port, /* required */
+        Protocol: protocol, /* required */
+        VpcId: vpcId, /* required */
+      };
 
-    if(healthCheckSettingOverrides) {
-      if(healthCheckSettingOverrides.HealthCheckIntervalSeconds) {
-        this.logMessage(`Assigning HealthCheckIntervalSeconds override value. [Value: ${healthCheckSettingOverrides.HealthCheckIntervalSeconds}]`);
-        params.HealthCheckIntervalSeconds = healthCheckSettingOverrides.HealthCheckIntervalSeconds;
+      if(healthCheckSettingOverrides) {
+        if(healthCheckSettingOverrides.HealthCheckIntervalSeconds) {
+          this.logMessage(`Assigning HealthCheckIntervalSeconds override value. [Value: ${healthCheckSettingOverrides.HealthCheckIntervalSeconds}]`);
+          params.HealthCheckIntervalSeconds = healthCheckSettingOverrides.HealthCheckIntervalSeconds;
+        }
+
+        if(healthCheckSettingOverrides.HealthCheckPath) {
+          this.logMessage(`Assigning HealthCheckPath override value. [Value: ${healthCheckSettingOverrides.HealthCheckPath}]`);
+          params.HealthCheckPath = healthCheckSettingOverrides.HealthCheckPath;
+        }
+
+        if(healthCheckSettingOverrides.HealthCheckPort) {
+          this.logMessage(`Assigning HealthCheckPort override value. [Value: ${healthCheckSettingOverrides.HealthCheckPort}]`);
+          params.HealthCheckPort = healthCheckSettingOverrides.HealthCheckPort;
+        }
+
+        if(healthCheckSettingOverrides.HealthCheckProtocol) {
+          this.logMessage(`Assigning HealthCheckProtocol override value. [Value: ${healthCheckSettingOverrides.HealthCheckProtocol}]`);
+          params.HealthCheckProtocol = healthCheckSettingOverrides.HealthCheckProtocol;
+        }
+
+        if(healthCheckSettingOverrides.HealthCheckTimeoutSeconds) {
+          this.logMessage(`Assigning HealthCheckTimeoutSeconds override value. [Value: ${healthCheckSettingOverrides.HealthCheckTimeoutSeconds}]`);
+          params.HealthCheckTimeoutSeconds = healthCheckSettingOverrides.HealthCheckTimeoutSeconds;
+        }
+
+        if(healthCheckSettingOverrides.HealthyThresholdCount) {
+          this.logMessage(`Assigning HealthyThresholdCount override value. [Value: ${healthCheckSettingOverrides.HealthyThresholdCount}]`);
+          params.HealthyThresholdCount = healthCheckSettingOverrides.HealthyThresholdCount;
+        }
+
+        if(healthCheckSettingOverrides.Matcher) {
+          this.logMessage(`Assigning Matcher override value. [Value: ${healthCheckSettingOverrides.Matcher}]`);
+          params.Matcher = healthCheckSettingOverrides.Matcher;
+        }
+
+        if(healthCheckSettingOverrides.UnhealthyThresholdCount) {
+          this.logMessage(`Assigning UnhealthyThresholdCount override value. [Value: ${healthCheckSettingOverrides.UnhealthyThresholdCount}]`);
+          params.UnhealthyThresholdCount = healthCheckSettingOverrides.UnhealthyThresholdCount;
+        }
       }
 
-      if(healthCheckSettingOverrides.HealthCheckPath) {
-        this.logMessage(`Assigning HealthCheckPath override value. [Value: ${healthCheckSettingOverrides.HealthCheckPath}]`);
-        params.HealthCheckPath = healthCheckSettingOverrides.HealthCheckPath;
+      if(protocol.toLocaleUpperCase() !== 'HTTP' && protocol.toLocaleUpperCase() !== 'HTTPS') {
+        throw new Error(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`);
       }
 
-      if(healthCheckSettingOverrides.HealthCheckPort) {
-        this.logMessage(`Assigning HealthCheckPort override value. [Value: ${healthCheckSettingOverrides.HealthCheckPort}]`);
-        params.HealthCheckPort = healthCheckSettingOverrides.HealthCheckPort;
-      }
+      this.logMessage(`Creating Target Group. [Name: ${name}]`);
+      const createTargetGroupResult = await this._awsElbv2Client.createTargetGroup(params).promise();
 
-      if(healthCheckSettingOverrides.HealthCheckProtocol) {
-        this.logMessage(`Assigning HealthCheckProtocol override value. [Value: ${healthCheckSettingOverrides.HealthCheckProtocol}]`);
-        params.HealthCheckProtocol = healthCheckSettingOverrides.HealthCheckProtocol;
-      }
-
-      if(healthCheckSettingOverrides.HealthCheckTimeoutSeconds) {
-        this.logMessage(`Assigning HealthCheckTimeoutSeconds override value. [Value: ${healthCheckSettingOverrides.HealthCheckTimeoutSeconds}]`);
-        params.HealthCheckTimeoutSeconds = healthCheckSettingOverrides.HealthCheckTimeoutSeconds;
-      }
-
-      if(healthCheckSettingOverrides.HealthyThresholdCount) {
-        this.logMessage(`Assigning HealthyThresholdCount override value. [Value: ${healthCheckSettingOverrides.HealthyThresholdCount}]`);
-        params.HealthyThresholdCount = healthCheckSettingOverrides.HealthyThresholdCount;
-      }
-
-      if(healthCheckSettingOverrides.Matcher) {
-        this.logMessage(`Assigning Matcher override value. [Value: ${healthCheckSettingOverrides.Matcher}]`);
-        params.Matcher = healthCheckSettingOverrides.Matcher;
-      }
-
-      if(healthCheckSettingOverrides.UnhealthyThresholdCount) {
-        this.logMessage(`Assigning UnhealthyThresholdCount override value. [Value: ${healthCheckSettingOverrides.UnhealthyThresholdCount}]`);
-        params.UnhealthyThresholdCount = healthCheckSettingOverrides.UnhealthyThresholdCount;
-      }
-    }
-
-
-    this.logMessage(`Creating Target Group. [Name: ${name}]`);
-    let createTargetGroupPromise = this._awsElbv2Client.createTargetGroup(params).promise();
-
-    let targetGroupArn = '';
-    return createTargetGroupPromise.then(result => {
-      targetGroupArn = result.TargetGroups[0].TargetGroupArn;
+      let targetGroupArn = createTargetGroupResult.TargetGroups[0].TargetGroupArn;
 
       let tags = [
         { Key: 'Name', Value: name},
         { Key: 'Environment', Value: environment }
       ];
 
-      return this._createTagsForTargetGroup(targetGroupArn, tags);
-    }).then(() => {
+      await this._createTagsForTargetGroup(targetGroupArn, tags);
       return targetGroupArn;
-    });
+
+    } catch (err) {
+      this.logMessage(err.message);
+    }
   }
 
   /**
@@ -198,14 +204,14 @@ class ElbClient extends BaseClient {
    * @param certificates
    * @return {Promise.<TResult>}
    */
-  createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates) {
-    return this.getListenerArn(loadBalancerArn, protocol, port).then(listenerArn => {
-      if(!listenerArn) {
-        return this._createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates);
-      } else {
-        this.logMessage(`Listener already exist. No action taken. [LoadBalancerArn: ${loadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
-      }
-    });
+  async createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates) {
+    const listenerArn = await this.getListenerArn(loadBalancerArn, protocol, port);
+
+    if(!listenerArn) {
+      return await this._createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates);
+    } else {
+      this.logMessage(`Listener already exist. No action taken. [LoadBalancerArn: ${loadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
+    }
   }
 
   /**
@@ -215,9 +221,9 @@ class ElbClient extends BaseClient {
    * @param protocol (Required)  Possible Values: HTTP | HTTPS
    * @param port
    * @param certificates
-   * @return {Promise<D>}
+   * @return {Promise}
    */
-  _createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates) {
+  async _createListener(loadBalancerArn, targetGroupArn, protocol, port, certificates) {
     let params = {
       DefaultActions: [ /* required */
         {
@@ -234,9 +240,7 @@ class ElbClient extends BaseClient {
       params.Certificates = certificates;
     }
 
-    let createListenerPromise = this._awsElbv2Client.createListener(params).promise();
-
-    return createListenerPromise;
+    return await this._awsElbv2Client.createListener(params).promise();
   }
 
 
@@ -245,20 +249,18 @@ class ElbClient extends BaseClient {
    * @param targetGroupName
    * @return {Promise.<TResult>}
    */
-  getTargetGroupArnFromName(targetGroupName) {
+  async getTargetGroupArnFromName(targetGroupName) {
     let params = {
       Names: [ targetGroupName ]
     };
 
-    let describeTargetGroupsPromise = this._awsElbv2Client.describeTargetGroups(params).promise();
+    const targetGroupsResult = await this._awsElbv2Client.describeTargetGroups(params).promise();
 
-    return describeTargetGroupsPromise.then(result => {
-      if(result.TargetGroups && result.TargetGroups.length > 0) {
-        return result.TargetGroups[0].TargetGroupArn;
-      } else {
-        return '';
-      }
-    });
+    if(targetGroupsResult.TargetGroups && targetGroupsResult.TargetGroups.length > 0) {
+      return targetGroupsResult.TargetGroups[0].TargetGroupArn;
+    } else {
+      return '';
+    }
   }
 
   /**
@@ -266,8 +268,8 @@ class ElbClient extends BaseClient {
    * @param loadBalancerName
    * @return {Promise.<TResult>}
    */
-  getApplicationLoadBalancerArnFromName(loadBalancerName) {
-    return this._getApplicationLoadBalancerAttribute(loadBalancerName, 'LoadBalancerArn');
+  async getApplicationLoadBalancerArnFromName(loadBalancerName) {
+    return await this._getApplicationLoadBalancerAttribute(loadBalancerName, 'LoadBalancerArn');
   }
 
   /**
@@ -275,31 +277,28 @@ class ElbClient extends BaseClient {
    * @param loadBalancerName
    * @return {Promise.<TResult>|*} Returns an object that contains the DNSName and CanonicalHostedZoneId of the Load Balancer
    */
-  getApplicationLoadBalancerDNSInfoFromName(loadBalancerName) {
+  async getApplicationLoadBalancerDNSInfoFromName(loadBalancerName) {
     let params = {
       Names: [ loadBalancerName ]
     };
 
     this.logMessage(`Looking up DNS Info for Application Load Balancer. [Name: ${loadBalancerName}]`);
-    let describeLoadBalancersPromise = this._awsElbv2Client.describeLoadBalancers(params).promise();
+    const describeAlbsResult = await this._awsElbv2Client.describeLoadBalancers(params).promise();
 
-    return describeLoadBalancersPromise.then(result => {
 
-      let returnObject = {
-        DNSName: '',
-        CanonicalHostedZoneId: ''
-      };
+    let returnObject = {
+      DNSName: '',
+      CanonicalHostedZoneId: ''
+    };
 
-      if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
-        this.logMessage(`Found Application Load Balancer with matching name. [Name: ${loadBalancerName}]`);
-        returnObject.DNSName = result.LoadBalancers[0].DNSName;
-        returnObject.CanonicalHostedZoneId = result.LoadBalancers[0].CanonicalHostedZoneId;
-      } else {
-        this.logMessage(`NOT FOUND - Application Load Balancer with matching name. [Name: ${loadBalancerName}] [Results: ${JSON.stringify(result)}]`);
-      }
-
-      return returnObject;
-    });
+    if(describeAlbsResult && describeAlbsResult.LoadBalancers && describeAlbsResult.LoadBalancers.length > 0) {
+      this.logMessage(`Found Application Load Balancer with matching name. [Name: ${loadBalancerName}]`);
+      returnObject.DNSName = describeAlbsResult.LoadBalancers[0].DNSName;
+      returnObject.CanonicalHostedZoneId = describeAlbsResult.LoadBalancers[0].CanonicalHostedZoneId;
+    } else {
+      this.logMessage(`NOT FOUND - Application Load Balancer with matching name. [Name: ${loadBalancerName}] [Results: ${JSON.stringify(describeAlbsResult)}]`);
+    }
+    return returnObject;
   }
 
   /**
@@ -309,20 +308,18 @@ class ElbClient extends BaseClient {
    * @return {Promise.<TResult>|*}
    * @private
    */
-  _getApplicationLoadBalancerAttribute(loadBalancerName, attributeName) {
+  async _getApplicationLoadBalancerAttribute(loadBalancerName, attributeName) {
     let params = {
       Names: [ loadBalancerName ]
     };
 
-    let describeLoadBalancersPromise = this._awsElbv2Client.describeLoadBalancers(params).promise();
+    const describeAlbsResult = await this._awsElbv2Client.describeLoadBalancers(params).promise();
 
-    return describeLoadBalancersPromise.then(result => {
-      if(result && result.LoadBalancers && result.LoadBalancers.length > 0) {
-        return result.LoadBalancers[0][attributeName];
-      } else {
-        return '';
-      }
-    });
+    if(describeAlbsResult && describeAlbsResult.LoadBalancers && describeAlbsResult.LoadBalancers.length > 0) {
+      return describeAlbsResult.LoadBalancers[0][attributeName];
+    } else {
+      return '';
+    }
   }
 
   /**
@@ -333,8 +330,7 @@ class ElbClient extends BaseClient {
    * @returns {Promise.<TResult>}
    * @private
    */
-  _createTagsForElbV2(resourceId, tags, addCreatedTag = true) {
-
+  async _createTagsForElbV2(resourceId, tags, addCreatedTag = true) {
     let localTags = tags;
     if(!__.isArray(localTags)) {
       localTags = [];
@@ -352,7 +348,7 @@ class ElbClient extends BaseClient {
     };
 
     this.logMessage(`Assigning Tags to ResourceId. [ResourceId: ${resourceId}] [Tags: ${JSON.stringify(localTags)}]`);
-    return this._awsElbv2Client.createTags(createTagParams).promise();
+    return await this._awsElbv2Client.createTags(createTagParams).promise();
   }
 
   /**
@@ -363,7 +359,7 @@ class ElbClient extends BaseClient {
    * @return {Promise<D>}
    * @private
    */
-  _createTagsForTargetGroup(targetGroupArn, tags, addCreatedTag = true) {
+  async _createTagsForTargetGroup(targetGroupArn, tags, addCreatedTag = true) {
 
     let localTags = tags;
     if(!__.isArray(localTags)) {
@@ -381,7 +377,7 @@ class ElbClient extends BaseClient {
     };
 
     this.logMessage(`Assigning Tags to ResourceArns. [ResourceArn: ${targetGroupArn}] [Tags: ${JSON.stringify(localTags)}]`);
-    return this._awsElbv2Client.addTags(addTagParams).promise();
+    return await this._awsElbv2Client.addTags(addTagParams).promise();
   }
 
   /**
@@ -391,29 +387,25 @@ class ElbClient extends BaseClient {
    * @param port
    * @return {Promise.<TResult>}
    */
-  getListenerArn(applicationLoadBalancerArn, protocol, port) {
+  async getListenerArn(applicationLoadBalancerArn, protocol, port) {
     let params = {
       LoadBalancerArn: applicationLoadBalancerArn
     };
 
     this.logMessage(`Looking up ListenerArn by LoadBalancerArn, Protocol, and Port. [Arn: ${applicationLoadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
-    let describeListenersPromise = this._awsElbv2Client.describeListeners(params).promise();
+    const listenersResult = await this._awsElbv2Client.describeListeners(params).promise();
 
-    return describeListenersPromise.then(result => {
 
-      this.logMessage(`Looking up result for ListenerArn. [Results: ${JSON.stringify(result)}]`);
-      let matchingEntry = __.filter(result.Listeners, { Port: port, Protocol: protocol });
-      if(matchingEntry && matchingEntry.length > 0) {
-        return matchingEntry[0].ListenerArn;
-      }
-      else {
-        this.logMessage(`ListenerArn not found. [Arn: ${applicationLoadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
-        return '';
-      }
-    });
+    this.logMessage(`Looking up result for ListenerArn. [Results: ${JSON.stringify(listenersResult)}]`);
+    let matchingEntry = __.filter(listenersResult.Listeners, { Port: port, Protocol: protocol });
+    if(matchingEntry && matchingEntry.length > 0) {
+      return matchingEntry[0].ListenerArn;
+    }
+    else {
+      this.logMessage(`ListenerArn not found. [Arn: ${applicationLoadBalancerArn}] [Protocol: ${protocol}] [Port: ${port}]`);
+      return '';
+    }
   }
-
 }
-
 
 module.exports = ElbClient;

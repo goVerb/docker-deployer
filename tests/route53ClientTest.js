@@ -265,7 +265,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -314,7 +314,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -366,7 +366,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -418,7 +418,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -470,7 +470,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -522,7 +522,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -574,7 +574,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -638,7 +638,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -702,7 +702,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -761,7 +761,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -812,7 +812,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -864,7 +864,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -916,7 +916,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -968,7 +968,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -1020,7 +1020,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -1083,7 +1083,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -1146,7 +1146,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -1279,7 +1279,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -1323,7 +1323,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };
@@ -1367,7 +1367,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: () => {
+        Route53: function() {
           return awsRoute53Mock;
         }
       };

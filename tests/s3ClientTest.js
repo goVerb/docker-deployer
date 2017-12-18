@@ -78,7 +78,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -120,7 +120,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -163,7 +163,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -206,7 +206,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -250,7 +250,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -301,7 +301,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -352,7 +352,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -401,7 +401,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -457,7 +457,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };
@@ -500,7 +500,7 @@ describe('S3 Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        S3: () => {
+        S3: function() {
           return awsS3ServiceMock;
         }
       };

@@ -263,7 +263,7 @@ describe('ECS Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -338,11 +338,11 @@ describe('ECS Client', function() {
         registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
       };
 
-const mockAwsSdk = {
+      const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -419,7 +419,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -496,7 +496,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -573,7 +573,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -651,7 +651,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -822,7 +822,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -865,7 +865,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -908,7 +908,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -951,7 +951,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -994,7 +994,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1037,7 +1037,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1080,7 +1080,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1123,7 +1123,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1166,7 +1166,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1208,7 +1208,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1248,7 +1248,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1289,7 +1289,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1329,7 +1329,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1379,7 +1379,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1427,7 +1427,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1476,7 +1476,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1535,7 +1535,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1582,7 +1582,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1622,7 +1622,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1669,7 +1669,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1715,7 +1715,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1772,7 +1772,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1819,7 +1819,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };
@@ -1860,7 +1860,7 @@ const mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ECS: () => {
+        ECS: function() {
           return awsEcsClientMock;
         }
       };

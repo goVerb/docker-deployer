@@ -167,7 +167,7 @@ describe('Lambda Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        Lambda: () => {
+        Lambda: function() {
           return awsLambdaServiceMock;
         }
       };
@@ -267,7 +267,7 @@ describe('Lambda Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        Lambda: () => {
+        Lambda: function() {
           return awsLambdaServiceMock;
         }
       };
@@ -461,7 +461,7 @@ describe('Lambda Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        Lambda: () => {
+        Lambda: function() {
           return awsLambdaServiceMock;
         }
       };
@@ -561,7 +561,7 @@ describe('Lambda Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        Lambda: () => {
+        Lambda: function() {
           return awsLambdaServiceMock;
         }
       };
@@ -659,7 +659,7 @@ describe('Lambda Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        Lambda: () => {
+        Lambda: function() {
           return awsLambdaServiceMock;
         }
       };

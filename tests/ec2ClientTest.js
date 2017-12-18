@@ -175,7 +175,7 @@ describe('EC2 Client', function() {
       const EC2 = require('../src/ec2Client.js');
       const ec2ClientService = new EC2();
       ec2ClientService.getSecurityGroupIdFromName = sandbox.stub().resolves('uniqueSGId1');
-      
+
 
       //Act
       let resultPromise = ec2ClientService.createSecurityGroupFromConfig(ENVIRONMENT, {name: 'dupeName', vpcId: '123abc'});
@@ -254,7 +254,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -295,7 +295,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -336,7 +336,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -383,7 +383,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -422,7 +422,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -462,7 +462,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -504,7 +504,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -550,7 +550,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -601,7 +601,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -652,7 +652,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -698,7 +698,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -744,7 +744,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -790,7 +790,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -838,7 +838,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -884,7 +884,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -933,7 +933,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1255,7 +1255,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1301,7 +1301,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1347,7 +1347,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1393,7 +1393,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1439,7 +1439,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1485,7 +1485,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1532,7 +1532,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1575,7 +1575,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1621,7 +1621,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1667,7 +1667,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1713,7 +1713,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1759,7 +1759,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1805,7 +1805,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1852,7 +1852,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };
@@ -1895,7 +1895,7 @@ describe('EC2 Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        EC2: () => {
+        EC2: function() {
           return awsEc2ClientMock;
         }
       };

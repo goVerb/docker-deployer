@@ -153,7 +153,7 @@ describe('APIGateway Client', function() {
   });
 
   describe('lookupApiGatewayDomainName', () => {
-    it('should return the correct domain name', (done) => {
+    it('should return the correct domain name', async () => {
       //Arrange
       const getRestApisResponse = {
         items: [{
@@ -167,7 +167,6 @@ describe('APIGateway Client', function() {
       };
 
       const APIGatewayMock = {
-
         getRestApis: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve(getRestApisResponse)
         })
@@ -178,7 +177,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -197,14 +196,10 @@ describe('APIGateway Client', function() {
 
 
       //Act
-      const getPromise = apiGatewayService.lookupApiGatewayDomainName('Test API');
+      const url = await apiGatewayService.lookupApiGatewayDomainName('Test API');
 
       //Assert
-      getPromise.then(url => {
-        console.log(url);
-        expect(url).to.be.equal('myAppId.execute-api.us-west-2.amazonaws.com');
-        done();
-      });
+      expect(url).to.be.equal('myAppId.execute-api.us-west-2.amazonaws.com');
 
     });
 
@@ -226,14 +221,14 @@ describe('APIGateway Client', function() {
         getRestApis: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve(getRestApisResponse)
         })
-      }
+      };
 
       let mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -299,7 +294,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -361,7 +356,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -422,7 +417,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -470,7 +465,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -537,7 +532,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -595,7 +590,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -692,7 +687,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -828,7 +823,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
 
@@ -973,7 +968,7 @@ describe('APIGateway Client', function() {
           setPromisesDependency: (promise) => {
           }
         },
-        APIGateway: () => {
+        APIGateway: function() {
           return APIGatewayMock;
         }
       };

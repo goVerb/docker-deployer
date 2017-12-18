@@ -462,7 +462,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -509,7 +509,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -556,7 +556,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -604,7 +604,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -651,7 +651,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -698,7 +698,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -745,7 +745,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -794,7 +794,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -841,7 +841,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -888,7 +888,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -935,7 +935,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -982,7 +982,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -1030,7 +1030,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -1077,7 +1077,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -1861,7 +1861,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2107,7 +2107,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2156,7 +2156,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2212,7 +2212,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2259,7 +2259,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2306,7 +2306,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2353,7 +2353,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2400,7 +2400,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2447,7 +2447,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2496,7 +2496,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2545,7 +2545,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2592,7 +2592,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2639,7 +2639,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2697,7 +2697,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2743,7 +2743,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2782,7 +2782,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -2960,7 +2960,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -3006,7 +3006,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };
@@ -3045,7 +3045,7 @@ describe('Auto Scaling Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        AutoScaling: () => {
+       AutoScaling: function() {
           return awsAutoScalingClientMock;
         }
       };

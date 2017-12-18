@@ -272,7 +272,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -284,7 +284,7 @@ describe('ELB Client', function() {
       const securityGroupIds = ['sg-123abc'];
 
       //Setting up VPC clients
-            const mocks = {
+      const mocks = {
         'aws-sdk': mockAwsSdk
       };
 
@@ -322,7 +322,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -373,7 +373,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -423,7 +423,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -474,7 +474,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -527,7 +527,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -580,7 +580,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -622,7 +622,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -804,7 +804,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -857,7 +857,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -910,7 +910,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -963,7 +963,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1016,7 +1016,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1071,7 +1071,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1124,7 +1124,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1179,7 +1179,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1232,7 +1232,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1287,7 +1287,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1340,7 +1340,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1395,7 +1395,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1448,7 +1448,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1503,7 +1503,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1556,7 +1556,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1611,7 +1611,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1664,7 +1664,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1722,7 +1722,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1775,7 +1775,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1830,7 +1830,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1883,7 +1883,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1942,7 +1942,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -1993,7 +1993,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2198,7 +2198,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2241,7 +2241,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2285,7 +2285,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2328,7 +2328,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2371,7 +2371,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2417,7 +2417,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2462,7 +2462,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2511,7 +2511,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2554,7 +2554,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2589,7 +2589,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2626,7 +2626,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2669,7 +2669,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2704,7 +2704,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2741,7 +2741,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2785,7 +2785,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2823,7 +2823,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2863,7 +2863,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2901,7 +2901,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2938,7 +2938,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -2978,7 +2978,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3026,7 +3026,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3073,7 +3073,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3111,7 +3111,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3148,7 +3148,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3188,7 +3188,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3236,7 +3236,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3284,7 +3284,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3339,7 +3339,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };
@@ -3389,7 +3389,7 @@ describe('ELB Client', function() {
         config: {
           setPromisesDependency: (promise) => {}
         },
-        ELBv2: () => {
+        ELBv2: function() {
           return awsElbv2ClientMock;
         }
       };

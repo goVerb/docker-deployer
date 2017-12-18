@@ -151,7 +151,7 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param cname
+   * @param {string} cname
    * @return {Promise<CloudFrontDistributionObject|Object>}
    * @private
    */
@@ -191,7 +191,7 @@ class CloudFrontClient extends BaseClient {
   /**
    *
    * @param {CloudFrontDistributionObject} distribution
-   * @param params
+   * @param {Object} params
    * @return {boolean}
    * @private
    */
@@ -347,14 +347,24 @@ class CloudFrontClient extends BaseClient {
     }
 
     //Custom Error Responses
-    if(customErrorResponses.length !== __.get(distribution, 'DistributionConfig.CustomErrorResponses.Quantity', 0)) {
+    if(this._isDifferenceInCustomErrorResponses(customErrorResponses, distribution)) {
+      return true;
+    }
+
+
+
+    return false;
+  }
+
+  _isDifferenceInCustomErrorResponses(customErrorResponses, distribution) {
+    if(__.get(customErrorResponses, 'length', 0) !== __.get(distribution, 'DistributionConfig.CustomErrorResponses.Quantity', 0)) {
       this.logMessage('CustomErrorResponses do not match');
 
       return true;
     } else {
       //we have to convert our custom objects to match the Cloudfront's return params in order to make the isEqual easier
       const convertedErrorCodeObjects = __.map(customErrorResponses, (item) => {
-        const {errorCode, errorCachingMinTTL, responseCode = '', responsePagePath = ''} = item;
+        const {errorCode, errorCachingMinTTL = 300, responseCode = '200', responsePagePath = ''} = item;
 
         let resultObject = {
           ErrorCode: errorCode, /* required */
@@ -379,8 +389,6 @@ class CloudFrontClient extends BaseClient {
         return true;
       }
     }
-
-
 
     return false;
   }

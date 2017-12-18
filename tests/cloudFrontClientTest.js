@@ -3888,6 +3888,67 @@ describe('CloudFront Client', function() {
 
   });
 
+  describe('_isDifferenceInCustomErrorResponses', () => {
+    let cloudFrontClientService;
+    beforeEach(() => {
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      cloudFrontClientService = new CloudFront();
+    });
+
+    it('should return true if customErrorResponses null and distribution has customErrorResponses', () => {
+      //Arrange
+      const customErrorResponses = null;
+      const distribution = {
+        DistributionConfig: {
+          CustomErrorResponses: {
+            Quantity: 1,
+            Items: [{}]
+          }
+        }
+      };
+
+
+      //Act
+      const result = cloudFrontClientService._isDifferenceInCustomErrorResponses(customErrorResponses, distribution);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return true if errorCode lookups dont match', () => {
+      //Arrange
+      const customErrorResponses = [{
+        ErrorCode: '403',
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/index.html'
+      }];
+      const distribution = {
+        DistributionConfig: {
+          CustomErrorResponses: {
+            Quantity: 1,
+            Items: [{
+              ErrorCode: '403',
+              ErrorCachingMinTTL: 300,
+              ResponseCode: '200',
+              ResponsePagePath: '/'
+            }]
+          }
+        }
+      };
+
+
+      //Act
+      const result = cloudFrontClientService._isDifferenceInCustomErrorResponses(customErrorResponses, distribution);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+
+  });
+
   describe('_buildDistributionConfig', () => {
     it('should build config with classic parameters', () => {
       //Arrange

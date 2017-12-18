@@ -1,6 +1,13 @@
 {
-  "presets": ["es2015"],
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": "8.9"
+      }
+    }]
+  ],
   "plugins": [
-    "transform-class-properties"
+    "transform-class-properties",
+    "transform-object-rest-spread"
   ]
 }

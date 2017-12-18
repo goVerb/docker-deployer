@@ -3888,6 +3888,67 @@ describe('CloudFront Client', function() {
 
   });
 
+  describe('_isDifferenceInCustomErrorResponses', () => {
+    let cloudFrontClientService;
+    beforeEach(() => {
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      cloudFrontClientService = new CloudFront();
+    });
+
+    it('should return true if customErrorResponses null and distribution has customErrorResponses', () => {
+      //Arrange
+      const customErrorResponses = null;
+      const distribution = {
+        DistributionConfig: {
+          CustomErrorResponses: {
+            Quantity: 1,
+            Items: [{}]
+          }
+        }
+      };
+
+
+      //Act
+      const result = cloudFrontClientService._isDifferenceInCustomErrorResponses(customErrorResponses, distribution);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should return true if errorCode lookups dont match', () => {
+      //Arrange
+      const customErrorResponses = [{
+        ErrorCode: '403',
+        ErrorCachingMinTTL: 300,
+        ResponseCode: '200',
+        ResponsePagePath: '/index.html'
+      }];
+      const distribution = {
+        DistributionConfig: {
+          CustomErrorResponses: {
+            Quantity: 1,
+            Items: [{
+              ErrorCode: '403',
+              ErrorCachingMinTTL: 300,
+              ResponseCode: '200',
+              ResponsePagePath: '/'
+            }]
+          }
+        }
+      };
+
+
+      //Act
+      const result = cloudFrontClientService._isDifferenceInCustomErrorResponses(customErrorResponses, distribution);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+
+  });
+
   describe('_buildDistributionConfig', () => {
     it('should build config with classic parameters', () => {
       //Arrange
@@ -4066,16 +4127,164 @@ describe('CloudFront Client', function() {
     });
   });
 
-  describe('_createCustomErrorResponse', () => {
-    it('should generate CustomErrorResponse object with all fields', () => {
-      //Arrange
-
+  describe('_createCacheBehavior', () => {
+    let cloudFrontClientService;
+    beforeEach(() => {
       //Setting up CF clients
       const CloudFront = require('../src/cloudFrontClient');
-      const cloudFrontClientService = new CloudFront();
+      cloudFrontClientService = new CloudFront();
+    });
 
+    it('should set QueryString to true if no value is passed in', () => {
+      const params = {
+        originName: '',
+        pathPattern: ''
+      };
 
-      let customErrorResponseParams = {
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('ForwardedValues.QueryString', true);
+    });
+
+    it('should set QueryString to false if value is passed in', () => {
+      const params = {
+        originName: '',
+        pathPattern: '',
+        queryString: false
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('ForwardedValues.QueryString', false);
+    });
+
+    it('should set minTTL to 0 if no value specified', () => {
+      const params = {
+        originName: '',
+        pathPattern: ''
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('MinTTL', 0);
+    });
+
+    it('should set minTTL to given value', () => {
+      const params = {
+        originName: '',
+        pathPattern: '',
+        minTTL: 123
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('MinTTL', 123);
+    });
+
+    it('should set maxTTL to 0 if no value specified', () => {
+      const params = {
+        originName: '',
+        pathPattern: ''
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('MaxTTL', 0);
+    });
+
+    it('should set maxTTL to given value', () => {
+      const params = {
+        originName: '',
+        pathPattern: '',
+        maxTTL: 123
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('MaxTTL', 123);
+    });
+
+    it('should set defaultTTL to 0 if no value specified', () => {
+      const params = {
+        originName: '',
+        pathPattern: ''
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('DefaultTTL', 0);
+    });
+
+    it('should set defaultTTL to given value', () => {
+      const params = {
+        originName: '',
+        pathPattern: '',
+        defaultTTL: 123
+      };
+
+      //Act
+      const result = cloudFrontClientService._createCacheBehavior(params);
+
+      //Assert
+      expect(result).to.have.nested.property('DefaultTTL', 123);
+    });
+  });
+
+  describe('_createCustomErrorResponse', () => {
+    let cloudFrontClientService;
+    beforeEach(() => {
+      //Setting up CF clients
+      const CloudFront = require('../src/cloudFrontClient');
+      cloudFrontClientService = new CloudFront();
+    });
+
+    it('should set ErrorCachingMinTTL to 300 if value not supplied', () => {
+      //Arrange
+      const customErrorResponseParams = {
+        errorCode: 500,
+        responseCode: '500',
+        responsePagePath: '/'
+      };
+
+      //Act
+      const resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+
+      //Assert
+      expect(resultObject).to.have.property('ErrorCachingMinTTL', 300);
+    });
+
+    it('should set responseCode to "200" if value not supplied', () => {
+      //Arrange
+      const customErrorResponseParams = {
+        errorCode: 500,
+        errorCachingMinTTL: 123,
+        responsePagePath: '/'
+      };
+
+      //Act
+      const resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+
+      //Assert
+      expect(resultObject).to.have.property('ResponseCode', '200');
+    });
+
+    it('should generate CustomErrorResponse object with all fields', () => {
+      //Arrange
+      const customErrorResponseParams = {
         errorCode: 500,
         errorCachingMinTTL: 0,
         responseCode: '500',
@@ -4083,7 +4292,7 @@ describe('CloudFront Client', function() {
       };
 
       //Act
-      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+      const resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
 
       //Assert
       expect(resultObject).to.be.deep.equal({
@@ -4096,13 +4305,7 @@ describe('CloudFront Client', function() {
 
     it('should generate object without ResponseCode and ResponsePagePath if ResponseCode is empty string', () => {
       //Arrange
-
-      //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
-      const cloudFrontClientService = new CloudFront();
-
-
-      let customErrorResponseParams = {
+      const customErrorResponseParams = {
         errorCode: 500,
         errorCachingMinTTL: 0,
         responseCode: '',
@@ -4110,7 +4313,7 @@ describe('CloudFront Client', function() {
       };
 
       //Act
-      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+      const resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
 
       //Assert
       expect(resultObject).to.be.deep.equal({
@@ -4123,13 +4326,7 @@ describe('CloudFront Client', function() {
 
     it('should generate object without ResponseCode and ResponsePagePath if ResponsePagePath is empty string', () => {
       //Arrange
-
-      //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
-      const cloudFrontClientService = new CloudFront();
-
-
-      let customErrorResponseParams = {
+      const customErrorResponseParams = {
         errorCode: 500,
         errorCachingMinTTL: 0,
         responseCode: '51',
@@ -4137,7 +4334,7 @@ describe('CloudFront Client', function() {
       };
 
       //Act
-      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+      const resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
 
       //Assert
       expect(resultObject).to.be.deep.equal({
@@ -4150,19 +4347,13 @@ describe('CloudFront Client', function() {
 
     it('should generate object without ResponseCode and ResponsePagePath if ResponseCode and ResponsePagePath are not present', () => {
       //Arrange
-
-      //Setting up CF clients
-      const CloudFront = require('../src/cloudFrontClient');
-      const cloudFrontClientService = new CloudFront();
-
-
-      let customErrorResponseParams = {
+      const customErrorResponseParams = {
         errorCode: 500,
         errorCachingMinTTL: 0
       };
 
       //Act
-      let resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
+      const resultObject = cloudFrontClientService._createCustomErrorResponse(customErrorResponseParams);
 
       //Assert
       expect(resultObject).to.be.deep.equal({

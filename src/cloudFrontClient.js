@@ -8,6 +8,26 @@ const BaseClient = require('./baseClient');
 
 AWS.config.setPromisesDependency(BluebirdPromise);
 
+
+/**
+ * @typedef {Object} CloudFrontDistributionObject
+ * @property {DistributionConfigObject} DistributionConfig
+ */
+
+/**
+ * @typedef {Object} DistributionConfigObject
+ * @property {string} CallerReference
+ * @property {AliasObject} Aliases
+ * @property {Object} ViewerCertificate
+ * @property {boolean} IsIPV6Enabled
+ */
+
+/**
+ * @typedef {Object} AliasObject
+ * @property {Array} Items
+ * @property {number} Quantity
+ */
+
 class CloudFrontClient extends BaseClient {
 
   constructor(accessKey = '', secretKey = '') {
@@ -15,6 +35,11 @@ class CloudFrontClient extends BaseClient {
     super(accessKey, secretKey, null);
   }
 
+  /**
+   *
+   * @return {AWS.CloudFront|CloudFront}
+   * @private
+   */
   get _awsCloudFrontClient() {
 
     if(!this._internalCloudFrontClient) {
@@ -31,8 +56,9 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param params
-   * @return {Promise.<D>}
+   * @param {Object} params
+   * @param {string} params.cname
+   * @return {Promise.<*>}
    */
   async createOrUpdateCloudFrontDistribution(params) {
     const distribution = await this._getDistributionByCName(params.cname);
@@ -52,8 +78,9 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param params
-   * @return {Promise<D>}
+   * @param {Object} params
+   * @param {string} params.cname
+   * @return {Promise<*>}
    * @private
    */
   async _createCloudFrontDistribution(params) {
@@ -85,9 +112,10 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param distribution
-   * @param params
-   * @return {Promise.<TResult>}
+   * @param {Object} distribution
+   * @param {Object} params
+   * @param {string} params.cname
+   * @return {Promise<*>}
    * @private
    */
   async _updateCloudFrontDistribution(distribution, params) {
@@ -123,8 +151,8 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param cname
-   * @return {Promise.<CloudFrontDistribution>}
+   * @param {string} cname
+   * @return {Promise<CloudFrontDistributionObject|Object>}
    * @private
    */
   async _getDistributionByCName(cname) {
@@ -162,8 +190,8 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param distribution
-   * @param params
+   * @param {CloudFrontDistributionObject} distribution
+   * @param {Object} params
    * @return {boolean}
    * @private
    */
@@ -232,8 +260,6 @@ class CloudFrontClient extends BaseClient {
       cloudfrontPaths.forEach(item => {
         let foundCacheBehavior = __.find(distribution.DistributionConfig.CacheBehaviors.Items, {TargetOriginId: item.originName});
         if (!foundCacheBehavior || foundCacheBehavior.PathPattern !== item.pathPattern) {
-          console.log(JSON.stringify(foundCacheBehavior));
-          console.log(JSON.stringify(item));
           this.logMessage('CacheBehaviors: No foundCacheBehavior or pathPattern does not match');
           foundDifference = true;
         }
@@ -321,14 +347,24 @@ class CloudFrontClient extends BaseClient {
     }
 
     //Custom Error Responses
-    if(customErrorResponses.length !== __.get(distribution, 'DistributionConfig.CustomErrorResponses.Quantity', 0)) {
+    if(this._isDifferenceInCustomErrorResponses(customErrorResponses, distribution)) {
+      return true;
+    }
+
+
+
+    return false;
+  }
+
+  _isDifferenceInCustomErrorResponses(customErrorResponses, distribution) {
+    if(__.get(customErrorResponses, 'length', 0) !== __.get(distribution, 'DistributionConfig.CustomErrorResponses.Quantity', 0)) {
       this.logMessage('CustomErrorResponses do not match');
 
       return true;
     } else {
       //we have to convert our custom objects to match the Cloudfront's return params in order to make the isEqual easier
       const convertedErrorCodeObjects = __.map(customErrorResponses, (item) => {
-        const {errorCode, errorCachingMinTTL, responseCode = '', responsePagePath = ''} = item;
+        const {errorCode, errorCachingMinTTL = 300, responseCode = '200', responsePagePath = ''} = item;
 
         let resultObject = {
           ErrorCode: errorCode, /* required */
@@ -354,15 +390,15 @@ class CloudFrontClient extends BaseClient {
       }
     }
 
-
-
     return false;
   }
 
   /**
    *
-   * @param params
-   * @param callerReference
+   * @param {Object} params
+   * @param {string} [params.originProtocolPolicy='match-viewer']
+   * @param {string} [params.viewerProtocolPolicy='allow-all']
+   * @param {string} [callerReference='']
    * @returns {{DistributionConfig: {CallerReference: string|*, Comment: *, DefaultCacheBehavior: null, Enabled: boolean, Origins: {Quantity: number, Items: Array}, Aliases: {Quantity: number, Items: *[]}, CacheBehaviors: {Quantity: number, Items: Array}, CustomErrorResponses: {Quantity: number, Items: Array}, DefaultRootObject: string, HttpVersion: string, IsIPV6Enabled: boolean, Logging: {Bucket: string, Enabled: boolean, IncludeCookies: boolean, Prefix: string}, PriceClass: string, Restrictions: {GeoRestriction: {Quantity: number, RestrictionType: string, Items: Array}}, WebACLId: string}}}
    * @private
    */
@@ -509,18 +545,34 @@ class CloudFrontClient extends BaseClient {
 
   /**
    *
-   * @param params.originName
-   * @param params.originDomainName
-   * @param params.originPath
-   * @param params.originProtocolPolicy
-   * @param params.viewerProtocolPolicy
-   * @param params.pathPattern
-   * @param params.queryString
+   * @param {string} params.originName
+   * @param {string} [params.originDomainName]
+   * @param {string} [params.originPath]
+   * @param {string} [params.originProtocolPolicy]
+   * @param {string} [params.viewerProtocolPolicy='allow-all']
+   * @param {string} params.pathPattern
+   * @param {boolean} [params.queryString=true]
+   * @param {number} [minTTL=0]
+   * @param {number} [maxTTL=0]
+   * @param {number} [defaultTTL=0]
    * @param {boolean} isDefaultCacheBehavior
    * @private
    */
   _createCacheBehavior(params, isDefaultCacheBehavior = false) {
-    const {originName, originDomainName, originPath, originProtocolPolicy, viewerProtocolPolicy = 'allow-all', pathPattern, queryString} = params;
+    const {
+      originName,
+      originDomainName,
+      originPath,
+      originProtocolPolicy,
+      viewerProtocolPolicy = 'allow-all',
+      pathPattern,
+      queryString = true,
+      minTTL = 0,
+      maxTTL = 0,
+      defaultTTL = 0,
+
+
+    } = params;
 
     const cacheBehavior =  { /* required */
       ForwardedValues: { /* required */
@@ -548,7 +600,7 @@ class CloudFrontClient extends BaseClient {
           Items: []
         }
       },
-      MinTTL: 0, /* required */
+      MinTTL: minTTL, /* required */
       PathPattern: pathPattern, /* required */
       TargetOriginId: originName, /* required */
       TrustedSigners: { /* required */
@@ -578,12 +630,12 @@ class CloudFrontClient extends BaseClient {
         }
       },
       Compress: true,
-      DefaultTTL: 0,
+      DefaultTTL: defaultTTL,
       LambdaFunctionAssociations: {
         Quantity: 0, /* required */
         Items: []
       },
-      MaxTTL: 0,
+      MaxTTL: maxTTL,
       SmoothStreaming: false
     };
 
@@ -597,15 +649,14 @@ class CloudFrontClient extends BaseClient {
   /**
    *
    * @param {string} params.originName
-   * @param params.originDomainName
-   * @param params.originPath
-   * @param params.originProtocolPolicy
-   * @param params.pathPattern
-   * @param params.queryString
+   * @param {string} params.originDomainName
+   * @param {string} params.originPath
+   * @param {string} params.originProtocolPolicy
+   * @param {string} [params.pathPattern]
    * @private
    */
   _createOrigin(params) {
-    const {originName, originDomainName, originPath, originProtocolPolicy, pathPattern, queryString} = params;
+    const {originName, originDomainName, originPath, originProtocolPolicy, pathPattern} = params;
 
     return {
       DomainName: originDomainName, /* required */
@@ -636,14 +687,14 @@ class CloudFrontClient extends BaseClient {
   /**
    *
    * @param {number} params.errorCode
-   * @param {number} params.errorCachingMinTTL
-   * @param {string} params.responseCode
+   * @param {number} [params.errorCachingMinTTL=300]
+   * @param {string} [params.responseCode='200']
    * @param {string} params.responsePagePath
    * @return {Object}
    * @private
    */
   _createCustomErrorResponse(params) {
-    const {errorCode, errorCachingMinTTL, responseCode = '', responsePagePath = ''} = params;
+    const {errorCode, errorCachingMinTTL = 300, responseCode = '200', responsePagePath = ''} = params;
 
     let resultObject = {
       ErrorCode: errorCode, /* required */

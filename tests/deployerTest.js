@@ -1719,7 +1719,9 @@ describe('Deployer', function() {
         './ec2Client.js': ec2ClientStub,
         './ecsClient.js': ecsClientStub,
         './route53Client.js': route53ClientStub,
-        './apiGatewayClient': () => apiClientStub
+        './apiGatewayClient': function() {
+          return apiClientStub;
+        }
       };
 
     });

@@ -4,12 +4,7 @@
   "description": "docker deployer utils",
   "main": "build/index.js",
   "scripts": {
-    "test": "gulp test",
-    "prepublishOnly": "gulp build"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",

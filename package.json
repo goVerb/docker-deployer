@@ -7,6 +7,9 @@
     "test": "gulp test",
     "prepublishOnly": "gulp build"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://goverb@github.com/goverb/docker-deployer.git"

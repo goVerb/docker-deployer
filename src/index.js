@@ -35,8 +35,8 @@ class Deployer {
     this._accessKey = opts.accessKey;
     this._secretKey = opts.secretKey;
     this._region = opts.region;
-
-    this._s3Client = new S3(this._accessKey, this._secretKey, this._region);
+    this._logLevel = opts.logLevel;
+    this._s3Client = new S3(this._accessKey, this._secretKey, this._region, this._logLevel);
     this._vpcClient = new VPC(this._accessKey, this._secretKey, this._region);
     this._ecsClient = new ECS(this._accessKey, this._secretKey, this._region);
     this._ec2Client = new EC2(this._accessKey, this._secretKey, this._region);

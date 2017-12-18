@@ -71,7 +71,7 @@ let executeTest = (filePath, quietMode = false) => {
   }
 
   let processedFilePath = filePath;
-  if(!isArray(filePath)) {
+  if(!Array.isArray(filePath)) {
     processedFilePath = [filePath];
   }
 

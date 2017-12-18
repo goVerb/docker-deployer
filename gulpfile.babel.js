@@ -41,15 +41,42 @@ gulp.task('build:babel', (callback) => {
     .pipe(plugins.sourcemaps.write("."))
     .pipe(gulp.dest('build'))
     .on('end', () => {
-      callback()
+      callback();
     });
 });
 
 gulp.task('test', () => {
+
+  return executeTest('./tests/**.js');
+});
+
+
+/**
+ *
+ * @param {string|Array} filePath
+ * @param {boolean} [quietMode=false]
+ */
+let executeTest = (filePath, quietMode = false) => {
   let mochaOptions = {
-    compilers: 'js:babel-core/register'
+    require: ['babel-polyfill', 'babel-core/register'],
+    timeout: 10000
   };
 
-  return gulp.src('./tests/**.js', {read: false})
-    .pipe(mocha(mochaOptions));
-});
+  if(quietMode) {
+    mochaOptions.reporter = 'min';
+    mochaOptions.env = {
+      ...mochaOptions.env,
+      NODE_ENV: 'unittest'
+    };
+  }
+
+  let processedFilePath = filePath;
+  if(!Array.isArray(filePath)) {
+    processedFilePath = [filePath];
+  }
+
+  return gulp.src(processedFilePath, {
+    read: false,
+    buffer: false
+  }).pipe(mocha(mochaOptions));
+};

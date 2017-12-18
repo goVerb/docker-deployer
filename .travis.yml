@@ -1,21 +1,21 @@
 language: node_js
 node_js:
-- 6.9.1
+- 8.9.0
 branches:
   only:
   - master
 install:
-- npm install
+- yarn install
 before_script:
-- npm install -g gulp
+- yarn global add gulp
 script:
 - gulp test
+- gulp build
 - gulp npmrc
-after_success:
-- npm publish
-env:
-  global:
-  - secure: vuKRKQBHrIgDYSHxZvQmj4zA6+hUs6HPLPc2Duh5kk0t5M+zgAdve1qUEp0ye8OPvMQZfZjh7DP5SEgJPyifaGkZh+qzfISSs8Su/9IiCPMJhP7rapJp0otr8TBlt6ELlEalprnPpUwL1oGXiIAQHHfFPN/0WHBgY5o5W2sM5hokaLGgBBajoQ8BUsrb0VYSj3bN/L5ISoBgtSpePk4sC+xiZK8rqkOJWQJXiXkI7NwC7RaYeHT6Mbjk/TXbQ7ElMT9AHzy4k1MOj81VPZLLy0o+OrahRB/K/ic/NWduRmlasM0iN293cnIAq82ZFY0CgxXEshGaWvP6FpkOhcShfQY7zFl8d11C9VoL3R7Z/Qw5fwX8GZ2gDbQXKVo/JbOGcQz8fIupMCzLut6VrJDgFfh7TJwhpqvhw0KOg3b5ZBINC3EubWESLIvTMd48KJ9UaG3Vjp/vFmC61NKxZlSOxb29vP715MS9JXf/oPmh6qnIduDBTiXFFxMWoph1/f78QZ9m8cUiTTUFgKSnJ7S7dfm22WmFi514LMQiqgCjuEZ+AShYyo4NiISMZMvDhRlMkr55Q/QRgYw2j1bfxF/i+wMxi5JD6hVcpRu8Y2kMMh7IYGGZ1EwSa+vzuBMRqCq0bAvbj790YCFbgCn7jiE9kCgk5kvg9lH8fjsHtQ0bvdg=
+- 'export PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: ''{
+  print $2 }'' | sed ''s/[",]//g'' | tr -d ''[[:space:]]'')'
+- 'export DEPLOYED_PACKAGE_VERSION=$(npm view docker-deployer | grep version: | head -1 | awk -F: ''{ print $2 }'' | sed ''s/[",]//g'' | tr -d ''[[:space:]]'' | tr -d "''")'
+- if [[ "${PACKAGE_VERSION}" == "${DEPLOYED_PACKAGE_VERSION}" ]]; then echo "Not publishing package"; else npm publish; fi
 notifications:
   slack:
-    secure: kiAOCGfmREq+HLlGoVESqOPpxBbGoI4WqZIeTazqclFF0jFqECZWpMuKY5PfUuwxmKDcEaWBNqRIJ01L94KGzu+IH60Capgcalhl1i2YvdnJMuEC4ukleyCjbsksSkWMjab4cK0EMdz/fhW21Uxfff372DtNia3AR4xLS0+JpKWFOzUcq3IZYeWN7VBIRZl/ShifC7/qV+xyILiwOdSoiSa24KREaChB4UNNh2mLblfQ8Nab1Wv2MtmuhoORLoSdG12OhBM50DC4xdlqRXaaNCg6O3AyAdzK6vW+ZFcSwVv6sbJSiFO+JUQIlqHxVqAJt1lBfGQgbImC/TSoaR2VrKIsr2uIX/1xaJogfJH36m65UhH1sHG8DgMc9H58LXgDDvPQy3Fa5qA2ukPwhZBsrw4+YvAz1pBBBYR/QxQgd6EHuHkVKhyTjLlDWCW7IOwZtVE8sUbkgmZl+Dqx0lsBk5dBbiqJD5j6EuY9TmZgpYA47EhiJGhPfaiFFxdqcfQwg2OmptrXPl27nHjVRgLp8kEbc62rQzVLVz4+3yhb8tkLuj+hvVygM6Fib6YJAVW1DNixbsV9BlZ+hjOcgGuhgG+X+kKSjAS7xNDaLhNAU+V/w2zMHpk12T/nvcCiDqPJawml/EHGYi25hzrrPyeioO1TrS+mbsWpOlqHDwI/1EM=
+    secure: sEPigkYODYIMz6vNGfvm6BhdCrLLEtcv9SNbsClxV0GaI5qvkEwdNR4qzaq0uJV0ofVyxts84vv1GVaDlT6xYnrZBi7Gu10IehXW08IaIGWTnfNzlbHEaHt5gOUUTG9B1MNtwWulSKA2Zuf52k2XikpI+LOvcy8qir7hemnR1pp/8aPvvllIz5qU41R10bbQJzl+fHmcrI5OD2jR9+0eZ8OPICfrf7u/rPb2zsfQmmYULkaCPF5W3MxgHVlyuyqRTULqMivmt5CgyVALkOEXnCo2mo02ID4Z38y1QBCKQzox0Lq2on66e89ZinIr+NkcI8Qs64EXW90xF5WD8ISndsPwKjk5RCaolaE2oAOOwnmWO7IbHKHFGkLNcoJ6RE9fK8kVjlvWqnzz0hkOQjnI3KeCiYQxjK9ldgHBGWXhCwMoNisTUdAp+vU/8W8nXKU5tZ+a3HsyCClLApZtrvoIK7R9z2Vvzca5RyqvLHxK8rDKI+5egKpaKFnubuVoNnsrS79yfRsCBvWYuott0DV8QArQ82ykqq20XJjZFstEzaY5il/hA5rxZtWqvK9ZO1X94kcGRT2nWdbeEniSIcrmu2hqluE10qPNJx8dTm0Rbo2NnESgcczJATZ/IE4aDJY1fFJFnzvywjMzjIZaCQdJDFMScaK9MU9X2auH3LxU7eQ=

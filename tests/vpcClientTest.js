@@ -183,6 +183,7 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
 
 
       //Act
@@ -230,7 +231,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -277,7 +279,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves(existingVpcId);
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -324,7 +327,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -374,7 +378,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -426,7 +431,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -475,7 +481,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -530,7 +537,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -579,7 +587,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -629,7 +638,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -679,7 +689,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -731,7 +742,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -782,7 +794,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -834,7 +847,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -885,7 +899,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -937,7 +952,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -988,7 +1004,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -1040,7 +1057,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -1095,7 +1113,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -1146,7 +1165,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
 
       //Act
@@ -1197,7 +1217,8 @@ describe('VPC Client', function() {
       vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);

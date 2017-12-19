@@ -59,7 +59,9 @@ class VpcClient extends BaseClient {
     let vpcId = '';
     let routeTableId = '';
     const existingVpcId = await this.getVpcIdFromName(config.name);
-
+    //We will fetch availability zones here to match it up with the subnets based on region.
+    // const availabilityZones = await this.getAvailabilityZones();
+    
     if (existingVpcId) {
       this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}] [ExistingVpcId: ${existingVpcId}]`);
       vpcId = existingVpcId;
@@ -194,6 +196,10 @@ class VpcClient extends BaseClient {
       throw err;
     }
   }
+  /**
+   * Returns a list of available availability zones based off the region
+   * 
+   */
 
   async getAvailabilityZones() {
     try {

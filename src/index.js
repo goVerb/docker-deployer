@@ -221,7 +221,7 @@ class Deployer extends BaseClient {
    */
   async _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
     //convert vpcName to vpcId
-    const vpcId = await this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName)
+    const vpcId = await this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName);
     const securityGroupId = await this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
 
     launchConfigurationConfig.ecsClusterName = ecsClusterName;

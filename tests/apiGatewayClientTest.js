@@ -569,7 +569,6 @@ describe('APIGateway Client', function() {
       const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}});
       //Assert
       promiseResult.then(data => {
-        console.log(JSON.stringify(APIGatewayMock.importRestApi.args[0][0]))
         expect(APIGatewayMock.importRestApi.args[0][0]).to.deep.equal(options);
         done();
       });
@@ -799,7 +798,6 @@ describe('APIGateway Client', function() {
       return response.then(() => {
         expect().fail();
       }).catch(err => {
-        console.log(err)
         expect(err).to.have.property('message', 'You got an error');
       });
     });

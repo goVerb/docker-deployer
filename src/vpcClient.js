@@ -264,7 +264,7 @@ class VpcClient extends BaseClient {
       }).then(() => {
         return vpcId;
       }).catch(err => {
-        console.log(`CreateVPC Error: ${JSON.stringify(err)}`);
+        this.logError(`CreateVPC Error: ${JSON.stringify(err)}`);
         throw err;
       });
   }

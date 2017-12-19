@@ -3,6 +3,8 @@ const sinon = require('sinon');
 const chaiAsPromised = require('chai-as-promised');
 const expect = chai.expect;
 import proxyquire from 'proxyquire';
+import { Promise as BluebirdPromise } from 'bluebird';
+
 
 
 chai.use(chaiAsPromised);
@@ -10,7 +12,7 @@ chai.use(chaiAsPromised);
 
 const sampleConfig1 = require('./sampleConfigs/sampleConfig.js');
 
-describe.only('Deployer', function() {
+describe('Deployer', function() {
   let sandbox;
 
   beforeEach(() => {
@@ -89,8 +91,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -116,8 +117,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -142,8 +142,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -169,8 +168,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -196,8 +194,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -222,8 +219,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -249,8 +245,7 @@ describe.only('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region,
-        logLevel: 'info'
+        region: region
       };
 
       //Act
@@ -260,6 +255,873 @@ describe.only('Deployer', function() {
       expect(applicationAutoScalingStub.args[0][0]).to.be.equal(accessKey);
       expect(applicationAutoScalingStub.args[0][1]).to.be.equal(secretKey);
       expect(applicationAutoScalingStub.args[0][2]).to.be.equal(region);
+    });
+  });
+
+  describe('_createSecurityGroup', () =>{
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let mocks;
+    let deployerClient;
+    beforeEach(() => {
+
+      vpcClientStub = {
+        createVpcFromConfig: sandbox.stub().resolves({}),
+        getVpcIdFromName: sandbox.stub().resolves()
+      };
+
+      ecsClientStub = {
+        createCluster: sandbox.stub().resolves({})
+      };
+
+      ec2ClientStub = {
+        createSecurityGroupFromConfig: sandbox.stub()
+      };
+      elbClientStub = sandbox.stub();
+      autoScaleClientStub = sandbox.stub();
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': function() {
+          return vpcClientStub;
+        },
+        './elbClient.js': elbClientStub,
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': function() {
+          return ec2ClientStub;
+        },
+        './ecsClient.js': function() {
+          return ecsClientStub;
+        },
+        './route53Client.js': route53ClientStub
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+    });
+
+    it('should call _vpcClient.getVpcIdFromName once', async () => {
+      // Arrange
+      const environment = 'myEnv';
+      const securityGroupConfig = {};
+
+      // Act
+      await deployerClient._createSecurityGroup(environment, securityGroupConfig);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should call _ec2Client.createSecurityGroupFromConfig once', async () => {
+      // Arrange
+      const environment = 'myEnv';
+      const securityGroupConfig = {};
+
+      // Act
+      await deployerClient._createSecurityGroup(environment, securityGroupConfig);
+
+      // Assert
+      expect(ec2ClientStub.createSecurityGroupFromConfig.callCount).to.be.equal(1);
+    });
+
+    it('should attach return VPC Id to params for _ec2Client.createSecurityGroupFromConfig', async () => {
+      // Arrange
+      vpcClientStub.getVpcIdFromName = sandbox.stub().resolves('returnedId');
+      const environment = 'myEnv';
+      const securityGroupConfig = {};
+
+      // Act
+      await deployerClient._createSecurityGroup(environment, securityGroupConfig);
+
+      // Assert
+      expect(ec2ClientStub.createSecurityGroupFromConfig.args[0][0]).to.be.equal('myEnv');
+      expect(ec2ClientStub.createSecurityGroupFromConfig.args[0][1]).to.be.deep.equal({ vpcId: 'returnedId' });
+    });
+  });
+
+  describe('_createOrUpdateLaunchConfiguration', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let mocks;
+    let deployerClient;
+    let config;
+    let ecsClusterName;
+    beforeEach(() => {
+
+      vpcClientStub = {
+        createVpcFromConfig: sandbox.stub().resolves({}),
+        getVpcIdFromName: sandbox.stub().resolves('returnedVpcId')
+      };
+
+      ecsClientStub = {
+        createCluster: sandbox.stub().resolves({})
+      };
+
+      ec2ClientStub = {
+        createSecurityGroupFromConfig: sandbox.stub().resolves(),
+        getSecurityGroupIdFromName: sandbox.stub().resolves('returnedSecurityGroupId')
+      };
+      elbClientStub = sandbox.stub();
+      autoScaleClientStub = {
+        createOrUpdateLaunchConfigurationFromConfig: sandbox.stub().resolves()
+      };
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': elbClientStub,
+        './autoScalingClient.js': function() {
+          return autoScaleClientStub;
+        },
+        './ec2Client.js': function () {
+          return ec2ClientStub;
+        },
+        './ecsClient.js': function () {
+          return ecsClientStub;
+        },
+        './route53Client.js': route53ClientStub
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      config = {
+        vpcName: 'myVpc',
+        securityGroupName: 'mySecurityGroup',
+        securityGroupId: 'mySecurityGroupId',
+      };
+      ecsClusterName = 'myCluster';
+    });
+
+    it('should call _vpcClient.getVpcIdFromName once', async () => {
+      // Arrange
+
+      // Act
+      await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcName to _vpcClient.getVpcIdFromName', async () => {
+      // Act
+      await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.args[0][0]).to.be.equal(config.vpcName);
+    });
+
+    it('should call _ec2Client.getSecurityGroupIdFromName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(ec2ClientStub.getSecurityGroupIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _ec2Client.getSecurityGroupIdFromName', async () => {
+      // Act
+      await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(ec2ClientStub.getSecurityGroupIdFromName.args[0][0]).to.be.equal(config.securityGroupName);
+      expect(ec2ClientStub.getSecurityGroupIdFromName.args[0][1]).to.be.equal('returnedVpcId');
+    });
+
+    it('should call _autoScalingClient.createOrUpdateLaunchConfigurationFromConfig once', async () => {
+      // Act
+      await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(autoScaleClientStub.createOrUpdateLaunchConfigurationFromConfig.callCount).to.be.equal(1);
+    });
+
+    it('should pass launch config to _autoScalingClient.createOrUpdateLaunchConfigurationFromConfig', async () => {
+      // Arrange
+      const expected = {
+        ...config,
+        securityGroupId: 'returnedSecurityGroupId',
+        ecsClusterName
+      };
+
+      // Act
+      await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(autoScaleClientStub.createOrUpdateLaunchConfigurationFromConfig.args[0][0]).to.be.deep.equal(expected);
+    });
+
+    it('should return result of _autoScalingClient.createOrUpdateLaunchConfigurationFromConfig', async () => {
+      // Arrange
+      autoScaleClientStub.createOrUpdateLaunchConfigurationFromConfig = sandbox.stub().resolves({});
+
+      // Act
+      const result = await deployerClient._createOrUpdateLaunchConfiguration(config, ecsClusterName);
+
+      // Assert
+      expect(result).to.be.deep.equal({});
+    });
+  });
+
+  describe('_createTargetGroup', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let mocks;
+    let deployerClient;
+    let config;
+    let environment;
+    beforeEach(() => {
+
+      vpcClientStub = {
+        getVpcIdFromName: sandbox.stub().resolves('returnedVpcId')
+      };
+
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = {
+        createTargetGroup: sandbox.stub().resolves()
+      };
+      autoScaleClientStub = sandbox.stub();
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': function () {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      config = {
+        name: 'myName',
+        vpcName: 'myVpc',
+        port: 80,
+        protocol: 'something',
+        securityGroupName: 'mySecurityGroup',
+        securityGroupId: 'mySecurityGroupId',
+      };
+      environment = 'myEnv';
+    });
+
+    it('should call _vpcClient.getVpcIdFromName once', async () => {
+      // Act
+      await deployerClient._createTargetGroup(environment, config);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _vpcClient.getVpcIdFromName', async () => {
+      // Act
+      await deployerClient._createTargetGroup(environment, config);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.args[0][0]).to.be.equal(config.vpcName);
+    });
+
+    it('should call _elbClient.createTargetGroup once', async () => {
+      // Act
+      await deployerClient._createTargetGroup(environment, config);
+
+      // Assert
+      expect(elbClientStub.createTargetGroup.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _elbClient.createTargetGroup', async () => {
+      // Act
+      await deployerClient._createTargetGroup(environment, config);
+
+      // Assert
+      expect(elbClientStub.createTargetGroup.args[0][0]).to.be.equal(environment);
+      expect(elbClientStub.createTargetGroup.args[0][1]).to.be.equal(config.name);
+      expect(elbClientStub.createTargetGroup.args[0][2]).to.be.equal(config.port);
+      expect(elbClientStub.createTargetGroup.args[0][3]).to.be.equal(config.protocol);
+      expect(elbClientStub.createTargetGroup.args[0][4]).to.be.equal('returnedVpcId');
+      expect(elbClientStub.createTargetGroup.args[0][5]).to.be.deep.equal({ HealthCheckPath: '/health' });
+    });
+
+    it('should return result from _elbClient.createTargetGroup', async () => {
+      // Arrange
+      elbClientStub.createTargetGroup = sandbox.stub().resolves({});
+
+      // Act
+      const result = await deployerClient._createTargetGroup(environment, config);
+
+      // Assert
+      expect(result).to.be.deep.equal({});
+    });
+  });
+
+  describe('_createOrUpdateAutoScaleGroup', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let mocks;
+    let deployerClient;
+    let asgConfig;
+    let environment;
+    let launchConfigToDelete;
+    beforeEach(() => {
+
+      vpcClientStub = {
+        getVpcIdFromName: sandbox.usingPromise(BluebirdPromise).stub().resolves('returnedVpcId'),
+        getSubnetIdsFromSubnetName: sandbox.usingPromise(BluebirdPromise).stub().resolves(['123', '456'])
+      };
+
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = {
+        getTargetGroupArnFromName: sandbox.stub().resolves('returnedTargetGroupArn'),
+      };
+      autoScaleClientStub = {
+        createOrUpdateAutoScalingGroup: sandbox.stub()
+      };
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': function () {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': function () {
+          return autoScaleClientStub;
+        },
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      asgConfig = {
+        name: 'myName',
+        vpcName: 'myVpcName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        targetGroupName: 'myTargetGroupName',
+        minSize: 0,
+        maxSize: 2,
+        desiredSize: 1,
+        vpcSubnets: 'mySubnets'
+      };
+      environment = 'myEnv';
+      launchConfigToDelete = 'deleteThisOne';
+    });
+
+    it('should call _vpcClient.getVpcIdFromName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcName to _vpeClient.getVpcIdFromName', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.args[0][0]).to.be.equal(asgConfig.vpcName);
+    });
+
+    it('should call _vpcClient.getSubnetIdsFromSubnetName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcId and vpcSubnets to getSubnetIdsFromSubnetName', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.args[0][0]).to.be.equal('returnedVpcId');
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.args[0][1]).to.be.equal(asgConfig.vpcSubnets);
+    });
+
+    it('should call _elbClient.getTargetGroupArnFromName once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass targetGroupName to _elbClient.getTargetGroupArnFromName', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.args[0][0]).to.be.equal(asgConfig.targetGroupName);
+    });
+
+    it('should call _autoScalingClient.createOrUpdateAutoScalingGroup once', async () => {
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(autoScaleClientStub.createOrUpdateAutoScalingGroup.callCount).to.be.equal(1);
+    });
+
+    it('should pass params and launchConfigToDelete to _autoScalingClient.createOrUpdateAutoScalingGroup', async () => {
+      // Arrange
+      const expected = {
+        environment: 'myEnv',
+        name: 'myName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        minSize: 0,
+        maxSize: 2,
+        desiredCapacity: 1,
+        targetGroupArns: ['returnedTargetGroupArn'],
+        vpcSubnets: '123,456'
+      };
+
+      // Act
+      await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(autoScaleClientStub.createOrUpdateAutoScalingGroup.args[0][0]).to.be.deep.equal(expected);
+    });
+
+    it('should return the result of _autoScalingClient.createOrUpdateAutoScalingGroup', async () => {
+      // Arrange
+      autoScaleClientStub.createOrUpdateAutoScalingGroup = sandbox.stub().resolves({});
+
+      // Act
+      const result = await deployerClient._createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDelete);
+
+      // Assert
+      expect(result).to.be.deep.equal({});
+    });
+  });
+
+  describe('_createOrUpdateAutoScaleGroup', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let mocks;
+    let deployerClient;
+    let lbConfig;
+    let environment;
+    beforeEach(() => {
+
+      vpcClientStub = {
+        getVpcIdFromName: sandbox.usingPromise(BluebirdPromise).stub().resolves('returnedVpcId'),
+        getSubnetIdsFromSubnetName: sandbox.usingPromise(BluebirdPromise).stub().resolves(['123', '456'])
+      };
+
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = {
+        getSecurityGroupIdFromName: sandbox.stub().resolves('returnedSecurityGroupId')
+      };
+      elbClientStub = {
+        createApplicationLoadBalancer: sandbox.stub().resolves()
+      };
+      autoScaleClientStub = {
+        createOrUpdateAutoScalingGroup: sandbox.stub()
+      };
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': function () {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': function () {
+          return autoScaleClientStub;
+        },
+        './ec2Client.js': function () {
+          return ec2ClientStub;
+        },
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      lbConfig = {
+        name: 'myName',
+        vpcName: 'myVpcName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        targetGroupName: 'myTargetGroupName',
+        securityGroupName: 'mySecurityGroup',
+        minSize: 0,
+        maxSize: 2,
+        desiredSize: 1,
+        vpcSubnets: 'mySubnets',
+        scheme: 'myScheme'
+      };
+      environment = 'myEnv';
+    });
+
+    it('should call _vpcClient.getVpcIdFromName once', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcName to _vpcClient.getVpcIdFromName', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(vpcClientStub.getVpcIdFromName.args[0][0]).to.be.equal('myVpcName');
+    });
+
+    it('should call _vpcClient.getSubnetIdsFromSubnetName once', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.callCount).to.be.equal(1);
+    });
+
+    it('should pass vpcId and vpcSubnets to _vpcClient.getSubnetIddsFromSubnetName', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.args[0][0]).to.be.equal('returnedVpcId');
+      expect(vpcClientStub.getSubnetIdsFromSubnetName.args[0][1]).to.be.equal('mySubnets');
+    });
+
+    it('should call ec2Client.getSecurityGroupIdFromName once', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(ec2ClientStub.getSecurityGroupIdFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to ec2Client.getSecurityGroupIdFromName', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(ec2ClientStub.getSecurityGroupIdFromName.args[0][0]).to.be.equal('mySecurityGroup');
+      expect(ec2ClientStub.getSecurityGroupIdFromName.args[0][1]).to.be.equal('returnedVpcId');
+    });
+
+    it('should call _elbClient.createApplicationLoadBalancer once', async () => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      // Assert
+      expect(elbClientStub.createApplicationLoadBalancer.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to elbClient.createApplicationLoadBalancer', async() => {
+      // Act
+      await deployerClient._createApplicationLoadBalancer(environment, lbConfig);
+
+      expect(elbClientStub.createApplicationLoadBalancer.args[0][0]).to.be.equal('myEnv');
+      expect(elbClientStub.createApplicationLoadBalancer.args[0][1]).to.be.equal('myName');
+      expect(elbClientStub.createApplicationLoadBalancer.args[0][2]).to.be.deep.equal(['123', '456']);
+      expect(elbClientStub.createApplicationLoadBalancer.args[0][3]).to.be.equal('myScheme');
+      expect(elbClientStub.createApplicationLoadBalancer.args[0][4]).to.be.deep.equal(['returnedSecurityGroupId']);
+    });
+  });
+
+  describe('_createOrUpdateAutoScaleGroup', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let cloudWatchClientStub;
+    let mocks;
+    let deployerClient;
+    let serviceConfig;
+    let putScalingPolicyStub;
+    beforeEach(() => {
+
+      putScalingPolicyStub = sandbox.stub();
+      putScalingPolicyStub.onCall(0).resolves({ PolicyARN: 'myScaleOutResponse' });
+      putScalingPolicyStub.onCall(1).resolves({ PolicyARN: 'myScaleInResponse' });
+      vpcClientStub = {
+        getVpcIdFromName: sandbox.usingPromise(BluebirdPromise).stub().resolves('returnedVpcId'),
+        getSubnetIdsFromSubnetName: sandbox.usingPromise(BluebirdPromise).stub().resolves(['123', '456'])
+      };
+
+      ecsClientStub = {
+        createOrUpdateService: sandbox.stub().resolves()
+      };
+      ec2ClientStub = {
+        getSecurityGroupIdFromName: sandbox.stub().resolves('returnedSecurityGroupId')
+      };
+      elbClientStub = {
+        createApplicationLoadBalancer: sandbox.stub().resolves(),
+        getTargetGroupArnFromName: sandbox.stub().resolves('returnedTargetGroupArn')
+      };
+      autoScaleClientStub = {
+        createOrUpdateAutoScalingGroup: sandbox.stub().resolves(),
+        registerScalableTarget: sandbox.stub().resolves(),
+        putScalingPolicy: putScalingPolicyStub
+      };
+      route53ClientStub = sandbox.stub();
+
+      cloudWatchClientStub = {
+        putMetricAlarm: sandbox.stub().resolves()
+      };
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': function () {
+          return elbClientStub;
+        },
+        './applicationAutoScalingClient.js': function () {
+          return autoScaleClientStub;
+        },
+        './ec2Client.js': function () {
+          return ec2ClientStub;
+        },
+        './ecsClient.js': function () {
+          return ecsClientStub;
+        },
+        './route53Client.js': route53ClientStub,
+        './cloudWatchClient.js': function () {
+          return cloudWatchClientStub;
+        }
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region,
+        logLevel: 'info'
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      serviceConfig = {
+        name: 'myName',
+        vpcName: 'myVpcName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        targetGroupName: 'myTargetGroupName',
+        securityGroupName: 'mySecurityGroup',
+        serviceName: 'myServiceName',
+        clusterName: 'myClusterName',
+        desiredCount: 999,
+        taskName:'myTaskName',
+        containerName: 'myContainerName',
+        containerPort: 'myContainerPort',
+        registerScalableTargetParams: 'myParams',
+        serviceScaleOutPolicyParams: 'myScaleOutParams',
+        serviceScaleInPolicyParams: 'myScaleInParams',
+        putAlarmScaleOutParams: {
+          AlarmActions: []
+        },
+        putAlarmScaleInParams: {
+          AlarmActions: []
+        }
+      };
+    });
+
+    it('should call _elbClient.getTargetGroupArnFromName once', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass targetGroupName from serviceConfig to getTargetGroupArnFromName', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.args[0][0]).to.be.equal('myTargetGroupName');
+    });
+
+    it('should call _ecsClient.createOrUpdateService once', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(ecsClientStub.createOrUpdateService.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _ecsClient.createOrUpdateService', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(ecsClientStub.createOrUpdateService.args[0][0]).to.be.equal('myClusterName');
+      expect(ecsClientStub.createOrUpdateService.args[0][1]).to.be.equal('myServiceName');
+      expect(ecsClientStub.createOrUpdateService.args[0][2]).to.be.equal('myTaskName');
+      expect(ecsClientStub.createOrUpdateService.args[0][3]).to.be.equal(999);
+      expect(ecsClientStub.createOrUpdateService.args[0][4]).to.be.equal('myContainerName');
+      expect(ecsClientStub.createOrUpdateService.args[0][5]).to.be.equal('myContainerPort');
+      expect(ecsClientStub.createOrUpdateService.args[0][6]).to.be.equal('returnedTargetGroupArn');
+    });
+
+    it('should call _applicationAutoScalingClient.registerScalableTarget once', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.registerScalableTarget.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _applicationAutoScalingClient.registerScalableTarget', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.registerScalableTarget.args[0][0]).to.be.equal('myParams');
+    });
+
+    it('should call _applicationAutoScalingClient.putScalingPolicy TWICE', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.putScalingPolicy.callCount).to.be.equal(2);
+    });
+
+    it('should pass serviceScaleOutPolicyParams to _applicationAutoScalingClient.putScalingPolicy on first call', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.putScalingPolicy.args[0][0]).to.be.equal('myScaleOutParams');
+    });
+
+    it('should pass serviceScaleInPolicyParams to _applicationAutoScalingClient.putScalingPolicy on second call', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.putScalingPolicy.args[1][0]).to.be.equal('myScaleInParams');
+    });
+
+    it('should call _cloudWatchClient.putMetricAlarm TWICE', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(cloudWatchClientStub.putMetricAlarm.callCount).be.equal(2);
+    });
+
+    it('should pass PolicyARN returned from first call to putScalingPolicy on first call to putMetricAlarm', async () => {
+      // Assert
+      const expected = {
+        AlarmActions: ['myScaleOutResponse']
+      };
+
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(cloudWatchClientStub.putMetricAlarm.args[0][0]).to.be.deep.equal(expected);
+    });
+
+    it('should pass PolicyArn returned from second call to putScalingPOlicy on second call to putMetricAlarm', async () => {
+      // Assert
+      const expected = {
+        AlarmActions: ['myScaleInResponse']
+      };
+
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(cloudWatchClientStub.putMetricAlarm.args[1][0]).to.be.deep.equal(expected);
     });
   });
 
@@ -299,7 +1161,6 @@ describe.only('Deployer', function() {
         },
         './route53Client.js': route53ClientStub
       };
-
     });
 
     it('should call _vpcClient.createVpcConfig once', () => {
@@ -1622,6 +2483,155 @@ describe.only('Deployer', function() {
           expect(elbClientStub.createListener.args[1][4]).to.be.deep.equal(expectedValue);
         });
       });
+    });
+  });
+
+  describe('lookupApiGatewayURL', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let apiClientStub;
+    let mocks;
+    let deployerClient;
+    beforeEach(() => {
+
+      vpcClientStub = sandbox.stub();
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = sandbox.stub();
+      apiClientStub = {
+        lookupApiGatewayURL: sandbox.stub()
+      };
+      autoScaleClientStub = sandbox.stub();
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': vpcClientStub,
+        './elbClient.js': function() {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub,
+        './apiGatewayClient': function() {
+          return apiClientStub;
+        }
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+    });
+
+    it('should call _apiGatewayClient.lookupApiGatewayURL once', async () => {
+      // Arrange
+      const apiName = 'myAPI';
+      const stageName = 'myStage';
+
+      // Act
+      await deployerClient.lookupApiGatewayURL(apiName, stageName);
+
+      // Assert
+      expect(apiClientStub.lookupApiGatewayURL.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _apiGatewayClient.lookupApiGatewayURL', async () => {
+      // Arrange
+      const apiName = 'myAPI';
+      const stageName = 'myStage';
+
+      // Act
+      await deployerClient.lookupApiGatewayURL(apiName, stageName);
+
+      // Assert
+      expect(apiClientStub.lookupApiGatewayURL.args[0][0]).to.be.equal(apiName);
+      expect(apiClientStub.lookupApiGatewayURL.args[0][1]).to.be.equal(stageName);
+    });
+  });
+
+  describe('lookupApiGatewayDomainName', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let apiClientStub;
+    let mocks;
+    let deployerClient;
+    beforeEach(() => {
+
+      vpcClientStub = sandbox.stub();
+      ecsClientStub = sandbox.stub();
+      ec2ClientStub = sandbox.stub();
+      elbClientStub = sandbox.stub();
+      apiClientStub = {
+        lookupApiGatewayDomainName: sandbox.stub()
+      };
+      autoScaleClientStub = sandbox.stub();
+      route53ClientStub = sandbox.stub();
+
+      mocks = {
+        './vpcClient.js': vpcClientStub,
+        './elbClient.js': function() {
+          return elbClientStub;
+        },
+        './autoScalingClient.js': autoScaleClientStub,
+        './ec2Client.js': ec2ClientStub,
+        './ecsClient.js': ecsClientStub,
+        './route53Client.js': route53ClientStub,
+        './apiGatewayClient': function() {
+          return apiClientStub;
+        }
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+    });
+
+    it('should call _apiGatewayClient.lookupApiGatewayURL once', async () => {
+      // Arrange
+      const apiName = 'myAPI';
+
+      // Act
+      await deployerClient.lookupApiGatewayDomainName(apiName);
+
+      // Assert
+      expect(apiClientStub.lookupApiGatewayDomainName.callCount).to.be.equal(1);
+    });
+
+    it('should pass API name to _apiGatewayClient.lookupApiGatewayURL', async () => {
+      // Arrange
+      const apiName = 'myAPI';
+
+      // Act
+      await deployerClient.lookupApiGatewayDomainName(apiName);
+
+      // Assert
+      expect(apiClientStub.lookupApiGatewayDomainName.args[0][0]).to.be.equal(apiName);
     });
   });
 

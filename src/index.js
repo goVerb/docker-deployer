@@ -32,7 +32,7 @@ class Deployer extends BaseClient {
 
     let opts = options || {};
 
-    
+
     super(opts.accessKey, opts.secretKey, opts.region, opts.logLevel);
     this._accessKey = opts.accessKey;
     this._secretKey = opts.secretKey;
@@ -53,65 +53,62 @@ class Deployer extends BaseClient {
   }
 
 
-  createInfrastructure(config) {
+  async createInfrastructure(config) {
 
     let vpcId = '';
     let launchConfigToDeleteName;
 
     //create Vpc
-    return this._vpcClient.createVpcFromConfig(config.environment, config.vpc).then(createdVpcId => {
-      vpcId = createdVpcId;
-    }).then(() => {
-      //Create security groups
-      let securityGroupPromises = [];
-      for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
-        let securityGroupConfig = config.securityGroups[sgIndex];
-        securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
-      }
-      return BlueBirdPromise.all(securityGroupPromises);
-    }).then(() => {
-      // Create file hosting buckets if they do not exist already
-      return this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
-    }).then(() => {
-      //Create Launch configuration
-      return this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
-    }).then(launchConfigNames => {
-      // Apply the launch configuration name that was actually used
-      config.autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
-      launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
-      //Create Target Group
-      return this._createTargetGroup(config.environment, config.targetGroup);
-    }).then(() => {
-      //Create Auto Scale Group
-      return this._createOrUpdateAutoScaleGroup(config.environment, config.autoScaleGroup, launchConfigToDeleteName);
-    }).then(() => {
-      //Create Application Load Balancer
-      return this._createApplicationLoadBalancer(config.environment, config.appLoadBalancer);
-    }).then(() => {
-      //Create Listener (Application LB to Target Group Association)
-      return this._createApplicationLoadBalancerListener(config.appListener);
-    }).then(() => {
-      //associate Load balancer with DNS Entry
-      return this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
-    }).then(() => {
-      //Create ECS Cluster
+    await this._vpcClient.createVpcFromConfig(config.environment, config.vpc);
 
-      return this._ecsClient.createCluster(config.ecsClusterName);
-    }).then(() => {
-      this.logMessage('Infrastructure Deployed');
-    });
+    //Create security groups
+    let securityGroupPromises = [];
+    for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
+      let securityGroupConfig = config.securityGroups[sgIndex];
+      securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
+    }
+    await BlueBirdPromise.all(securityGroupPromises);
+
+    // Create file hosting buckets if they do not exist already
+    await this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
+
+    //Create Launch configuration
+    const launchConfigNames = await this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
+
+    // Apply the launch configuration name that was actually used
+    config.autoScaleGroup.launchConfigurationName = launchConfigNames.newLaunchConfigName;
+    launchConfigToDeleteName = launchConfigNames.oldLaunchConfigName;
+
+    //Create Target Group
+    await this._createTargetGroup(config.environment, config.targetGroup);
+
+    //Create Auto Scale Group
+    await this._createOrUpdateAutoScaleGroup(config.environment, config.autoScaleGroup, launchConfigToDeleteName);
+
+    //Create Application Load Balancer
+    await this._createApplicationLoadBalancer(config.environment, config.appLoadBalancer);
+
+    //Create Listener (Application LB to Target Group Association)
+    await this._createApplicationLoadBalancerListener(config.appListener);
+
+    //associate Load balancer with DNS Entry
+    await this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
+
+    //Create ECS Cluster
+
+    await this._ecsClient.createCluster(config.ecsClusterName);
+    console.log('Infrastructure Deployed');
   }
 
 
-  deploy(serviceConfig, taskDefintionConfig) {
-    return this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions).then(() => {
-      return this._createECSService(serviceConfig);
-    });
+  async deploy(serviceConfig, taskDefintionConfig) {
+    await this._ecsClient.registerTaskDefinition(taskDefintionConfig.taskName, taskDefintionConfig.networkMode, taskDefintionConfig.taskRoleArn, taskDefintionConfig.containerDefintions);
+    return await this._createECSService(serviceConfig);
   }
 
 
-  lookupApiGatewayByName(name) {
-    return this._apiGatewayClient.lookupApiGatewayByName(name);
+  async lookupApiGatewayByName(name) {
+    return await this._apiGatewayClient.lookupApiGatewayByName(name);
   }
 
   /**
@@ -120,8 +117,8 @@ class Deployer extends BaseClient {
    * @param StageName
    * @return {Promise.<D>}
    */
-  lookupApiGatewayURL(apiName, stageName) {
-    return this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
+  async lookupApiGatewayURL(apiName, stageName) {
+    return await this._apiGatewayClient.lookupApiGatewayURL(apiName, stageName);
   }
 
   /**
@@ -129,8 +126,8 @@ class Deployer extends BaseClient {
    * @param apiName
    * @return {Promise.<D>}
    */
-  lookupApiGatewayDomainName(apiName) {
-    return this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
+  async lookupApiGatewayDomainName(apiName) {
+    return await this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
 
 
@@ -141,31 +138,30 @@ class Deployer extends BaseClient {
    * @param {boolean} [failOnWarnings=false]
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
-   createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
-     return this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
-   }
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
+    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
+  }
 
 
   /**
    * Creates a CloudFront Client and associates it to a hosted zone
    * @param cloudfrontConfig
-   * @return {Promise.<D>}
+   * @return {Promise}
    */
-  createCloudfront(cloudFrontConfig) {
+  async createCloudfront(cloudFrontConfig) {
     const cname = cloudFrontConfig.cname;
-    return this._cloudFrontClient.createOrUpdateCloudFrontDistribution(cloudFrontConfig).then(distribution => {
-      return this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
-    });
+    const distribution = await this._cloudFrontClient.createOrUpdateCloudFrontDistribution(cloudFrontConfig);
+    return await this._route53Client.associateDomainWithCloudFront(cname, distribution.DomainName);
   }
 
 
   /**
    * Creates an S3 bucket if needed
    * @param config
-   * @return {Promise.<D>}
+   * @return {Promise}
    */
-  createS3BucketIfNecessary(config) {
-    return this._s3Client.createBucketIfNecessary(config);
+  async createS3BucketIfNecessary(config) {
+    return await this._s3Client.createBucketIfNecessary(config);
   }
 
 
@@ -175,8 +171,8 @@ class Deployer extends BaseClient {
    * @param config.name
    * @return {Promise.<D>}
    */
-  publishChangesToBucket(config) {
-    return this._s3Client.publishToBucket(config);
+  async publishChangesToBucket(config) {
+    return await this._s3Client.publishToBucket(config);
   }
 
 
@@ -187,8 +183,8 @@ class Deployer extends BaseClient {
    * @param variableCollection
    * @returns {Promise.<*>}
    */
-  createDeployment(restApiId, stageName, variableCollection) {
-    return this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
+  async createDeployment(restApiId, stageName, variableCollection) {
+    return await this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
   }
 
 
@@ -205,15 +201,14 @@ class Deployer extends BaseClient {
    * @return {Promise.<TResult>}
    * @private
    */
-  _createSecurityGroup(environment, securityGroupConfig) {
+  async _createSecurityGroup(environment, securityGroupConfig) {
     //convert vpcName to vpcId
-    return this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName)
-      .then(vpcId => {
-        //add vpcId
-        securityGroupConfig.vpcId = vpcId;
+    const vpcId = await this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName);
 
-        return this._ec2Client.createSecurityGroupFromConfig(environment, securityGroupConfig);
-      });
+    //add vpcId
+    securityGroupConfig.vpcId = vpcId;
+
+    return await this._ec2Client.createSecurityGroupFromConfig(environment, securityGroupConfig);
   }
 
 
@@ -224,16 +219,15 @@ class Deployer extends BaseClient {
    * @return {PromiseLike<T>}
    * @public
    */
-  _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
+  async _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
     //convert vpcName to vpcId
-    return this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName).then(vpcId => {
-      return this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
-    }).then(securityGroupId => {
-      launchConfigurationConfig.ecsClusterName = ecsClusterName;
-      launchConfigurationConfig.securityGroupId = securityGroupId;
+    const vpcId = await this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName)
+    const securityGroupId = await this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
 
-      return this._autoScalingClient.createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig);
-    });
+    launchConfigurationConfig.ecsClusterName = ecsClusterName;
+    launchConfigurationConfig.securityGroupId = securityGroupId;
+
+    return await this._autoScalingClient.createOrUpdateLaunchConfigurationFromConfig(launchConfigurationConfig);
   }
 
 
@@ -260,32 +254,26 @@ class Deployer extends BaseClient {
    * @param asgConfig
    * @param launchConfigToDeleteName
    */
-  _createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDeleteName) {
+  async _createOrUpdateAutoScaleGroup(environment, asgConfig, launchConfigToDeleteName) {
 
-    return this._vpcClient.getVpcIdFromName(asgConfig.vpcName).then(vpcId => {
+    const vpcId = await this._vpcClient.getVpcIdFromName(asgConfig.vpcName);
+    const subnetIds = await this._vpcClient.getSubnetIdsFromSubnetName(vpcId, asgConfig.vpcSubnets);
+    const targetGroupArn = await this._elbClient.getTargetGroupArnFromName(asgConfig.targetGroupName);
 
-      return BlueBirdPromise.all([
-        this._vpcClient.getSubnetIdsFromSubnetName(vpcId, asgConfig.vpcSubnets),
-        this._elbClient.getTargetGroupArnFromName(asgConfig.targetGroupName)
-      ]);
-    }).spread((subnetIds, targetGroupArn) => {
+    let subnetIdsAsString = subnetIds.join(',');
 
-      let subnetIdsAsString = subnetIds.join(',');
+    let params = {
+      environment,
+      name: asgConfig.name,
+      launchConfigurationName: asgConfig.launchConfigurationName,
+      minSize: asgConfig.minSize,
+      maxSize: asgConfig.maxSize,
+      desiredCapacity: asgConfig.desiredSize,
+      targetGroupArns: [targetGroupArn],
+      vpcSubnets: subnetIdsAsString
+    };
 
-      let params = {
-        environment,
-        name: asgConfig.name,
-        launchConfigurationName: asgConfig.launchConfigurationName,
-        minSize: asgConfig.minSize,
-        maxSize: asgConfig.maxSize,
-        desiredCapacity: asgConfig.desiredSize,
-        targetGroupArns: [targetGroupArn],
-        vpcSubnets: subnetIdsAsString
-      };
-
-
-      return this._autoScalingClient.createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName);
-    });
+    return await this._autoScalingClient.createOrUpdateAutoScalingGroup(params, launchConfigToDeleteName);
   }
 
 
@@ -295,15 +283,12 @@ class Deployer extends BaseClient {
    * @param appLoadBalancerConfig
    * @private
    */
-  _createApplicationLoadBalancer(environment, appLoadBalancerConfig) {
-    return this._vpcClient.getVpcIdFromName(appLoadBalancerConfig.vpcName).then(vpcId => {
-      return BlueBirdPromise.all([
-        this._vpcClient.getSubnetIdsFromSubnetName(vpcId, appLoadBalancerConfig.vpcSubnets),
-        this._ec2Client.getSecurityGroupIdFromName(appLoadBalancerConfig.securityGroupName, vpcId)
-      ]);
-    }).spread((subnetIds, securityGroupId) => {
-      return this._elbClient.createApplicationLoadBalancer(environment, appLoadBalancerConfig.name, subnetIds, appLoadBalancerConfig.scheme, [securityGroupId]);
-    });
+  async _createApplicationLoadBalancer(environment, appLoadBalancerConfig) {
+    const vpcId = await this._vpcClient.getVpcIdFromName(appLoadBalancerConfig.vpcName);
+    const subnetIds = await this._vpcClient.getSubnetIdsFromSubnetName(vpcId, appLoadBalancerConfig.vpcSubnets);
+    const securityGroupId = await this._ec2Client.getSecurityGroupIdFromName(appLoadBalancerConfig.securityGroupName, vpcId);
+
+    return await this._elbClient.createApplicationLoadBalancer(environment, appLoadBalancerConfig.name, subnetIds, appLoadBalancerConfig.scheme, [securityGroupId]);
   }
 
 
@@ -313,14 +298,14 @@ class Deployer extends BaseClient {
    * @return {Function|*}
    * @private
    */
-  _createApplicationLoadBalancerListener(listenerConfig) {
+  async _createApplicationLoadBalancerListener(listenerConfig) {
     let listenerConfigs = listenerConfig;
     if(!__.isArray(listenerConfigs)) {
       listenerConfigs = [listenerConfig];
     }
 
     //create promise function
-    let createPromiseForListenerConfigCreation = (listenerConfigObject) => {
+    let createPromiseForListenerConfigCreation = async (listenerConfigObject) => {
 
       //convert certificateArn to an array
       let certificateArnArray = [];
@@ -332,12 +317,9 @@ class Deployer extends BaseClient {
         ];
       }
 
-      return BlueBirdPromise.all([
-        this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName),
-        this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName)
-      ]).spread((loadBalancerArn, targetGroupArn) => {
-        return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
-      });
+      const loadBalancerArn = await this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName);
+      const targetGroupArn = await this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName);
+      return await this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
     };
 
     let promiseArray = [];
@@ -350,35 +332,29 @@ class Deployer extends BaseClient {
       promiseArray.push(newPromise);
     }
 
-
-
-    return BlueBirdPromise.all(promiseArray);
+    return await BlueBirdPromise.all(promiseArray);
   }
 
 
   /**
    *
    * @param serviceConfig
-   * @return {Promise.<TResult>}
+   * @returns {Promise<{}>}
    * @private
    */
-  _createECSService(serviceConfig) {
+  async _createECSService(serviceConfig) {
 
-    return this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName).then(targetGroupArn => {
-      return this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
-    }).then(() => {
-      return this._applicationAutoScalingClient.registerScalableTarget(serviceConfig.registerScalableTargetParams);
-    }).then(() => {
-      return this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleOutPolicyParams);
-    }).then(resp => {
-      serviceConfig.putAlarmScaleOutParams.AlarmActions[0] = resp.PolicyARN;
-      return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleOutParams);
-    }).then(() => {
-      return this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
-    }).then(resp => {
-      serviceConfig.putAlarmScaleInParams.AlarmActions[0] = resp.PolicyARN;
-      return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
-    });
+    const targetGroupArn = await this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName);
+    await this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
+
+    await this._applicationAutoScalingClient.registerScalableTarget(serviceConfig.registerScalableTargetParams);
+    const scaleOutResponse = await this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleOutPolicyParams);
+    serviceConfig.putAlarmScaleOutParams.AlarmActions[0] = scaleOutResponse.PolicyARN;
+    await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleOutParams);
+    const scaleInResponse = await this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
+    serviceConfig.putAlarmScaleInParams.AlarmActions[0] = scaleInResponse.PolicyARN;
+
+    return await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
   }
 
   /**
@@ -388,11 +364,10 @@ class Deployer extends BaseClient {
    * @param dnsHostname
    * @private
    */
-  _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
+  async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
 
-    return this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName).then(dnsInfo => {
-      return this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
-    });
+    const dnsInfo = await this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName);
+    return await this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
   }
 
   /**

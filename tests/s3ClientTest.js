@@ -528,5 +528,151 @@ describe('S3 Client', function() {
     });
   });
 
+  describe('createBucketIfNecessary', () => {
 
+    let awsS3ServiceMock;
+    let mockAwsSdk;
+    let mocks;
+    let s3ClientService;
+    let options;
+    beforeEach(() => {
+      //setting up s3ServiceClient Mock
+      awsS3ServiceMock = {
+        listBuckets: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve({Buckets: []})
+          }
+        })
+      };
+
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        S3: function() {
+          return awsS3ServiceMock;
+        }
+      };
+
+
+      //Setting up CF clients
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const S3 = proxyquire('../src/s3Client', mocks);
+      s3ClientService = new S3();
+
+      s3ClientService.LookupS3BucketByName = sandbox.stub().returns({
+        delay: () => BluebirdPromise.resolve()
+      });
+
+      s3ClientService.createBucket = sandbox.stub().returns({
+        delay: () => BluebirdPromise.resolve()
+      });
+
+      s3ClientService.enableHosting = sandbox.stub().returns({
+        delay: () => BluebirdPromise.resolve()
+      });
+
+      options = {
+        name: 'myName',
+      };
+    });
+
+    it('should callLookupS3BucketByName once', async () => {
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.LookupS3BucketByName.callCount).to.be.equal(1);
+    });
+
+    it('should pass name from options to callLookupS3BucketByName', async() => {
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.LookupS3BucketByName.args[0][0]).to.be.equal('myName');
+    });
+
+    it('should call createBucket if no bucket is found', async () => {
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.createBucket.callCount).to.be.equal(1);
+    });
+
+    it('should pass name from options to createBucket', async () => {
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.createBucket.args[0][0]).to.be.equal('myName');
+    });
+
+    it('should call enableHosting if enableHosting is true in options', async () => {
+      // Arrange
+      options.enableHosting = true;
+
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.enableHosting.callCount).to.be.equal(1);
+    });
+
+    it('should pass name to enableHosting if enableHosting is true in options', async () => {
+      // Arrange
+      options.enableHosting = true;
+
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.enableHosting.args[0][0]).to.be.equal('myName');
+    });
+
+    it('should not call enableHosting if enableHosting is false in options', async () => {
+      // Arrange
+      options.enableHosting = false;
+
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.enableHosting.callCount).to.be.equal(0);
+    });
+
+    it('should not attempt to create bucket or enable hosting if bucket is found', async () => {
+      // Arrange
+      s3ClientService.LookupS3BucketByName = sandbox.stub().returns({
+        delay: () => BluebirdPromise.resolve({ id: '12345' })
+      });
+
+      // Act
+      await s3ClientService.createBucketIfNecessary(options);
+
+      // Assert
+      expect(s3ClientService.createBucket.callCount).to.be.equal(0);
+      expect(s3ClientService.enableHosting.callCount).to.be.equal(0);
+    });
+
+    it('should throw error on unexpected error', async () => {
+      // Arrange
+      s3ClientService.LookupS3BucketByName = sandbox.stub().returns({
+        delay: () => BluebirdPromise.reject({ message: 'An unexpected error occurred!' })
+      });
+
+      try {
+        // Act
+        await s3ClientService.createBucketIfNecessary(options);
+
+      } catch (err) {
+        // Assert
+        expect(err.message).to.be.equal('An unexpected error occurred!');
+      }
+    });
+  });
 });

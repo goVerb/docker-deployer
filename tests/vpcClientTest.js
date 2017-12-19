@@ -1946,7 +1946,9 @@ describe('VPC Client', function() {
       //Arrange
 
       const vpcId = 'MyVPC';
-      let describeVpcsResponse = {};
+      let describeVpcsResponse = {
+        RouteTables: ['a']
+      };
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
@@ -5598,4 +5600,189 @@ describe('VPC Client', function() {
     });
   });
 
+  describe('createOrUpdatePeeringConnection', () => {
+
+    let vpcClientService;
+    let peeringConnectionId;
+    let routeTableId;
+    let destinationCidrBlock;
+    let awsEc2ClientMock;
+    beforeEach(() => {
+
+      //setting up ec2Client Mock
+      awsEc2ClientMock = {
+        createRoute: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        }),
+        describeVpcPeeringConnections: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
+      };
+
+      const mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: function() {
+          return awsEc2ClientMock;
+        }
+      };
+
+      //Setting up VPC clients
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._acceptVpcPeeringConnections = sandbox.stub().resolves({});
+      vpcClientService._describeRouteTables = sandbox.stub().resolves({});
+      vpcClientService._createRoute = sandbox.stub().resolves({});
+      vpcClientService._acceptVpcPeeringConnection = sandbox.stub().resolves({});
+
+      peeringConnectionId = 'myPeeringConnectionId';
+      routeTableId = 'myRouteTableId';
+      destinationCidrBlock = 'myDestinationCidrBlock';
+    });
+
+    it('should call _awsEc2Client.describeVpcPeeringConnections once', async () => {
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(awsEc2ClientMock.describeVpcPeeringConnections.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _awsEc2Client.describeVpcPeeringConnections', async () => {
+      // Arrange
+      const expectedParams = {
+        DryRun: false,
+        Filters: [
+          {
+            Name: 'status-code',
+            Values: [
+              'pending-acceptance'
+            ]
+          }
+        ],
+        VpcPeeringConnectionIds: [
+          'myPeeringConnectionId'
+        ]
+      };
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(awsEc2ClientMock.describeVpcPeeringConnections.args[0][0]).to.be.deep.equal(expectedParams);
+    });
+
+    it('should not call _acceptVpcPeeringConnections if no pending VPC peering connection sare found', async () => {
+      // Arrange
+      awsEc2ClientMock.describeVpcPeeringConnections = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({})
+      });
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._acceptVpcPeeringConnection.callCount).to.be.equal(0);
+    });
+
+    it('should call _acceptVpcPeeringConnection if a pending VPC peering connection is found by _awsEc2Client.describeVpcPeeringConnections', async () => {
+      // Arrange
+      awsEc2ClientMock.describeVpcPeeringConnections = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({ VpcPeeringConnections: '12345' })
+      });
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._acceptVpcPeeringConnection.callCount).to.be.equal(1);
+    });
+
+    it('should pass peeringConnectionId to _accepetVpcPeeringConnection', async () => {
+      // Arrange
+      awsEc2ClientMock.describeVpcPeeringConnections = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({ VpcPeeringConnections: '12345' })
+      });
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._acceptVpcPeeringConnection.args[0][0]).to.be.equal('myPeeringConnectionId');
+    });
+
+    it('should call _describeRouteTables once', async () => {
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._describeRouteTables.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _describeRouteTables', async () => {
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._describeRouteTables.args[0][0]).to.be.equal('myPeeringConnectionId');
+      expect(vpcClientService._describeRouteTables.args[0][1]).to.be.equal('myRouteTableId');
+    });
+
+    it('should NOT call _createRoute if a route already exists', async () => {
+      // Arrange
+      vpcClientService._describeRouteTables = sandbox.stub().resolves({ RouteTables: ['a', 'b'] });
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._createRoute.callCount).to.be.equal(0);
+    });
+
+    it('should call _createRoute if no route exists', async () => {
+      // Arrange
+      vpcClientService._describeRouteTables = sandbox.stub().resolves({ RouteTables: [] });
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._createRoute.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _createRoute', async () => {
+      // Arrange
+      vpcClientService._describeRouteTables = sandbox.stub().resolves({ RouteTables: [] });
+
+      // Act
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      // Assert
+      expect(vpcClientService._createRoute.args[0][0]).to.be.equal('myDestinationCidrBlock');
+      expect(vpcClientService._createRoute.args[0][1]).to.be.equal('myRouteTableId');
+      expect(vpcClientService._createRoute.args[0][2]).to.be.equal('myPeeringConnectionId');
+    });
+
+    it('should throw an error on unexpected error', async () => {
+      // Arrange
+      awsEc2ClientMock.describeVpcPeeringConnections = sandbox.stub().returns({
+        promise: () => BluebirdPromise.reject({ message: 'An unexpected error occurred!' })
+      });
+
+      try {
+        // Act
+        await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+
+      } catch (err) {
+        // Assert
+        expect(err.message).to.be.equal('An unexpected error occurred!');
+      }
+    });
+  });
 });

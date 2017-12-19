@@ -5,7 +5,7 @@ const moment = require('moment');
 class BaseClient {
 
   constructor(accessKey = '', secretKey = '', region = 'us-west-2', logLevel) {
-    if(process.env.NODE_ENV === 'unittest' && !logLevel) {
+    if(process.env.NODE_ENV === 'unittest') {
       logLevel = 70;
     }
     if(logLevel === 'mute') {

@@ -8,6 +8,7 @@ let eslint = require('gulp-eslint');
 let fs = require('fs');
 let mocha = require('gulp-spawn-mocha');
 let util = require('util');
+const {argv} = require('yargs');
 
 gulp.task('npmrc', () => {
   let npmKey = process.env.NPM_KEY;
@@ -46,8 +47,7 @@ gulp.task('build:babel', (callback) => {
 });
 
 gulp.task('test', () => {
-
-  return executeTest('./tests/**.js');
+  return executeTest('./tests/**.js', argv.quiet);
 });
 
 

@@ -287,7 +287,7 @@ describe('APIGateway Client', function() {
         getStage: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve(getStageResponse)
         })
-      }
+      };
 
       let mockAwsSdk = {
         config: {
@@ -349,7 +349,7 @@ describe('APIGateway Client', function() {
         getStage: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve(getStageResponse)
         })
-      }
+      };
 
       let mockAwsSdk = {
         config: {
@@ -410,7 +410,7 @@ describe('APIGateway Client', function() {
         getStage: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve(getStageResponse)
         })
-      }
+      };
 
       let mockAwsSdk = {
         config: {
@@ -458,7 +458,7 @@ describe('APIGateway Client', function() {
         putRestApi: sandbox.stub().returns({
           promise: () => BluebirdPromise.resolve()
         })
-      }
+      };
 
       mockAwsSdk = {
         config: {
@@ -476,18 +476,18 @@ describe('APIGateway Client', function() {
       };
       const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
-    })
+    });
 
     afterEach(() => {
       APIGatewayMock = null;
       mockAwsSdk = null;
       APIGateway = null;
       apiGatewayService = null;
-    })
+    });
 
     it('should call apiGatewayClient.putRestApi', (done) => {
       //Act
-      const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{})
+      const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{});
       //Assert
       promiseResult.then(data => {
         expect(APIGatewayMock.putRestApi.calledOnce).to.be.true;
@@ -502,14 +502,14 @@ describe('APIGateway Client', function() {
         body: '{}',
         failOnWarnings: false,
         mode: 'overwrite'
-      }
+      };
       //Act
-      const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{})
+      const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{});
       //Assert
       promiseResult.then(data => {
         expect(APIGatewayMock.putRestApi.args[0][0]).to.deep.equal(options);
         done();
-      })
+      });
     });
   });
 
@@ -582,7 +582,7 @@ describe('APIGateway Client', function() {
     let apiGatewayService;
 
     beforeEach(() => {
-      APIGatewayMock = {}
+      APIGatewayMock = {};
 
       mockAwsSdk = {
         config: {
@@ -599,65 +599,65 @@ describe('APIGateway Client', function() {
       };
       APIGateway = proxyquire('../src/apiGatewayClient', mocks);
       apiGatewayService = new APIGateway('acckey', 'secret');
-    })
+    });
 
     afterEach(() => {
       APIGatewayMock = null;
       mockAwsSdk = null;
       APIGateway = null;
       apiGatewayService = null;
-    })
+    });
     it('should error if no swaggerEntity is passed to it', (done) => {
-      let response = apiGatewayService.createOrOverwriteApiSwagger()
+      let response = apiGatewayService.createOrOverwriteApiSwagger();
 
       response.catch(err => {
-        expect(err).to.have.property('message','swaggerEntity is null or undefined [swaggerEntity: ]')
+        expect(err).to.have.property('message','swaggerEntity is null or undefined [swaggerEntity: ]');
         done();
-      })
-    })
+      });
+    });
 
     it('should error if swaggerEntity has no title', (done) => {
-      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {}})
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {}});
 
       response.catch(err => {
-        expect(err).to.have.property('message','swaggerEntity must contain info and title [swaggerEntity: {"info":{}}]')
+        expect(err).to.have.property('message','swaggerEntity must contain info and title [swaggerEntity: {"info":{}}]');
         done();
-      })
-    })
+      });
+    });
 
     it('should error if swaggerEntity title is null', (done) => {
-      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: null}})
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: null}});
 
       response.catch(err => {
-        expect(err).to.have.property('message','swaggerEntity.info.title is null, undefined, or empty [swaggerEntity: {"info":{"title":null}}]')
+        expect(err).to.have.property('message','swaggerEntity.info.title is null, undefined, or empty [swaggerEntity: {"info":{"title":null}}]');
         done();
-      })
-    })
+      });
+    });
 
     it('should call lookupApiGatewayByName with the entity title', (done) => {
-      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('IAMANID'))
-      apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
-      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve('IAMANID'));
+      apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve());
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false);
 
       response.then(data => {
         expect(apiGatewayService.lookupApiGatewayByName.calledOnce).to.be.true;
         done();
-      })
-    })
+      });
+    });
     it('should call _overwriteSwagger if name lookup returns and id', (done) => {
-      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve({id:'IAMANID'}))
-      apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
-      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve({id:'IAMANID'}));
+      apiGatewayService._overwriteSwagger = sandbox.stub().returns(BluebirdPromise.resolve());
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false);
 
       response.then(data => {
         expect(apiGatewayService._overwriteSwagger.calledOnce).to.be.true;
         done();
-      })
-    })
+      });
+    });
     it('should call _createSwagger if name lookup returns no id', (done) => {
-      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve())
-      apiGatewayService._createSwagger = sandbox.stub().returns(BluebirdPromise.resolve())
-      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false)
+      apiGatewayService.lookupApiGatewayByName = sandbox.stub().returns(BluebirdPromise.resolve());
+      apiGatewayService._createSwagger = sandbox.stub().returns(BluebirdPromise.resolve());
+      let response = apiGatewayService.createOrOverwriteApiSwagger({info: {title: 'RevolverOcelot'}},0,false);
 
       response.then(data => {
         expect(apiGatewayService._createSwagger.calledOnce).to.be.true;
@@ -853,7 +853,7 @@ describe('APIGateway Client', function() {
       } catch (err) {
         // Assert
         expect(err.name).to.be.equal('Error');
-        expect(err.message).to.be.equal('apiGatewayId is null or undefined')
+        expect(err.message).to.be.equal('apiGatewayId is null or undefined');
       }
     });
 
@@ -874,7 +874,7 @@ describe('APIGateway Client', function() {
       } catch (err) {
         // Assert
         expect(err.name).to.be.equal('Error');
-        expect(err.message).to.be.equal('stageName is null or undefined')
+        expect(err.message).to.be.equal('stageName is null or undefined');
       }
     });
 
@@ -895,7 +895,7 @@ describe('APIGateway Client', function() {
       } catch (err) {
         // Assert
         expect(err.name).to.be.equal('Error');
-        expect(err.message).to.be.equal('stageFullName is null or undefined')
+        expect(err.message).to.be.equal('stageFullName is null or undefined');
       }
     });
 
@@ -995,7 +995,7 @@ describe('APIGateway Client', function() {
 
       // Act
       try {
-        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName);
 
       } catch (err) {
 
@@ -1015,7 +1015,7 @@ describe('APIGateway Client', function() {
 
       // Act
       try {
-        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName);
 
       } catch (err) {
 
@@ -1035,7 +1035,7 @@ describe('APIGateway Client', function() {
 
       // Act
       try {
-        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName);
 
       } catch (err) {
 
@@ -1055,7 +1055,7 @@ describe('APIGateway Client', function() {
 
       // Act
       try {
-        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName);
 
       } catch (err) {
 
@@ -1075,7 +1075,7 @@ describe('APIGateway Client', function() {
 
       // Act
       try {
-        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName);
 
       } catch (err) {
 
@@ -1095,7 +1095,7 @@ describe('APIGateway Client', function() {
 
       // Act
       try {
-        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName)
+        await apiGatewayService._deployApiGatewayToStageForEnvByGatewayName(environment, apiName);
 
       } catch (err) {
 

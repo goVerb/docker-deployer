@@ -423,10 +423,12 @@ class Deployer extends BaseClient {
   deployLambda(lambdaConfig) {
     const ALLOWED_ENVIRONMENTS = {dev: 'dev', demo: 'demo', prod:'prod'};
     if (!__.has(lambdaConfig, 'zipFileName')) {
+      this.logError('lambdaConfig must have field \'zipFileName\'');
       throw new Error('lambdaConfig must have field \'zipFileName\'');
     }
 
     if (!__.has(lambdaConfig, 'environments')) {
+      this.logError('lambdaConfig must have field \'environments\'');
       throw new Error('lambdaConfig must have field \'environments\'');
     }
 

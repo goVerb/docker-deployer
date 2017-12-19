@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 
 const sampleConfig1 = require('./sampleConfigs/sampleConfig.js');
 
-describe('Deployer', function() {
+describe.only('Deployer', function() {
   let sandbox;
 
   beforeEach(() => {
@@ -36,7 +36,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -62,7 +63,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -87,7 +89,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -113,7 +116,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -138,7 +142,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -164,7 +169,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -190,7 +196,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -215,7 +222,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -241,7 +249,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       //Act
@@ -305,7 +314,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -342,7 +352,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -379,7 +390,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -416,7 +428,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -453,7 +466,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -490,7 +504,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -527,7 +542,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -564,7 +580,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let _createOrUpdateLaunchConfigurationStub = { newLaunchConfigName: 'new', oldLaunchConfigName: 'old' };
@@ -1654,7 +1671,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let deployerClient = new Deployer(deployerParams);
@@ -1675,7 +1693,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let deployerClient = new Deployer(deployerParams);
@@ -1735,7 +1754,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let deployerClient = new Deployer(deployerParams);
@@ -1755,7 +1775,8 @@ describe('Deployer', function() {
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
-        region: region
+        region: region,
+        logLevel: 'info'
       };
 
       let deployerClient = new Deployer(deployerParams);

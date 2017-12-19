@@ -7,7 +7,7 @@ const BluebirdPromise = require('bluebird');
 const base64 = require('base-64');
 const moment = require('moment');
 import proxyquire from 'proxyquire';
-const amiTable = require('../src/constants/amiTable').amiTable;
+const amiIds = require('../src/constants/amiIds').amiIds();
 
 
 
@@ -357,6 +357,58 @@ describe('Auto Scaling Client', function() {
       expect(result).to.be.true;
     });
 
+    it('should return true if no base id passed and the region id !== foundLaunchConfiguration.ImageId', () => {
+      //Arrange
+      const launchConfigurationConfig = {
+        name: 'LCName',
+        securityGroupId: 'sg-123abctest',
+        instanceType: 't2.micro'
+      };
+
+      const foundLaunchConfiguration = {
+        name: 'LCName',
+        ImageId: 'different',
+        SecurityGroups: [ 'sg-123abctest' ],
+        InstanceType: 't2.micro'
+      };
+
+      //Setting up AutoScaling clients
+      const AutoScaling = require('../src/autoScalingClient');
+      const autoScalingClientService = new AutoScaling();
+
+      //Act
+      let result = autoScalingClientService._isLaunchConfigurationOutOfDate(launchConfigurationConfig, foundLaunchConfiguration);
+
+      //Assert
+      expect(result).to.be.true;
+    });
+
+    it('should not return true if no base id passed and the region id === foundLaunchConfiguration.ImageId', () => {
+      //Arrange
+      const launchConfigurationConfig = {
+        name: 'LCName',
+        securityGroupId: 'sg-123abctest',
+        instanceType: 't2.micro'
+      };
+
+      const foundLaunchConfiguration = {
+        name: 'LCName',
+        ImageId: 'ami-7114c909',
+        SecurityGroups: [ 'sg-123abctest' ],
+        InstanceType: 't2.micro'
+      };
+
+      //Setting up AutoScaling clients
+      const AutoScaling = require('../src/autoScalingClient');
+      const autoScalingClientService = new AutoScaling();
+
+      //Act
+      let result = autoScalingClientService._isLaunchConfigurationOutOfDate(launchConfigurationConfig, foundLaunchConfiguration);
+
+      //Assert
+      expect(result).to.be.false;
+    });
+
     it('should return true if securityGroupId is not in the list of security groups', () => {
       //Arrange
       const launchConfigurationConfig = {
@@ -586,7 +638,7 @@ describe('Auto Scaling Client', function() {
       return resultPromise.then(() => {
         let params = awsAutoScalingClientMock.createLaunchConfiguration.args[0][0];
 
-        expect(params).to.have.property('ImageId', amiTable['us-west-2'].id);
+        expect(params).to.have.property('ImageId', amiIds['us-west-2'].id);
       });
     });
 

@@ -32,18 +32,16 @@ class S3Client extends BaseClient {
    * @param s3BucketName
    * @returns {Promise<T>}
    */
-  LookupS3BucketByName(s3BucketName) {
-    let params = {
-      Bucket: s3BucketName
-    };
+  async LookupS3BucketByName(s3BucketName) {
+
     this.logMessage(`Checking if Bucket exists. [S3BucketName: ${JSON.stringify(s3BucketName)}]`);
-    let listBucketsPromise = this._awsS3Client.listBuckets().promise();
+    const results = await this._awsS3Client.listBuckets().promise();
 
-    return listBucketsPromise.then(results => {
-      if(__.isEmpty(results.Buckets)) return {};
+    if(__.isEmpty(results.Buckets)) {
+      return {};
+    }
 
-      return __.find(results.Buckets, { Name: s3BucketName });
-    });
+    return __.find(results.Buckets, { Name: s3BucketName });
   }
 
 
@@ -52,7 +50,7 @@ class S3Client extends BaseClient {
    * @param {string} s3BucketName
    * @returns {Promise<T>}
    */
-  createBucket(s3BucketName /*, stageName, variableCollection*/ ) {
+  async createBucket(s3BucketName /*, stageName, variableCollection*/ ) {
     // return new BlueBirdPromise((resolve, reject) => {
     //   let params = {
     //     Bucket: s3BucketName, /* required */
@@ -75,6 +73,7 @@ class S3Client extends BaseClient {
     //   });
     // });
 
+    try {
     const params = {
       Bucket: s3BucketName, /* required */
       CreateBucketConfiguration: {
@@ -83,19 +82,18 @@ class S3Client extends BaseClient {
     };
     this.logMessage(`Creating Deployment. [s3BucketName: ${s3BucketName}]`);
 
-    let createBucketPromise = this._awsS3Client.createBucket(params).promise();
+    const data = await this._awsS3Client.createBucket(params).promise();
+    this.logMessage(`Success: ${JSON.stringify(data)}`);
+    return data;
 
-    return createBucketPromise.then(data => {
-      this.logMessage(`Success: ${JSON.stringify(data)}`);
-      return data;
-    }).catch(err => {
+    } catch (err) {
+
       let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
       this.logMessage(errorMessage);
       return {
         message: errorMessage
       };
-    });
-
+    }
   }
 
 
@@ -104,7 +102,7 @@ class S3Client extends BaseClient {
    * @param {string} s3BucketName
    * @returns {Promise<T>}
    */
-  enableHosting(s3BucketName /*, stageName, variableCollection*/ ) {
+  async enableHosting(s3BucketName /*, stageName, variableCollection*/ ) {
     // return new BlueBirdPromise((resolve, reject) => {
     //   let params = {
     //     Bucket: s3BucketName, /* required */
@@ -132,34 +130,34 @@ class S3Client extends BaseClient {
     //   });
     // });
 
-
-
-
-    const params = {
-      Bucket: s3BucketName, /* required */
-      WebsiteConfiguration: { /* required */
-        ErrorDocument: {
-          Key: 'index.html' /* required */
-        },
-        IndexDocument: {
-          Suffix: 'index.html' /* required */
+    try {
+      const params = {
+        Bucket: s3BucketName, /* required */
+        WebsiteConfiguration: { /* required */
+          ErrorDocument: {
+            Key: 'index.html' /* required */
+          },
+          IndexDocument: {
+            Suffix: 'index.html' /* required */
+          }
         }
-      }
-    };
-    this.logMessage(`Enabling Hosting. [s3BucketName: ${s3BucketName}]`);
+      };
+      this.logMessage(`Enabling Hosting. [s3BucketName: ${s3BucketName}]`);
 
-    const putBucketWebsitePromise = this._awsS3Client.putBucketWebsite(params).promise();
-
-    return putBucketWebsitePromise.then(data => {
+      const data = await this._awsS3Client.putBucketWebsite(params).promise();
       this.logMessage(`Success: ${JSON.stringify(data)}`);
       return data;
-    }).catch(err => {
+
+    } catch (err) {
       let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
       this.logMessage(errorMessage);
       return {
         message: errorMessage
       };
-    });
+    }
+
+
+
   }
 
   /**
@@ -170,23 +168,27 @@ class S3Client extends BaseClient {
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
    * @return {Promise<T>}
    */
-  createBucketIfNecessary(options, delayInMilliseconds = 5000) {
+  async createBucketIfNecessary(options, delayInMilliseconds = 5000) {
     const methodName = 'createOrOverwriteS3Bucket';
 
-    this.logMessage(`LookupS3BucketByName: [options: ${JSON.stringify(options)}]`);
-    return this.LookupS3BucketByName(options.name).delay(delayInMilliseconds).then((foundS3Bucket) => {
+    try {
+
+      this.logMessage(`LookupS3BucketByName: [options: ${JSON.stringify(options)}]`);
+      const foundS3Bucket = await this.LookupS3BucketByName(options.name).delay(delayInMilliseconds);
+
       if(__.isEmpty(foundS3Bucket)) {
         this.logMessage(`No bucket found. Creating one. [Bucket name: ${methodName}]`);
-        return this.createBucket(options.name).delay(delayInMilliseconds).then(() => {
-          if(options.enableHosting) return this.enableHosting(options.name).delay(delayInMilliseconds);
-        });
+        await this.createBucket(options.name).delay(delayInMilliseconds);
+          if(options.enableHosting) {
+             return await this.enableHosting(options.name).delay(delayInMilliseconds);
+          }
       }
       this.logMessage(`${methodName}: Found the bucket. No changes needed. [foundS3Bucket: ${JSON.stringify(foundS3Bucket)}]`);
-    }).catch((err) => {
-      this.logMessage(`${methodName}: Error! [err: ${JSON.stringify(err)}]`);
-      return BlueBirdPromise.reject(err);
-    });
 
+    } catch (err) {
+      this.logMessage(`${methodName}: Error! [err: ${JSON.stringify(err)}]`);
+      throw err;
+    }
   }
 
   /**

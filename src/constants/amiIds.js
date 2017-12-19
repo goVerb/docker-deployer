@@ -66,5 +66,5 @@ export const amiIds = () => {
     getIdByRegion: (region) => {
       return amiTable[region].id;
     }
-  }
-}
+  };
+};

@@ -56,7 +56,6 @@ class VpcClient extends BaseClient {
    */
   async createVpcFromConfig(environment, config) {
     this.logMessage(`Executing createVpcFromConfig. [Environment: ${environment}] [Config: ${JSON.stringify(config)}]`);
-
     let vpcId = '';
     let routeTableId = '';
     const existingVpcId = await this.getVpcIdFromName(config.name);
@@ -193,6 +192,32 @@ class VpcClient extends BaseClient {
     } catch (err) {
       this.logMessage(`CreatePeeringConnectionError Error: ${JSON.stringify(err)}`);
       throw err;
+    }
+  }
+
+  async getAvailabilityZones() {
+    try {
+      const availableZones = [];
+      const fetchedZones = await this._awsEc2Client.describeAvailabilityZones({
+        Filters: [
+          {
+            Name: 'region-name',
+            Values: [
+              this._region
+            ]
+          }
+        ]
+      }).promise();
+      const length = fetchedZones.length;
+      for(let i = 0; i < length; i++) {
+        if(fetchedZones[i].State === 'available') {
+          availableZones.push(fetchedZones[i].ZoneName);
+        }
+      }
+      return availableZones;
+    } catch(err) {
+      this.logError(`getAvailabilityZonesError Error: ${JSON.stringify(err)}`);
+      throw err;      
     }
   }
 

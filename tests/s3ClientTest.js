@@ -674,6 +674,5 @@ describe('S3 Client', function() {
         expect(err.message).to.be.equal('An unexpected error occurred!');
       }
     });
-
   });
 });

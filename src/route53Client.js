@@ -250,7 +250,6 @@ class Route53Client extends BaseClient {
       }
 
 
-      console.log(hasChanged);
       return hasChanged;
     });
 

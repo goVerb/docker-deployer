@@ -3335,7 +3335,6 @@ describe('ELB Client', function() {
 
       //Assert
       return resultPromise.then(foundListenerArn => {
-        console.log(foundListenerArn);
         expect(foundListenerArn).to.be.equal(describeListenersResponse.Listeners[0].ListenerArn);
       });
     });
@@ -3385,7 +3384,6 @@ describe('ELB Client', function() {
 
       //Assert
       return resultPromise.then(foundListenerArn => {
-        console.log(foundListenerArn);
         expect(foundListenerArn).to.be.equal('');
       });
     });

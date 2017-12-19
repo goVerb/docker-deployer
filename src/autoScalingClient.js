@@ -126,7 +126,7 @@ class AutoScalingClient extends BaseClient {
 
     const newPrefix = (oldNumber) ? oldLaunchConfigurationName.substr(0, oldLaunchConfigurationName.length - oldNumber.length) : oldLaunchConfigurationName;
 
-    console.log(newPrefix + versionSuffix + newNumber);
+    this.logMessage(newPrefix + versionSuffix + newNumber);
 
     return newPrefix + versionSuffix + newNumber;
   }

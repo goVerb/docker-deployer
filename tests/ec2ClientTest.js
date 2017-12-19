@@ -1921,7 +1921,6 @@ describe('EC2 Client', function() {
 
       //Assert
       return resultPromise.catch(err => {
-        console.log(err.message);
         expect(err.message).to.equal(`There is no valid allowed scope. [SecurityGroupId: ${securityGroupId}] [AllowedIpCidrBlock: null] [AllowedSecurityGroupId: null]`)
       });
     });

@@ -3,7 +3,7 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const base64 = require('base-64');
-
+const amiTable = require('./constants/amiTable').amiTable;
 const BaseClient = require('./baseClient');
 
 AWS.config.setPromisesDependency(BlueBirdPromise);
@@ -143,6 +143,10 @@ class AutoScalingClient extends BaseClient {
    * @return {Promise<D>}
    */
   async _createOrUpdateLaunchConfiguration(name, imageId, securityGroupId, instanceType, sshKeyName = null, ecsClusterName = null) {
+
+    if(!imageId) {
+      imageId = amiTable[this._region].id;
+    }
 
     let params = {
       LaunchConfigurationName: name, /* required */

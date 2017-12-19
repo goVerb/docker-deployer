@@ -221,7 +221,7 @@ class Deployer extends BaseClient {
    */
   async _createOrUpdateLaunchConfiguration(launchConfigurationConfig, ecsClusterName) {
     //convert vpcName to vpcId
-    const vpcId = await this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName)
+    const vpcId = await this._vpcClient.getVpcIdFromName(launchConfigurationConfig.vpcName);
     const securityGroupId = await this._ec2Client.getSecurityGroupIdFromName(launchConfigurationConfig.securityGroupName, vpcId);
 
     launchConfigurationConfig.ecsClusterName = ecsClusterName;
@@ -398,10 +398,12 @@ class Deployer extends BaseClient {
   deployLambda(lambdaConfig) {
     const ALLOWED_ENVIRONMENTS = {dev: 'dev', demo: 'demo', prod:'prod'};
     if (!__.has(lambdaConfig, 'zipFileName')) {
+      this.logError('lambdaConfig must have field \'zipFileName\'');
       throw new Error('lambdaConfig must have field \'zipFileName\'');
     }
 
     if (!__.has(lambdaConfig, 'environments')) {
+      this.logError('lambdaConfig must have field \'environments\'');
       throw new Error('lambdaConfig must have field \'environments\'');
     }
 

@@ -7,6 +7,7 @@ const BluebirdPromise = require('bluebird');
 const base64 = require('base-64');
 const moment = require('moment');
 import proxyquire from 'proxyquire';
+const amiTable = require('../src/constants/amiTable').amiTable;
 
 
 
@@ -539,6 +540,53 @@ describe('Auto Scaling Client', function() {
         let params = awsAutoScalingClientMock.createLaunchConfiguration.args[0][0];
 
         expect(params).to.have.property('ImageId', imageId);
+      });
+    });
+
+    it('should pass the id in the id table by region if none is passed to it as a param', () => {
+      //Arrange
+
+      let createLaunchConfigurationResponse = { };
+
+      //setting up autoScalingClient Mock
+      let awsAutoScalingClientMock = {
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+      };
+
+      const mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+       AutoScaling: function() {
+          return awsAutoScalingClientMock;
+        }
+      };
+
+      //Setting up AutoScaling clients
+            const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const AutoScaling = proxyquire('../src/autoScalingClient', mocks);
+      const autoScalingClientService = new AutoScaling();
+      autoScalingClientService.getAutoScalingGroup = sandbox.stub().resolves('');
+      autoScalingClientService._createAutoScalingGroup = sandbox.stub().resolves({});
+
+      const name = 'LCName';
+      const imageId = null;
+      const securityGroupId = 'sg-123abctest';
+      const instanceType = 't2.micro';
+      const sshKeyName = '';
+      const ecsClusterName = 'Test Cluster';
+
+
+      //Act
+      let resultPromise = autoScalingClientService._createOrUpdateLaunchConfiguration(name, imageId, securityGroupId, instanceType, sshKeyName, ecsClusterName);
+
+      //Assert
+      return resultPromise.then(() => {
+        let params = awsAutoScalingClientMock.createLaunchConfiguration.args[0][0];
+
+        expect(params).to.have.property('ImageId', amiTable['us-west-2'].id);
       });
     });
 

@@ -907,6 +907,221 @@ describe('Deployer', function() {
     });
   });
 
+  describe('_createOrUpdateAutoScaleGroup', () => {
+    let vpcClientStub;
+    let ec2ClientStub;
+    let ecsClientStub;
+    let elbClientStub;
+    let autoScaleClientStub;
+    let route53ClientStub;
+    let cloudWatchClientStub;
+    let mocks;
+    let deployerClient;
+    let serviceConfig;
+    let putScalingPolicyStub;
+    beforeEach(() => {
+
+      putScalingPolicyStub = sandbox.stub();
+      putScalingPolicyStub.onCall(0).resolves({ PolicyARN: 'myScaleOutResponse' });
+      putScalingPolicyStub.onCall(1).resolves({ PolicyARN: 'myScaleInResponse' });
+      vpcClientStub = {
+        getVpcIdFromName: sandbox.usingPromise(BluebirdPromise).stub().resolves('returnedVpcId'),
+        getSubnetIdsFromSubnetName: sandbox.usingPromise(BluebirdPromise).stub().resolves(['123', '456'])
+      };
+
+      ecsClientStub = {
+        createOrUpdateService: sandbox.stub().resolves()
+      };
+      ec2ClientStub = {
+        getSecurityGroupIdFromName: sandbox.stub().resolves('returnedSecurityGroupId')
+      };
+      elbClientStub = {
+        createApplicationLoadBalancer: sandbox.stub().resolves(),
+        getTargetGroupArnFromName: sandbox.stub().resolves('returnedTargetGroupArn')
+      };
+      autoScaleClientStub = {
+        createOrUpdateAutoScalingGroup: sandbox.stub().resolves(),
+        registerScalableTarget: sandbox.stub().resolves(),
+        putScalingPolicy: putScalingPolicyStub
+      };
+      route53ClientStub = sandbox.stub();
+
+      cloudWatchClientStub = {
+        putMetricAlarm: sandbox.stub().resolves()
+      };
+
+      mocks = {
+        './vpcClient.js': function () {
+          return vpcClientStub;
+        },
+        './elbClient.js': function () {
+          return elbClientStub;
+        },
+        './applicationAutoScalingClient.js': function () {
+          return autoScaleClientStub;
+        },
+        './ec2Client.js': function () {
+          return ec2ClientStub;
+        },
+        './ecsClient.js': function () {
+          return ecsClientStub;
+        },
+        './route53Client.js': route53ClientStub,
+        './cloudWatchClient.js': function () {
+          return cloudWatchClientStub;
+        }
+      };
+
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+
+      const Deployer = proxyquire('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region
+      };
+
+      deployerClient = new Deployer(deployerParams);
+
+      serviceConfig = {
+        name: 'myName',
+        vpcName: 'myVpcName',
+        launchConfigurationName: 'myLaunchConfigurationName',
+        targetGroupName: 'myTargetGroupName',
+        securityGroupName: 'mySecurityGroup',
+        serviceName: 'myServiceName',
+        clusterName: 'myClusterName',
+        desiredCount: 999,
+        taskName:'myTaskName',
+        containerName: 'myContainerName',
+        containerPort: 'myContainerPort',
+        registerScalableTargetParams: 'myParams',
+        serviceScaleOutPolicyParams: 'myScaleOutParams',
+        serviceScaleInPolicyParams: 'myScaleInParams',
+        putAlarmScaleOutParams: {
+          AlarmActions: []
+        },
+        putAlarmScaleInParams: {
+          AlarmActions: []
+        }
+      };
+    });
+
+    it('should call _elbClient.getTargetGroupArnFromName once', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.callCount).to.be.equal(1);
+    });
+
+    it('should pass targetGroupName from serviceConfig to getTargetGroupArnFromName', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(elbClientStub.getTargetGroupArnFromName.args[0][0]).to.be.equal('myTargetGroupName');
+    });
+
+    it('should call _ecsClient.createOrUpdateService once', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(ecsClientStub.createOrUpdateService.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _ecsClient.createOrUpdateService', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(ecsClientStub.createOrUpdateService.args[0][0]).to.be.equal('myClusterName');
+      expect(ecsClientStub.createOrUpdateService.args[0][1]).to.be.equal('myServiceName');
+      expect(ecsClientStub.createOrUpdateService.args[0][2]).to.be.equal('myTaskName');
+      expect(ecsClientStub.createOrUpdateService.args[0][3]).to.be.equal(999);
+      expect(ecsClientStub.createOrUpdateService.args[0][4]).to.be.equal('myContainerName');
+      expect(ecsClientStub.createOrUpdateService.args[0][5]).to.be.equal('myContainerPort');
+      expect(ecsClientStub.createOrUpdateService.args[0][6]).to.be.equal('returnedTargetGroupArn');
+    });
+
+    it('should call _applicationAutoScalingClient.registerScalableTarget once', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.registerScalableTarget.callCount).to.be.equal(1);
+    });
+
+    it('should pass params to _applicationAutoScalingClient.registerScalableTarget', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.registerScalableTarget.args[0][0]).to.be.equal('myParams');
+    });
+
+    it('should call _applicationAutoScalingClient.putScalingPolicy TWICE', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.putScalingPolicy.callCount).to.be.equal(2);
+    });
+
+    it('should pass serviceScaleOutPolicyParams to _applicationAutoScalingClient.putScalingPolicy on first call', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.putScalingPolicy.args[0][0]).to.be.equal('myScaleOutParams');
+    });
+
+    it('should pass serviceScaleInPolicyParams to _applicationAutoScalingClient.putScalingPolicy on second call', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(autoScaleClientStub.putScalingPolicy.args[1][0]).to.be.equal('myScaleInParams');
+    });
+
+    it('should call _cloudWatchClient.putMetricAlarm TWICE', async () => {
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(cloudWatchClientStub.putMetricAlarm.callCount).be.equal(2);
+    });
+
+    it('should pass PolicyARN returned from first call to putScalingPolicy on first call to putMetricAlarm', async () => {
+      // Assert
+      const expected = {
+        AlarmActions: ['myScaleOutResponse']
+      };
+
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(cloudWatchClientStub.putMetricAlarm.args[0][0]).to.be.deep.equal(expected);
+    });
+
+    it('should pass PolicyArn returned from second call to putScalingPOlicy on second call to putMetricAlarm', async () => {
+      // Assert
+      const expected = {
+        AlarmActions: ['myScaleInResponse']
+      };
+
+      // Act
+      await deployerClient._createECSService(serviceConfig);
+
+      // Assert
+      expect(cloudWatchClientStub.putMetricAlarm.args[1][0]).to.be.deep.equal(expected);
+    });
+  });
+
   describe('createInfrastructure', () => {
     let vpcClientStub;
     let ec2ClientStub;

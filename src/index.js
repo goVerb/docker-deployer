@@ -302,14 +302,14 @@ class Deployer {
    * @return {Function|*}
    * @private
    */
-  _createApplicationLoadBalancerListener(listenerConfig) {
+  async _createApplicationLoadBalancerListener(listenerConfig) {
     let listenerConfigs = listenerConfig;
     if(!__.isArray(listenerConfigs)) {
       listenerConfigs = [listenerConfig];
     }
 
     //create promise function
-    let createPromiseForListenerConfigCreation = (listenerConfigObject) => {
+    let createPromiseForListenerConfigCreation = async (listenerConfigObject) => {
 
       //convert certificateArn to an array
       let certificateArnArray = [];
@@ -321,12 +321,9 @@ class Deployer {
         ];
       }
 
-      return BlueBirdPromise.all([
-        this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName),
-        this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName)
-      ]).spread((loadBalancerArn, targetGroupArn) => {
-        return this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
-      });
+      const loadBalancerArn = await this._elbClient.getApplicationLoadBalancerArnFromName(listenerConfigObject.loadBalancerName);
+      const targetGroupArn = await this._elbClient.getTargetGroupArnFromName(listenerConfigObject.targetGroupName);
+      return await this._elbClient.createListener(loadBalancerArn, targetGroupArn, listenerConfigObject.protocol, listenerConfigObject.port, certificateArnArray);
     };
 
     let promiseArray = [];
@@ -339,35 +336,29 @@ class Deployer {
       promiseArray.push(newPromise);
     }
 
-
-
-    return BlueBirdPromise.all(promiseArray);
+    return await BlueBirdPromise.all(promiseArray);
   }
 
 
   /**
    *
    * @param serviceConfig
-   * @return {Promise.<TResult>}
+   * @returns {Promise<{}>}
    * @private
    */
-  _createECSService(serviceConfig) {
+  async _createECSService(serviceConfig) {
 
-    return this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName).then(targetGroupArn => {
-      return this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
-    }).then(() => {
-      return this._applicationAutoScalingClient.registerScalableTarget(serviceConfig.registerScalableTargetParams);
-    }).then(() => {
-      return this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleOutPolicyParams);
-    }).then(resp => {
-      serviceConfig.putAlarmScaleOutParams.AlarmActions[0] = resp.PolicyARN;
-      return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleOutParams);
-    }).then(() => {
-      return this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
-    }).then(resp => {
-      serviceConfig.putAlarmScaleInParams.AlarmActions[0] = resp.PolicyARN;
-      return this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
-    });
+    const targetGroupArn = await this._elbClient.getTargetGroupArnFromName(serviceConfig.targetGroupName);
+    await this._ecsClient.createOrUpdateService(serviceConfig.clusterName, serviceConfig.serviceName, serviceConfig.taskName, serviceConfig.desiredCount, serviceConfig.containerName, serviceConfig.containerPort, targetGroupArn);
+
+    await this._applicationAutoScalingClient.registerScalableTarget(serviceConfig.registerScalableTargetParams);
+    const scaleOutResponse = await this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleOutPolicyParams);
+    serviceConfig.putAlarmScaleOutParams.AlarmActions[0] = scaleOutResponse.PolicyARN;
+    await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleOutParams);
+    const scaleInResponse = await this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
+    serviceConfig.putAlarmScaleInParams.AlarmActions[0] = scaleInResponse.PolicyARN;
+
+    return await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
   }
 
   /**
@@ -377,11 +368,10 @@ class Deployer {
    * @param dnsHostname
    * @private
    */
-  _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
+  async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
 
-    return this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName).then(dnsInfo => {
-      return this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
-    });
+    const dnsInfo = await this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName);
+    return await this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
   }
 
   /**

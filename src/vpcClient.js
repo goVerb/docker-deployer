@@ -61,7 +61,10 @@ class VpcClient extends BaseClient {
     const existingVpcId = await this.getVpcIdFromName(config.name);
     // We will fetch availability zones here to match it up with the subnets based on region.
     const availabilityZones = await this.getAvailabilityZones();
-    
+    if(!this.isAvailabilityZoneValid(config.subnets, availabilityZones)) {
+      this.logError('Your subnet availability zone must be an index number or the zonename of an available zone');
+      throw new Error('Subnet availability zone in config is not an active available zone');
+    }
     if (existingVpcId) {
       this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}] [ExistingVpcId: ${existingVpcId}]`);
       vpcId = existingVpcId;
@@ -98,13 +101,15 @@ class VpcClient extends BaseClient {
           subnetNameToIdLookup[subnetName] = createdSubnetId;
         };
       };
-
+      
       let subnetPromises = [];
       let availabilityZonesLength = availabilityZones.length;
       for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
         let subnetObject = config.subnets[subnetIndex];
         let mappedZone;
-        if(subnetObject.availabilityZone > availabilityZonesLength) {
+        if(isNaN(subnetObject.availabilityZone)) {
+          mappedZone = subnetObject.availabilityZone;
+        } else if(subnetObject.availabilityZone > availabilityZonesLength) {
           mappedZone = availabilityZones[subnetIndex % availabilityZonesLength];
         } else {
           mappedZone = availabilityZones[subnetObject.availabilityZone - 1];          
@@ -204,6 +209,25 @@ class VpcClient extends BaseClient {
     }
   }
   /**
+   * Checks if the availability zones of the subnets are valid
+   */
+  isAvailabilityZoneValid(subnets, availabilityZones) {
+    const availabilityZoneLookup = {};
+    const availabilityZonesLength = availabilityZones.length;
+    for(let i = 0; i < availabilityZonesLength; i ++) {
+      availabilityZoneLookup[availabilityZones[i]] = true;
+    }
+    const subnetLength = subnets.length;
+    for(let i = 0; i < subnetLength; i++) {
+      if(isNaN(subnets[i].availabilityZone) && !availabilityZoneLookup[subnets[i].availabilityZone]) {
+        return false
+      }
+    }
+    return true;
+  }
+
+
+  /**
    * Returns a list of available availability zones based off the region
    * 
    */
@@ -221,10 +245,11 @@ class VpcClient extends BaseClient {
           }
         ]
       }).promise();
-      const length = fetchedZones.length;
+      const availabilityZones = fetchedZones.AvailabilityZones;
+      const length = availabilityZones.length;
       for(let i = 0; i < length; i++) {
-        if(fetchedZones[i].State === 'available') {
-          availableZones.push(fetchedZones[i].ZoneName);
+        if(availabilityZones[i].State === 'available') {
+          availableZones.push(availabilityZones[i].ZoneName);
         }
       }
       return availableZones.sort();

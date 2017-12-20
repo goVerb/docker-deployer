@@ -147,6 +147,130 @@ describe('VPC Client', function() {
     });
   });
 
+  describe('getAvailabilityZones', () => {
+    let VPC;
+    let vpcClientService;
+    beforeEach(() => {
+      VPC = require('../src/vpcClient');
+      vpcClientService = new VPC();
+      vpcClientService._awsEc2Client.describeAvailabilityZones = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          AvailabilityZones: [
+             {
+            Messages: [
+            ], 
+            RegionName: "us-east-1", 
+            State: "available", 
+            ZoneName: "us-east-1b"
+           }, 
+             {
+            Messages: [
+            ], 
+            RegionName: "us-east-1", 
+            State: "available", 
+            ZoneName: "us-east-1c"
+           }, 
+             {
+            Messages: [
+            ], 
+            RegionName: "us-east-1", 
+            State: "available", 
+            ZoneName: "us-east-1d"
+           }, 
+             {
+            Messages: [
+            ], 
+            RegionName: "us-east-1", 
+            State: "available", 
+            ZoneName: "us-east-1e"
+           }
+          ]
+         })
+      });
+    });
+
+    afterEach(() => {
+      VPC = null;
+      vpcClientService = null;
+    });
+
+    it('should call _awsEc2Client.describeAvailabilityZones once', async () => {
+      //Act
+      await vpcClientService.getAvailabilityZones();
+      //Assert
+      expect(vpcClientService._awsEc2Client.describeAvailabilityZones.calledOnce).to.be.true;
+    });
+
+    it('should call _awsEc2Client.describeAvailabilityZones with a region filter', async () => {
+      //Arrange
+      let expectedFilter = {
+        Filters: [
+          {
+            Name: 'region-name',
+            Values: [
+              vpcClientService._region
+            ]
+          }
+        ]
+      };
+      //Act
+      await vpcClientService.getAvailabilityZones();
+      //Assert
+      expect(vpcClientService._awsEc2Client.describeAvailabilityZones.args[0][0]).to.deep.equal(expectedFilter);
+    });
+
+    it('should return an empty array if no available zones is returned', async () => {
+      //Arrange
+      vpcClientService._awsEc2Client.describeAvailabilityZones = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          AvailabilityZones: []
+        })
+      });
+      //Act
+      let result = await vpcClientService.getAvailabilityZones();
+      //Assert
+      expect(result).to.deep.equal([]);
+    });
+
+    it('should return an array with all the available availabilityZones names', async () => {
+      //Arrange
+      const expected = ['us-east-1b','us-east-1c','us-east-1d','us-east-1e']
+      //Act
+      let result = await vpcClientService.getAvailabilityZones();
+      //Assert
+      expect(result).to.deep.equal(expected);
+    });
+
+    it('should return an array with only the available zones', async () => {
+      //Arrange
+      vpcClientService._awsEc2Client.describeAvailabilityZones = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          AvailabilityZones: [
+             {
+            Messages: [
+            ], 
+            RegionName: "us-east-1", 
+            State: "available", 
+            ZoneName: "us-east-1b"
+           }, 
+             {
+            Messages: [
+            ], 
+            RegionName: "us-east-1", 
+            State: "some-other-state", 
+            ZoneName: "us-east-1c"
+           }
+          ]
+         })
+      });
+      const expected = ['us-east-1b']
+      //Act
+      let result = await vpcClientService.getAvailabilityZones();
+      //Assert
+      expect(result).to.deep.equal(expected);
+    });
+  });
+
   describe('createVpcFromConfig', () => {
     let VPC;
     let vpcClientService;
@@ -427,6 +551,177 @@ describe('VPC Client', function() {
         expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
         expect(vpcClientService.createVpcSubnet.args[0][5]).to.be.equal(instanceSubnet1.mapPublicIpOnLaunch);
 
+      });
+    });
+
+    it('should pass the availability zones that match the passed in index for each subnet', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      //Setting up VPC clients
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
+        expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
+        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2a');        
+      });
+    });
+
+
+    it('should still pass a correct availability zone even if the index is higher than the number of the available zones', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 5, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      //Setting up VPC clients
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
+        expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
+        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2a');        
+      });
+    });
+
+    it('should pass a correct availability zone if the zone is passed as a string and is active', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2z', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
+        networkAcls: [ 
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      //Setting up VPC clients
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
+        expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
+        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2z');        
+      });
+    });
+
+    it('should throw an error if one of the subnets holds an inactive or incorrect availability zone', () => {
+      //Arrange
+
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'iam-totally-fake', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      
+      let vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      let newlyCreatedVpcId = 'vpc-test123';
+      let createdNetworkAclId = 'acl-123';
+      let createdSubnetId = 'subnet-123abc';
+      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      //Setting up VPC clients
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.catch(err => {
+        expect(err).to.have.property('message','Subnet availability zone in config is not an active available zone');      
       });
     });
 

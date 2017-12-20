@@ -204,7 +204,7 @@ class VpcClient extends BaseClient {
         await this._createRoute(destinationCidrBlock, routeTableId, peeringConnectionId);
       }
     } catch (err) {
-      this.logMessage(`CreatePeeringConnectionError Error: ${JSON.stringify(err)}`);
+      this.logError(`CreatePeeringConnectionError Error: ${JSON.stringify(err)}`);
       throw err;
     }
   }

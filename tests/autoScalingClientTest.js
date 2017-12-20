@@ -7,7 +7,7 @@ const BluebirdPromise = require('bluebird');
 const base64 = require('base-64');
 const moment = require('moment');
 import proxyquire from 'proxyquire';
-const amiIds = require('../src/constants/amiIds').amiIds();
+const amiIds = require('../src/constants/amiIds')();
 
 
 

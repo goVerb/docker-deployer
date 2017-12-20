@@ -3,7 +3,7 @@ const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const base64 = require('base-64');
-const amiIds = require('./constants/amiIds').amiIds();
+const amiIds = require('./constants/amiIds')();
 const BaseClient = require('./baseClient');
 
 AWS.config.setPromisesDependency(BlueBirdPromise);

@@ -1,4 +1,4 @@
-export const amiIds = () => {
+module.exports = () => {
   const amiTable = {
     'us-east-1': {
       id: 'ami-fad25980',

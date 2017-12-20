@@ -53,6 +53,11 @@ class Deployer extends BaseClient {
   }
 
 
+  /**
+   *
+   * @param {Object} config
+   * @return {Promise<void>}
+   */
   async createInfrastructure(config) {
 
     let vpcId = '';
@@ -113,8 +118,8 @@ class Deployer extends BaseClient {
 
   /**
    * Looks up an API Gateway URL using the apiName and the StageName
-   * @param apiName
-   * @param StageName
+   * @param {string} apiName
+   * @param {string} stageName
    * @return {Promise.<D>}
    */
   async lookupApiGatewayURL(apiName, stageName) {
@@ -123,7 +128,7 @@ class Deployer extends BaseClient {
 
   /**
    * Looks up an API Gateway Domain Name
-   * @param apiName
+   * @param {string} apiName
    * @return {Promise.<D>}
    */
   async lookupApiGatewayDomainName(apiName) {
@@ -188,7 +193,11 @@ class Deployer extends BaseClient {
   }
 
 
-
+  /**
+   *
+   * @param entity
+   * @return {string}
+   */
   getObjectAsString(entity) {
     return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity);
   }
@@ -250,7 +259,7 @@ class Deployer extends BaseClient {
 
   /**
    *
-   * @param environment
+   * @param {string} environment
    * @param asgConfig
    * @param launchConfigToDeleteName
    */
@@ -363,6 +372,7 @@ class Deployer extends BaseClient {
    * @param applicationLoadBalancerName
    * @param dnsHostname
    * @private
+   * @return {Promise<TResult>}
    */
   async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
 
@@ -373,26 +383,26 @@ class Deployer extends BaseClient {
   /**
    *
    * @param {Object} deploymentParams
-   * @param {String} deploymentParams.environment
+   * @param {string} deploymentParams.environment
    * @param {Object} lambdaConfig
-   * @param {String} lambdaConfig.zipFileName
-   * @param {String} lambdaConfig.region
-   * @param {String} lambdaConfig.handler
-   * @param {String} lambdaConfig.role
-   * @param {String} lambdaConfig.functionName
+   * @param {string} lambdaConfig.zipFileName
+   * @param {string} lambdaConfig.region
+   * @param {string} lambdaConfig.handler
+   * @param {string} lambdaConfig.role
+   * @param {string} lambdaConfig.functionName
    * @param {Number} lambdaConfig.timeout This is a value in seconds
    * @param {Number} lambdaConfig.memorySize 128 | 192 | 256 | .... | 1024 | 2048
    * @param {Boolean} lambdaConfig.publish
-   * @param {String} lambdaConfig.runtime
-   * @param {String} [lambdaConfig.logging.Principal]
-   * @param {String} [lambdaConfig.logging.LambdaFunctionName]
-   * @param {String} [lambdaConfig.logging.Arn]
+   * @param {string} lambdaConfig.runtime
+   * @param {string} [lambdaConfig.logging.Principal]
+   * @param {string} [lambdaConfig.logging.LambdaFunctionName]
+   * @param {string} [lambdaConfig.logging.Arn]
    * @param {Object} [lambdaConfig.schedule]
-   * @param {String} [lambdaConfig.schedule.ruleName]
-   * @param {String} [lambdaConfig.schedule.ruleDescription]
-   * @param {String} [lambdaConfig.schedule.ruleScheduleExpression]
+   * @param {string} [lambdaConfig.schedule.ruleName]
+   * @param {string} [lambdaConfig.schedule.ruleDescription]
+   * @param {string} [lambdaConfig.schedule.ruleScheduleExpression]
    * @param {Array} [lambdaConfig.environments]
-   * @param {String} [lambdaConfig.environments[].name]
+   * @param {string} [lambdaConfig.environments[].name]
    * @param {Object} [lambdaConfig.environments[].variables]
    */
   deployLambda(lambdaConfig) {

@@ -508,7 +508,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -555,7 +555,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -602,7 +602,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -649,7 +649,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -697,7 +697,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -744,7 +744,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -791,7 +791,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -838,7 +838,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -887,7 +887,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -934,7 +934,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -981,7 +981,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1028,7 +1028,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1075,7 +1075,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1123,7 +1123,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1170,7 +1170,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse)} })
+        createLaunchConfiguration: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLaunchConfigurationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1954,7 +1954,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       awsAutoScalingClientMock = {
-        updateAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        updateAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       mockAwsSdk = {
@@ -2200,7 +2200,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2249,7 +2249,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2305,7 +2305,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2352,7 +2352,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2399,7 +2399,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2446,7 +2446,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2493,7 +2493,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2540,7 +2540,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2589,7 +2589,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2638,7 +2638,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2685,7 +2685,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2732,7 +2732,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse)} })
+        createAutoScalingGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createOrUpdateAutoScalingGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2790,7 +2790,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse)} })
+        describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2836,7 +2836,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse)} })
+        describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2875,7 +2875,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse)} })
+        describeLaunchConfigurations: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLaunchConfigurationsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3053,7 +3053,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse)} })
+        describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3099,7 +3099,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse)} })
+        describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3138,7 +3138,7 @@ describe('Auto Scaling Client', function() {
 
       //setting up autoScalingClient Mock
       let awsAutoScalingClientMock = {
-        describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse)} })
+        describeAutoScalingGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeAutoScalingGroupsResponse);} })
       };
 
       const mockAwsSdk = {

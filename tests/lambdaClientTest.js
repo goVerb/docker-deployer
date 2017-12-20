@@ -225,7 +225,7 @@ describe('Lambda Client', function() {
       //Assert
       return resultPromise.then(result => {
         expect(result).to.be.deep.equal(returnedResult);
-      })
+      });
     });
 
     it('should return rejected promise on error', () => {
@@ -382,7 +382,7 @@ describe('Lambda Client', function() {
       };
       awsLambdaServiceMock.addPermission = sandbox.stub().returns({
         promise: () => {
-          return BluebirdPromise.reject(new Error('The statement id (kafjidojifdlajfildajfdasifjdasil) provided already exists. Please provide a new statement id, or remove the existing statement.'))
+          return BluebirdPromise.reject(new Error('The statement id (kafjidojifdlajfildajfdasifjdasil) provided already exists. Please provide a new statement id, or remove the existing statement.'));
         }
       });
 
@@ -405,7 +405,7 @@ describe('Lambda Client', function() {
       };
       awsLambdaServiceMock.addPermission = sandbox.stub().returns({
         promise: () => {
-          return BluebirdPromise.reject(new Error('The statement id (kafjidojifdlajfildajfdasifjdasil) provided already exists. Please provide a new statement id, or remove the existing statement.'))
+          return BluebirdPromise.reject(new Error('The statement id (kafjidojifdlajfildajfdasifjdasil) provided already exists. Please provide a new statement id, or remove the existing statement.'));
         }
       });
 
@@ -428,7 +428,7 @@ describe('Lambda Client', function() {
       };
       awsLambdaServiceMock.addPermission = sandbox.stub().returns({
         promise: () => {
-          return BluebirdPromise.reject(new Error('fdsjkaljfisajfadsif'))
+          return BluebirdPromise.reject(new Error('fdsjkaljfisajfadsif'));
         }
       });
 
@@ -437,7 +437,7 @@ describe('Lambda Client', function() {
 
       //Assert
       return resultPromise.then(() => {
-        expect().fail()
+        expect().fail();
       }).catch(err => {
         expect(err).to.have.property('message', 'fdsjkaljfisajfadsif');
       });
@@ -518,7 +518,7 @@ describe('Lambda Client', function() {
       //Assert
       return resultPromise.then(result => {
         expect(result).to.be.undefined;
-      })
+      });
     });
 
     it('should return rejected promise on error', () => {

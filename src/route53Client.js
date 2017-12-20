@@ -180,7 +180,7 @@ class Route53Client extends BaseClient {
    */
   async _hasResourceRecordSetChanged(currentParameters, expectedAliasHostedZoneId) {
 
-    const recordSetsByName = await this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName)
+    const recordSetsByName = await this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName);
     let hasChanged = false;
 
     const parsedExpectedAliasHostedZoneId = expectedAliasHostedZoneId.replace('/hostedzone/','');

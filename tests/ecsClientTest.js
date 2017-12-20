@@ -236,13 +236,13 @@ describe('ECS Client', function() {
       const ecsClientService = new ECS();
       ecsClientService.getClusterArn = sandbox.stub().rejects({code: 'ClusterNotFoundException'});
       ecsClientService._createCluster = sandbox.stub().resolves({});
-      ecsClientService.logMessage = sandbox.stub()
+      ecsClientService.logMessage = sandbox.stub();
 
       //Act
       await ecsClientService.createCluster(clusterName);
 
       //Assert
-      expect(ecsClientService.logMessage.args[0][0]).to.be.equal(`Cluster does not exist.  Creating Cluster. [ClusterName: clusterName]`)
+      expect(ecsClientService.logMessage.args[0][0]).to.be.equal(`Cluster does not exist.  Creating Cluster. [ClusterName: clusterName]`);
       expect(ecsClientService._createCluster.callCount).to.be.equal(1);
     });
   });
@@ -255,7 +255,7 @@ describe('ECS Client', function() {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createCluster: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createClusterResponse)} })
+        createCluster: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createClusterResponse);} })
       };
 
       const mockAwsSdk = {
@@ -334,7 +334,7 @@ describe('ECS Client', function() {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
+        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse);} })
       };
 
       const mockAwsSdk = {
@@ -411,7 +411,7 @@ describe('ECS Client', function() {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
+        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse);} })
       };
 
 const mockAwsSdk = {
@@ -488,7 +488,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
+        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse);} })
       };
 
 const mockAwsSdk = {
@@ -565,7 +565,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
+        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse);} })
       };
 
 const mockAwsSdk = {
@@ -643,7 +643,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse)} })
+        registerTaskDefinition: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(registerTaskDefinitionResponse);} })
       };
 
       const mockAwsSdk = {
@@ -795,7 +795,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
 const mockAwsSdk = {
@@ -838,7 +838,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
 const mockAwsSdk = {
@@ -881,7 +881,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
 const mockAwsSdk = {
@@ -924,7 +924,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
 const mockAwsSdk = {
@@ -967,7 +967,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1010,7 +1010,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1053,7 +1053,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1096,7 +1096,7 @@ const mockAwsSdk = {
 
       //setting up ecsClient Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1139,7 +1139,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse)} })
+        createService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createServiceResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1191,7 +1191,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       awsEcsClientMock = {
-        updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse)} })
+        updateService: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(updateServiceResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1276,7 +1276,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
+        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1324,7 +1324,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
+        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1373,7 +1373,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
+        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1432,7 +1432,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
+        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1479,7 +1479,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
+        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1519,7 +1519,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse)} })
+        describeServices: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeServicesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1566,7 +1566,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
+        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1612,7 +1612,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
+        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1669,7 +1669,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
+        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1716,7 +1716,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
+        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1757,7 +1757,7 @@ const mockAwsSdk = {
 
       //setting up ec2Client Mock
       let awsEcsClientMock = {
-        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse)} })
+        describeClusters: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeClustersResponse);} })
       };
 
       const mockAwsSdk = {

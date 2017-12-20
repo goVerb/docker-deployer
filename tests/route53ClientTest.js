@@ -255,7 +255,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         listHostedZonesByName: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listHostedZonesByNameResponse)
+            return BluebirdPromise.resolve(listHostedZonesByNameResponse);
           }
         })
       };
@@ -303,7 +303,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -355,7 +355,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -407,7 +407,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -459,7 +459,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -511,7 +511,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -563,7 +563,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -627,7 +627,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -691,7 +691,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -750,7 +750,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -801,7 +801,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -853,7 +853,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -905,7 +905,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -957,7 +957,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -1009,7 +1009,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -1072,7 +1072,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -1135,7 +1135,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(changeResourceRecordSetsResponse)
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -1269,7 +1269,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         listResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listResourceRecordSetResult)
+            return BluebirdPromise.resolve(listResourceRecordSetResult);
           }
         })
       };
@@ -1313,7 +1313,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         listResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listResourceRecordSetResult)
+            return BluebirdPromise.resolve(listResourceRecordSetResult);
           }
         })
       };
@@ -1357,7 +1357,7 @@ describe('Route53 Client', function () {
       let awsRoute53Mock = {
         listResourceRecordSets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(listResourceRecordSetResult)
+            return BluebirdPromise.resolve(listResourceRecordSetResult);
           }
         })
       };

@@ -256,7 +256,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -306,7 +306,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -357,7 +357,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -407,7 +407,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -458,7 +458,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -511,7 +511,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -564,7 +564,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -606,7 +606,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse)} })
+        createLoadBalancer: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createLoadBalancerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -758,7 +758,7 @@ describe('ELB Client', function() {
 
       //Assert
       return resultPromise.catch(err => {
-        expect(err.message).to.be.equal(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`)
+        expect(err.message).to.be.equal(`Invalid protocol parameter value.  Value must be HTTP or HTTPs.  [Value: ${protocol}]`);
       });
     });
 
@@ -774,7 +774,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -827,7 +827,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -880,7 +880,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -933,7 +933,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -986,7 +986,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1041,7 +1041,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1094,7 +1094,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1149,7 +1149,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1202,7 +1202,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1257,7 +1257,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1310,7 +1310,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1365,7 +1365,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1418,7 +1418,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1473,7 +1473,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1526,7 +1526,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1581,7 +1581,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1634,7 +1634,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1692,7 +1692,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1745,7 +1745,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1800,7 +1800,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1853,7 +1853,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1912,7 +1912,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1963,7 +1963,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse)} })
+        createTargetGroup: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTargetGroupResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2168,7 +2168,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2211,7 +2211,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2255,7 +2255,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2298,7 +2298,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2341,7 +2341,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2387,7 +2387,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2432,7 +2432,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse)} })
+        createListener: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createListenerResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2481,7 +2481,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse)} })
+        describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2524,7 +2524,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse)} })
+        describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2559,7 +2559,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse)} })
+        describeTargetGroups: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeTargetGroupsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2596,7 +2596,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2639,7 +2639,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2674,7 +2674,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2711,7 +2711,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2755,7 +2755,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2793,7 +2793,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse)} })
+        describeLoadBalancers: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeLoadBalancersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2833,7 +2833,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2871,7 +2871,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2908,7 +2908,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2948,7 +2948,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2996,7 +2996,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3043,7 +3043,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
+        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3081,7 +3081,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
+        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3118,7 +3118,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
+        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3158,7 +3158,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
+        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3206,7 +3206,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse)} })
+        addTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(addTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3254,7 +3254,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse)} })
+        describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3309,7 +3309,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse)} })
+        describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3358,7 +3358,7 @@ describe('ELB Client', function() {
 
       //setting up ec2Client Mock
       let awsElbv2ClientMock = {
-        describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse)} })
+        describeListeners: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeListenersResponse);} })
       };
 
       const mockAwsSdk = {

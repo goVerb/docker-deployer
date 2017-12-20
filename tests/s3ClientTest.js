@@ -68,7 +68,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         listBuckets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({Buckets: []})
+            return BluebirdPromise.resolve({Buckets: []});
           }
         })
       };
@@ -110,7 +110,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         listBuckets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({ Buckets: [] })
+            return BluebirdPromise.resolve({ Buckets: [] });
           }
         })
       };
@@ -153,7 +153,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         listBuckets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({ Buckets: [{ Name: s3BucketName }] })
+            return BluebirdPromise.resolve({ Buckets: [{ Name: s3BucketName }] });
           }
         })
       };
@@ -196,7 +196,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         listBuckets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({ Buckets: [{ Name: 'notFake' }] })
+            return BluebirdPromise.resolve({ Buckets: [{ Name: 'notFake' }] });
           }
         })
       };
@@ -240,7 +240,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         createBucket: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve()
+            return BluebirdPromise.resolve();
           }
         })
       };
@@ -291,7 +291,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         createBucket: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(expectedResponse)
+            return BluebirdPromise.resolve(expectedResponse);
           }
         })
       };
@@ -342,7 +342,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         createBucket: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.reject(expectedResponse)
+            return BluebirdPromise.reject(expectedResponse);
           }
         })
       };
@@ -391,7 +391,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         putBucketWebsite: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve()
+            return BluebirdPromise.resolve();
           }
         })
       };
@@ -447,7 +447,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         putBucketWebsite: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(expectedResp)
+            return BluebirdPromise.resolve(expectedResp);
           }
         })
       };
@@ -490,7 +490,7 @@ describe('S3 Client', function() {
       let awsS3ServiceMock = {
         putBucketWebsite: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.reject(expectedResp)
+            return BluebirdPromise.reject(expectedResp);
           }
         })
       };
@@ -540,7 +540,7 @@ describe('S3 Client', function() {
       awsS3ServiceMock = {
         listBuckets: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({Buckets: []})
+            return BluebirdPromise.resolve({Buckets: []});
           }
         })
       };

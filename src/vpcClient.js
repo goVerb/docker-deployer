@@ -220,7 +220,7 @@ class VpcClient extends BaseClient {
     const subnetLength = subnets.length;
     for(let i = 0; i < subnetLength; i++) {
       if(isNaN(subnets[i].availabilityZone) && !availabilityZoneLookup[subnets[i].availabilityZone]) {
-        return false
+        return false;
       }
     }
     return true;

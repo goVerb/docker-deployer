@@ -234,7 +234,7 @@ describe('VPC Client', function() {
 
     it('should return an array with all the available availabilityZones names', async () => {
       //Arrange
-      const expected = ['us-east-1b','us-east-1c','us-east-1d','us-east-1e']
+      const expected = ['us-east-1b','us-east-1c','us-east-1d','us-east-1e'];
       //Act
       let result = await vpcClientService.getAvailabilityZones();
       //Assert
@@ -263,7 +263,7 @@ describe('VPC Client', function() {
           ]
          })
       });
-      const expected = ['us-east-1b']
+      const expected = ['us-east-1b'];
       //Act
       let result = await vpcClientService.getAvailabilityZones();
       //Assert

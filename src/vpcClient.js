@@ -368,7 +368,7 @@ class VpcClient extends BaseClient {
 
   /**
    * Returns list of SubnetIds
-   * @param vpcId
+   * @param {string} vpcId
    * @param subnetNames
    * @return {Promise}
    */

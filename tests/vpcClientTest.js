@@ -148,10 +148,34 @@ describe('VPC Client', function() {
   });
 
   describe('createVpcFromConfig', () => {
+    let VPC;
+    let vpcClientService;
+    beforeEach(() => {
+      VPC = require('../src/vpcClient');
+      vpcClientService = new VPC();
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');      
+      vpcClientService.createVpc = sandbox.stub().resolves({});
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
+      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
+      vpcClientService.createRouteTable = sandbox.stub().resolves({});
+      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
+      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(['us-west-2a']);
+    });
+
+    afterEach(() => {
+      VPC = null;
+      vpcClientService = null;
+    });
+    
     it('should pass config.name to getVpcIdFromName', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -167,23 +191,6 @@ describe('VPC Client', function() {
         ]
       };
 
-
-
-      //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('vpc-test123');
-      vpcClientService.createVpc = sandbox.stub().resolves({});
-      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
 
 
       //Act
@@ -198,7 +205,7 @@ describe('VPC Client', function() {
     it('should return existingVpcId if vpc already exists', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -218,20 +225,7 @@ describe('VPC Client', function() {
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
       vpcClientService.getVpcIdFromName = sandbox.stub().resolves(existingVpcId);
-      vpcClientService.createVpc = sandbox.stub().resolves({});
-      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
       
 
       //Act
@@ -246,7 +240,7 @@ describe('VPC Client', function() {
     it('should return vpcId to getRouteTableByVpcId if vpc already exists', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -266,23 +260,8 @@ describe('VPC Client', function() {
 
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
       vpcClientService.getVpcIdFromName = sandbox.stub().resolves(existingVpcId);
-      vpcClientService.createVpc = sandbox.stub().resolves({});
-      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves(existingVpcId);
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
       
-
-
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
@@ -295,7 +274,7 @@ describe('VPC Client', function() {
     it('should pass config.name, environment, and config.cidrBlock to createVpc', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -314,21 +293,7 @@ describe('VPC Client', function() {
       let newlyCreatedVpcId = 'vpc-test123';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
-      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -345,7 +310,7 @@ describe('VPC Client', function() {
     it('should pass vpcId, name, environment, and rules parameter to createNetworkAclWithRules', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -365,20 +330,8 @@ describe('VPC Client', function() {
       let createdNetworkAclId = 'acl-123';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
       
 
 
@@ -398,7 +351,7 @@ describe('VPC Client', function() {
     it('should call createNetworkAclWithRules for each networkAcl', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -418,20 +371,9 @@ describe('VPC Client', function() {
       let createdNetworkAclId = 'acl-123';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+
       
 
 
@@ -447,7 +389,7 @@ describe('VPC Client', function() {
     it('should pass vpcId, name, environment, cidrBlock, availabileZone, mapPublicIpOnLaunch parameter to createVpcSubnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -468,22 +410,10 @@ describe('VPC Client', function() {
       let createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
-
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -494,7 +424,7 @@ describe('VPC Client', function() {
         expect(vpcClientService.createVpcSubnet.args[0][1]).to.be.equal(instanceSubnet1.name);
         expect(vpcClientService.createVpcSubnet.args[0][2]).to.be.equal('environmentTest');
         expect(vpcClientService.createVpcSubnet.args[0][3]).to.be.equal(instanceSubnet1.cidrBlock);
-        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal(instanceSubnet1.availabilityZone);
+        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
         expect(vpcClientService.createVpcSubnet.args[0][5]).to.be.equal(instanceSubnet1.mapPublicIpOnLaunch);
 
       });
@@ -503,7 +433,7 @@ describe('VPC Client', function() {
     it('should call createVpcSubnet for each subnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -524,22 +454,10 @@ describe('VPC Client', function() {
       let createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
-
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -553,7 +471,7 @@ describe('VPC Client', function() {
     it('should pass networkAclId and subnetId to replaceNetworkAclAssociation', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -574,23 +492,12 @@ describe('VPC Client', function() {
       let createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+
       
-
-
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
@@ -604,7 +511,7 @@ describe('VPC Client', function() {
     it('should call replaceNetworkAclAssociation for each subnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -625,21 +532,10 @@ describe('VPC Client', function() {
       let createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
-      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves({});
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
 
 
       //Act
@@ -654,7 +550,7 @@ describe('VPC Client', function() {
     it('should pass vpcId, name, and environment to createAndAttachInternetGateway', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -676,22 +572,11 @@ describe('VPC Client', function() {
       let createdInternetGatewayId = 'igw-abc123test';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
-
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -707,7 +592,7 @@ describe('VPC Client', function() {
     it('should call createAndAttachInternetGateway once', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -729,22 +614,11 @@ describe('VPC Client', function() {
       let createdInternetGatewayId = 'igw-abc123test';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
-      vpcClientService.createRouteTable = sandbox.stub().resolves({});
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
-
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -758,7 +632,7 @@ describe('VPC Client', function() {
     it('should pass vpcId, name, and environment to createRouteTable', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -781,21 +655,12 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -811,7 +676,7 @@ describe('VPC Client', function() {
     it('should call createRouteTable once', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -834,22 +699,12 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
-
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -863,7 +718,7 @@ describe('VPC Client', function() {
     it('should pass internetGatewayId and routeTableId to addInternetGatewayToRouteTable', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -886,21 +741,12 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
-      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);      
 
 
       //Act
@@ -916,7 +762,7 @@ describe('VPC Client', function() {
     it('should call addInternetGatewayToRouteTable once', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -939,21 +785,12 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
 
 
       //Act
@@ -968,7 +805,7 @@ describe('VPC Client', function() {
     it('should pass routeTableId and subnetId to associateSubnetWithRouteTable', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -991,23 +828,14 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+
       
-
-
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
@@ -1021,7 +849,7 @@ describe('VPC Client', function() {
     it('should call associateSubnetWithRouteTable for each subnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -1044,21 +872,12 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
 
 
       //Act
@@ -1073,7 +892,7 @@ describe('VPC Client', function() {
     it('should call createOrUpdatePeeringConnection if config contains a peering connection id and destinationCidrBlock', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -1100,20 +919,13 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
+
       
 
 
@@ -1129,7 +941,7 @@ describe('VPC Client', function() {
     it('should NOT call createOrUpdatePeeringConnection if config contains no peering connection id and destinationCidrBlock', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -1152,23 +964,10 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
-      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
-
-
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
@@ -1181,7 +980,7 @@ describe('VPC Client', function() {
     it('should return newly created vpcId', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2a', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
       let vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
@@ -1204,21 +1003,12 @@ describe('VPC Client', function() {
       let createdRouteTableId = 'rtb-123abc';
 
       //Setting up VPC clients
-      const VPC = require('../src/vpcClient');
-      const vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
+
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-      vpcClientService.replaceNetworkAclAssociation = sandbox.stub().resolves({});
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
-      vpcClientService.addInternetGatewayToRouteTable = sandbox.stub().resolves({});
-      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
-      vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
-      vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves();
-      
 
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
@@ -1241,8 +1031,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse)} }),
-        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse);} }),
+        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -1292,12 +1082,12 @@ describe('VPC Client', function() {
       let awsEc2ClientMock = {
         createVpc: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createVpcResponse)
+            return BluebirdPromise.resolve(createVpcResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1350,12 +1140,12 @@ describe('VPC Client', function() {
       let awsEc2ClientMock = {
         createVpc: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve(createVpcResponse)
+            return BluebirdPromise.resolve(createVpcResponse);
           }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1407,11 +1197,11 @@ describe('VPC Client', function() {
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
         createVpc: sandbox.stub().returns({
-          promise: () => { return BluebirdPromise.resolve(createVpcResponse) }
+          promise: () => { return BluebirdPromise.resolve(createVpcResponse); }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1462,11 +1252,11 @@ describe('VPC Client', function() {
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
         createVpc: sandbox.stub().returns({
-          promise: () => { return BluebirdPromise.resolve(createVpcResponse) }
+          promise: () => { return BluebirdPromise.resolve(createVpcResponse); }
         }),
         waitFor: sandbox.stub().returns({
           promise: () => {
-            return BluebirdPromise.resolve({})
+            return BluebirdPromise.resolve({});
           }
         })
       };
@@ -1515,8 +1305,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse)} }),
-        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse);} }),
+        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -1564,8 +1354,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse)} }),
-        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse);} }),
+        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -1613,8 +1403,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse)} }),
-        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse);} }),
+        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -1660,8 +1450,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse)} }),
-        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse);} }),
+        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -1710,8 +1500,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse)} }),
-        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createVpc: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createVpcResponse);} }),
+        waitFor: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -1774,7 +1564,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1835,7 +1625,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1891,7 +1681,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1931,7 +1721,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -1973,7 +1763,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2004,7 +1794,7 @@ describe('VPC Client', function() {
         expect(params.Filters).to.be.an('array');
         expect(params.Filters[0]).to.have.property('Values');
         expect(params.Filters[0].Name).to.be.equal('vpc-id');
-        expect(params.Filters[0].Values).to.be.an('array')
+        expect(params.Filters[0].Values).to.be.an('array');
         expect(params.Filters[0].Values.length).to.be.equal(1);
         expect(params.Filters[0].Values[0]).to.be.equal(vpcId);
       });
@@ -2035,7 +1825,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2091,7 +1881,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2131,7 +1921,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse)} })
+        describeVpcs: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeVpcsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2172,7 +1962,7 @@ describe('VPC Client', function() {
       let describeSubnetsResponse = {
         Subnets: [
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.1.0/24",
             DefaultForAz: false,
@@ -2189,7 +1979,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2232,7 +2022,7 @@ describe('VPC Client', function() {
       let describeSubnetsResponse = {
         Subnets: [
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.1.0/24",
             DefaultForAz: false,
@@ -2249,7 +2039,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2293,7 +2083,7 @@ describe('VPC Client', function() {
       let describeSubnetsResponse = {
         Subnets: [
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.1.0/24",
             DefaultForAz: false,
@@ -2310,7 +2100,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2349,7 +2139,7 @@ describe('VPC Client', function() {
       let describeSubnetsResponse = {
         Subnets: [
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.1.0/24",
             DefaultForAz: false,
@@ -2366,7 +2156,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2411,7 +2201,7 @@ describe('VPC Client', function() {
       let describeSubnetsResponse = {
         Subnets: [
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.1.0/24",
             DefaultForAz: false,
@@ -2428,7 +2218,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2468,7 +2258,7 @@ describe('VPC Client', function() {
       let describeSubnetsResponse = {
         Subnets: [
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.1.0/24",
             DefaultForAz: false,
@@ -2481,7 +2271,7 @@ describe('VPC Client', function() {
             ]
           },
           {
-            AvailabilityZone: 'us-west-2a',
+            AvailabilityZone: 1,
             AvailableIpAddressCount: 251,
             CidrBlock: "10.0.2.0/24",
             DefaultForAz: false,
@@ -2498,7 +2288,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2539,7 +2329,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse)} })
+        describeSubnets: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeSubnetsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2581,7 +2371,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2631,7 +2421,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2681,7 +2471,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2731,7 +2521,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2781,7 +2571,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2829,7 +2619,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2879,7 +2669,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2929,7 +2719,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -2977,7 +2767,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3027,7 +2817,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3077,7 +2867,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3125,7 +2915,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse)} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3176,8 +2966,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3221,8 +3011,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3268,8 +3058,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3315,8 +3105,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3360,8 +3150,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3407,8 +3197,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3454,8 +3244,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3499,8 +3289,8 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} }),
-        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({})} })
+        createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
+        attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
 
       const mockAwsSdk = {
@@ -3546,7 +3336,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
+        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3592,7 +3382,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
+        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3638,7 +3428,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
+        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3684,7 +3474,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
+        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3728,7 +3518,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse)} })
+        createRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3770,7 +3560,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3811,7 +3601,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3852,7 +3642,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3895,7 +3685,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse)} })
+        associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3936,7 +3726,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse)} })
+        associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -3977,7 +3767,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse)} })
+        associateRouteTable: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(associateRouteTableResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4025,7 +3815,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
+        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4073,7 +3863,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
+        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4130,7 +3920,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
+        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4187,7 +3977,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
+        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4242,7 +4032,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
+        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4298,7 +4088,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse)} })
+        createNetworkAcl: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4353,7 +4143,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4397,7 +4187,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4441,7 +4231,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4485,7 +4275,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4529,7 +4319,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4573,7 +4363,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4617,7 +4407,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4661,7 +4451,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse)} })
+        createNetworkAclEntry: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createNetworkAclEntryResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4709,7 +4499,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        replaceNetworkAclAssociation: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(replaceNetworkAclAssociationResponse)} })
+        replaceNetworkAclAssociation: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(replaceNetworkAclAssociationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4753,7 +4543,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        replaceNetworkAclAssociation: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(replaceNetworkAclAssociationResponse)} })
+        replaceNetworkAclAssociation: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(replaceNetworkAclAssociationResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4799,7 +4589,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse)} })
+        describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4855,7 +4645,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse)} })
+        describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4904,7 +4694,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse)} })
+        describeNetworkAcls: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeNetworkAclsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4942,7 +4732,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        modifySubnetAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifySubnetAttributeResponse)} })
+        modifySubnetAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifySubnetAttributeResponse);} })
       };
 
       const mockAwsSdk = {
@@ -4982,7 +4772,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        modifySubnetAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifySubnetAttributeResponse)} })
+        modifySubnetAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifySubnetAttributeResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5023,7 +4813,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse)} })
+        modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5065,7 +4855,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse)} })
+        modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5107,7 +4897,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse)} })
+        modifyVpcAttribute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(modifyVpcAttributeResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5150,7 +4940,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5189,7 +4979,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5230,7 +5020,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5274,7 +5064,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5324,7 +5114,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse)} })
+        createTags: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createTagsResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5372,7 +5162,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse)} })
+        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5414,7 +5204,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse)} })
+        describeRouteTables: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(describeRouteTablesResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5458,7 +5248,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        acceptVpcPeeringConnection: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(acceptVpcPeeringConnectionResponse)} })
+        acceptVpcPeeringConnection: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(acceptVpcPeeringConnectionResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5501,7 +5291,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5543,7 +5333,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse);} })
       };
 
       const mockAwsSdk = {
@@ -5585,7 +5375,7 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse)} })
+        createRoute: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteResponse);} })
       };
 
       const mockAwsSdk = {

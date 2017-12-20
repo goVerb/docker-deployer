@@ -59,8 +59,8 @@ class VpcClient extends BaseClient {
     let vpcId = '';
     let routeTableId = '';
     const existingVpcId = await this.getVpcIdFromName(config.name);
-    //We will fetch availability zones here to match it up with the subnets based on region.
-    // const availabilityZones = await this.getAvailabilityZones();
+    // We will fetch availability zones here to match it up with the subnets based on region.
+    const availabilityZones = await this.getAvailabilityZones();
     
     if (existingVpcId) {
       this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}] [ExistingVpcId: ${existingVpcId}]`);
@@ -100,9 +100,16 @@ class VpcClient extends BaseClient {
       };
 
       let subnetPromises = [];
+      let availabilityZonesLength = availabilityZones.length;
       for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
         let subnetObject = config.subnets[subnetIndex];
-        subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, environment, subnetObject.cidrBlock, subnetObject.availabilityZone, subnetObject.mapPublicIpOnLaunch).then(assignSubnetIdToArray(subnetObject.name)));
+        let mappedZone;
+        if(subnetObject.availabilityZone > availabilityZonesLength) {
+          mappedZone = availabilityZones[subnetIndex % availabilityZonesLength];
+        } else {
+          mappedZone = availabilityZones[subnetObject.availabilityZone - 1];          
+        }
+        subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, environment, subnetObject.cidrBlock, mappedZone, subnetObject.mapPublicIpOnLaunch).then(assignSubnetIdToArray(subnetObject.name)));
       }
 
       await BlueBirdPromise.all(subnetPromises);
@@ -220,7 +227,7 @@ class VpcClient extends BaseClient {
           availableZones.push(fetchedZones[i].ZoneName);
         }
       }
-      return availableZones;
+      return availableZones.sort();
     } catch(err) {
       this.logError(`getAvailabilityZonesError Error: ${JSON.stringify(err)}`);
       throw err;      

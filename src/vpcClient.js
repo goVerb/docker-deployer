@@ -340,7 +340,7 @@ class VpcClient extends BaseClient {
 
   /**
    *
-   * @param vpcId
+   * @param {string} vpcId
    * @returns {Promise<*>}
    */
   async getRouteTableByVpcId(vpcId) {

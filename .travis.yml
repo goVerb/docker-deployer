@@ -9,7 +9,7 @@ install:
 before_script:
 - yarn global add gulp
 script:
-- gulp test
+- gulp test --quiet true
 - gulp build
 - gulp npmrc
 - 'export PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: ''{

@@ -545,7 +545,7 @@ describe('S3 Client', function() {
         })
       };
 
-      mockAwsSdk = {
+      let mockAwsSdk = {
         config: {
           setPromisesDependency: (promise) => {
           }
@@ -563,17 +563,11 @@ describe('S3 Client', function() {
       const S3 = proxyquire('../src/s3Client', mocks);
       s3ClientService = new S3();
 
-      s3ClientService.LookupS3BucketByName = sandbox.stub().returns({
-        delay: () => BluebirdPromise.resolve()
-      });
+      s3ClientService.LookupS3BucketByName = sandbox.stub().resolves();
+      
+      s3ClientService.createBucket = sandbox.stub().resolves();
 
-      s3ClientService.createBucket = sandbox.stub().returns({
-        delay: () => BluebirdPromise.resolve()
-      });
-
-      s3ClientService.enableHosting = sandbox.stub().returns({
-        delay: () => BluebirdPromise.resolve()
-      });
+      s3ClientService.enableHosting = sandbox.stub().resolves();
 
       options = {
         name: 'myName',
@@ -582,7 +576,7 @@ describe('S3 Client', function() {
 
     it('should callLookupS3BucketByName once', async () => {
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options, 5);
 
       // Assert
       expect(s3ClientService.LookupS3BucketByName.callCount).to.be.equal(1);
@@ -590,7 +584,7 @@ describe('S3 Client', function() {
 
     it('should pass name from options to callLookupS3BucketByName', async() => {
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options, 5);
 
       // Assert
       expect(s3ClientService.LookupS3BucketByName.args[0][0]).to.be.equal('myName');
@@ -598,7 +592,7 @@ describe('S3 Client', function() {
 
     it('should call createBucket if no bucket is found', async () => {
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options,1);
 
       // Assert
       expect(s3ClientService.createBucket.callCount).to.be.equal(1);
@@ -606,7 +600,7 @@ describe('S3 Client', function() {
 
     it('should pass name from options to createBucket', async () => {
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options,1);
 
       // Assert
       expect(s3ClientService.createBucket.args[0][0]).to.be.equal('myName');
@@ -617,7 +611,7 @@ describe('S3 Client', function() {
       options.enableHosting = true;
 
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options,1);
 
       // Assert
       expect(s3ClientService.enableHosting.callCount).to.be.equal(1);
@@ -628,7 +622,7 @@ describe('S3 Client', function() {
       options.enableHosting = true;
 
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options,1);
 
       // Assert
       expect(s3ClientService.enableHosting.args[0][0]).to.be.equal('myName');
@@ -639,7 +633,7 @@ describe('S3 Client', function() {
       options.enableHosting = false;
 
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options,1);
 
       // Assert
       expect(s3ClientService.enableHosting.callCount).to.be.equal(0);
@@ -647,12 +641,10 @@ describe('S3 Client', function() {
 
     it('should not attempt to create bucket or enable hosting if bucket is found', async () => {
       // Arrange
-      s3ClientService.LookupS3BucketByName = sandbox.stub().returns({
-        delay: () => BluebirdPromise.resolve({ id: '12345' })
-      });
+      s3ClientService.LookupS3BucketByName = sandbox.stub().resolves({ id: '12345' });
 
       // Act
-      await s3ClientService.createBucketIfNecessary(options);
+      await s3ClientService.createBucketIfNecessary(options,1);
 
       // Assert
       expect(s3ClientService.createBucket.callCount).to.be.equal(0);
@@ -661,13 +653,11 @@ describe('S3 Client', function() {
 
     it('should throw error on unexpected error', async () => {
       // Arrange
-      s3ClientService.LookupS3BucketByName = sandbox.stub().returns({
-        delay: () => BluebirdPromise.reject({ message: 'An unexpected error occurred!' })
-      });
+      s3ClientService.LookupS3BucketByName = sandbox.stub().rejects({ message: 'An unexpected error occurred!' });
 
       try {
         // Act
-        await s3ClientService.createBucketIfNecessary(options);
+        await s3ClientService.createBucketIfNecessary(options,1);
 
       } catch (err) {
         // Assert

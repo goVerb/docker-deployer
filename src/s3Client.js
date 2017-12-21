@@ -174,13 +174,16 @@ class S3Client extends BaseClient {
     try {
 
       this.logMessage(`LookupS3BucketByName: [options: ${JSON.stringify(options)}]`);
-      const foundS3Bucket = await this.LookupS3BucketByName(options.name).delay(delayInMilliseconds);
-
+      const foundS3Bucket = await this.LookupS3BucketByName(options.name);
+      await BlueBirdPromise.delay(delayInMilliseconds);
       if(__.isEmpty(foundS3Bucket)) {
         this.logMessage(`No bucket found. Creating one. [Bucket name: ${methodName}]`);
-        await this.createBucket(options.name).delay(delayInMilliseconds);
+        await this.createBucket(options.name);
+        await BlueBirdPromise.delay(delayInMilliseconds);
           if(options.enableHosting) {
-             return await this.enableHosting(options.name).delay(delayInMilliseconds);
+            const enableHostingResult = await this.enableHosting(options.name);
+            await BlueBirdPromise.delay(delayInMilliseconds);
+            return enableHostingResult;
           }
       }
       this.logMessage(`${methodName}: Found the bucket. No changes needed. [foundS3Bucket: ${JSON.stringify(foundS3Bucket)}]`);

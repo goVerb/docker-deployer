@@ -184,7 +184,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
       return await this._awsAutoScalingClient.createLaunchConfiguration(params).promise();
   
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`_createOrUpdateLaunchConfiguration: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }
@@ -229,7 +229,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
         return await this.deleteLaunchConfiguration(launchConfigToDeleteName);
       }
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`createOrUpdateAutoScalingGroup: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }
@@ -384,7 +384,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
   
       return await this._awsAutoScalingClient.createAutoScalingGroup(params).promise();
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`_createAutoScalingGroup: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }
@@ -410,7 +410,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
   
       return await this._awsAutoScalingClient.updateAutoScalingGroup(params).promise();
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`_updateAutoScalingGroup: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }
@@ -436,7 +436,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
         return '';
       }
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`getLaunchConfiguration: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }
@@ -486,7 +486,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
       };
       return await this._awsAutoScalingClient.deleteLaunchConfiguration(params).promise();
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`deleteLaunchConfiguration: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }
@@ -511,7 +511,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
         return '';
       }
     } catch (err) {
-      this.logError(`createOrUpdateLaunchConfigurationFromConfig: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`getAutoScalingGroup: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }

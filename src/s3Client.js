@@ -89,7 +89,7 @@ class S3Client extends BaseClient {
     } catch (err) {
 
       let errorMessage = `Error: ${JSON.stringify(err)} | Error Stack Trace: ${err.stack}`;
-      this.logMessage(errorMessage);
+      this.logError(errorMessage);
       return {
         message: errorMessage
       };
@@ -189,7 +189,7 @@ class S3Client extends BaseClient {
       this.logMessage(`${methodName}: Found the bucket. No changes needed. [foundS3Bucket: ${JSON.stringify(foundS3Bucket)}]`);
 
     } catch (err) {
-      this.logMessage(`${methodName}: Error! [err: ${JSON.stringify(err)}]`);
+      this.logError(`${methodName}: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
     }
   }

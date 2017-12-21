@@ -3,6 +3,7 @@
   "version": "1.15.4",
   "description": "docker deployer utils",
   "main": "build/index.js",
+  "files": "build",
   "scripts": {
     "test": "gulp test"
   },

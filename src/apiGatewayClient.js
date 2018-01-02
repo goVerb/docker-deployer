@@ -192,7 +192,8 @@ class APIGatewayClient extends BaseClient {
         throw new Error('apiName is null or undefined');
       }
 
-      const foundApiId = await this.lookupApiGatewayByName(apiName).delay(delayInMilliseconds);
+      const foundApiId = await this.lookupApiGatewayByName(apiName);
+      await BlueBirdPromise.delay(delayInMilliseconds);
 
       if (util.isNullOrUndefined(foundApiId)) {
         return BlueBirdPromise.reject({
@@ -203,7 +204,9 @@ class APIGatewayClient extends BaseClient {
 
       this.logMessage(`Found the foundApid: ${foundApiId}`);
 
-      const data = await this._deployApiGatewayToStage(foundApiId, environment.ShortName, environment.FullName).delay(delayInMilliseconds);
+      const data = await this._deployApiGatewayToStage(foundApiId, environment.ShortName, environment.FullName);
+      await BlueBirdPromise.delay(delayInMilliseconds);
+      
       this.logMessage(`deployApiGatewayToStageForEnvByGatewayName was a success ${this._getObjectAsString(data)}`);
       return data;
     } catch (err) {
@@ -269,15 +272,18 @@ class APIGatewayClient extends BaseClient {
       }
 
       const foundApi = await this.lookupApiGatewayByName(swaggerEntity.info.title);
-
+      let data
       if (util.isNullOrUndefined(foundApi)) {
         this.logMessage(`${methodName}: creating api gateway`);
-        return await this._createSwagger(swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
+        data = await this._createSwagger(swaggerEntity, failOnWarnings);
+        await BlueBirdPromise.delay(delayInMilliseconds);
+        return data;         
       }
 
       this.logMessage(`${methodName}: Found the [foundApid: ${JSON.stringify(foundApi.id)}]`);
 
-      const data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings).delay(delayInMilliseconds);
+      data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings);
+      await BlueBirdPromise.delay(delayInMilliseconds);      
       this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
       return data;
 

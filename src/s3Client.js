@@ -165,7 +165,7 @@ class S3Client extends BaseClient {
    * @param {Object} options
    * @param {string} options.name
    * @param {boolean} options.enableHosting
-   * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
+   * @param {number} [delayInMilliseconds=5000] this defaults to 5 seconds
    * @return {Promise<T>}
    */
   async createBucketIfNecessary(options, delayInMilliseconds = 5000) {

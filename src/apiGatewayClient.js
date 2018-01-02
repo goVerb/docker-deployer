@@ -272,7 +272,7 @@ class APIGatewayClient extends BaseClient {
       }
 
       const foundApi = await this.lookupApiGatewayByName(swaggerEntity.info.title);
-      let data
+      let data;
       if (util.isNullOrUndefined(foundApi)) {
         this.logMessage(`${methodName}: creating api gateway`);
         data = await this._createSwagger(swaggerEntity, failOnWarnings);

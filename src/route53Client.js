@@ -57,6 +57,8 @@ class Route53Client extends BaseClient {
             Action: 'UPSERT',
             ResourceRecordSet: {
               Name: domainName,
+              Region: this._region,
+              SetIdentifier: `${this._region} ALB`,
               Type: 'A',
               AliasTarget: {
                 DNSName: dnsName,
@@ -69,6 +71,8 @@ class Route53Client extends BaseClient {
             Action: 'UPSERT',
             ResourceRecordSet: {
               Name: domainName,
+              Region: this._region,
+              SetIdentifier: `${this._region} ALB`,
               Type: 'AAAA',
               AliasTarget: {
                 DNSName: dnsName,
@@ -156,7 +160,7 @@ class Route53Client extends BaseClient {
       }
     };
 
-    this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}] [Cloudfront DNS Name: ${cloudFrontDNSName}`);
+    this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}] [Cloudfront DNS Name: ${cloudFrontDNSName}]`);
     const changeRecordSetsResult = await this._awsRoute53Client.changeResourceRecordSets(params).promise();
     this.logMessage(`Result: ${JSON.stringify(changeRecordSetsResult)}`);
 

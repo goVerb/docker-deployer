@@ -103,7 +103,6 @@ class Route53Client extends BaseClient {
    * @return {Promise.<TResult>}
    */
   async associateDomainWithCloudFront(domainName, cloudFrontDNSName) {
-
     // This is a hardcoded AWS CloudFront Value
     const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 
@@ -116,6 +115,8 @@ class Route53Client extends BaseClient {
       dnsName: cloudFrontDNSName,
       domainNameHostedZoneId: domainHostedZoneId
     };
+
+    this.logMessage(`Checking if resource record has changed. [Params: ${JSON.stringify(parameters)}]`);
 
     const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(parameters, CLOUDFRONT_HOSTED_ZONE_ID);
     if (!hasRecordSetChangedResult) {
@@ -155,7 +156,7 @@ class Route53Client extends BaseClient {
       }
     };
 
-    this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}]`);
+    this.logMessage(`Associating Domain with CloudFront. [DomainName: ${domainName}] [Cloudfront DNS Name: ${cloudFrontDNSName}`);
     const changeRecordSetsResult = await this._awsRoute53Client.changeResourceRecordSets(params).promise();
     this.logMessage(`Result: ${JSON.stringify(changeRecordSetsResult)}`);
 
@@ -188,6 +189,7 @@ class Route53Client extends BaseClient {
 
     let foundARecord = false;
     let foundAAAARecord = false;
+    
     recordSetsByName.forEach(item => {
 
       //break if the true condition is met

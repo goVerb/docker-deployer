@@ -189,7 +189,7 @@ class Route53Client extends BaseClient {
 
     let foundARecord = false;
     let foundAAAARecord = false;
-    
+
     recordSetsByName.forEach(item => {
 
       //break if the true condition is met

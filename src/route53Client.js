@@ -273,8 +273,14 @@ class Route53Client extends BaseClient {
     const recordSets = await this._awsRoute53Client.listResourceRecordSets(params).promise();
 
     this.logMessage(`_getResourceRecordSetsByName Results: ${JSON.stringify(recordSets)}`);
+
+    let itemName;
+    let itemRegion;
+
     return __.filter(recordSets.ResourceRecordSets, (item) => {
-      return __.get(item, 'Name', '').toLocaleUpperCase() === `${dnsName.toLocaleUpperCase()}.`;
+      itemName = __.get(item, 'Name', '').toLocaleUpperCase();
+      itemRegion = __.get(item, 'Region', '').toLocaleUpperCase();
+      return itemName === `${dnsName.toLocaleUpperCase()}.` && (itemRegion === this._region.toLocaleUpperCase());
     });
   }
 

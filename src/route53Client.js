@@ -280,7 +280,7 @@ class Route53Client extends BaseClient {
     return __.filter(recordSets.ResourceRecordSets, (item) => {
       itemName = __.get(item, 'Name', '').toLocaleUpperCase();
       itemRegion = __.get(item, 'Region', '').toLocaleUpperCase();
-      return itemName === `${dnsName.toLocaleUpperCase()}.` && (itemRegion === this._region.toLocaleUpperCase());
+      return itemName === `${dnsName.toLocaleUpperCase()}.` && (!itemRegion || itemRegion === this._region.toLocaleUpperCase());
     });
   }
 

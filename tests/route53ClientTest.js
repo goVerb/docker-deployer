@@ -1486,6 +1486,141 @@ describe('Route53 Client', function () {
       });
     });
 
+    it('should return the results that match the resource Name only if no region specified', () => {
+      //Arrange
+
+      const listResourceRecordSetResult = {
+        "ResourceRecordSets":[
+          {
+            "Name":"dev.yoursite.com.",
+            "Type":"A",
+            "ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z2FDTNDATAQYW2",
+              "DNSName":"d2gzlhvii4ajca.cloudfront.net.",
+              "EvaluateTargetHealth":false
+            }
+          },
+          {
+            "Name":"dev.yoursite.com.",
+            "Type":"AAAA",
+            "ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z2FDTNDATAQYW2",
+              "DNSName":"d2gzlhvii4ajca.cloudfront.net.",
+              "EvaluateTargetHealth":false
+            }
+          },
+          {
+            "Name":"api.dev.yoursite.com.",
+            "Type":"A","ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z2FDTNDATAQYW2",
+              "DNSName":"d2296tvo3hsqb0.cloudfront.net.",
+              "EvaluateTargetHealth":false
+            }
+          },
+          {
+            "Name":"api.dev.yoursite.com.",
+            "Type":"AAAA",
+            "ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z2FDTNDATAQYW2",
+              "DNSName":"d2296tvo3hsqb0.cloudfront.net.",
+              "EvaluateTargetHealth":false
+            }
+          },
+          {
+            "Name":"yourapi.prod-internal.yoursite.com.",
+            "Type":"A","ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z1H1FL5HABSF5",
+              "DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.",
+              "EvaluateTargetHealth":false
+            }
+          },
+          {
+            "Name":"yourapi.prod-internal.yoursite.com.",
+            "Type":"AAAA",
+            "ResourceRecords":[],
+            "AliasTarget":
+              {
+                "HostedZoneId":"Z1H1FL5HABSF5",
+                "DNSName":"app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.",
+                "EvaluateTargetHealth":false
+              }
+          },
+          {
+            "Name":"wordpress.prod.yoursite.com.",
+            "Type":"A",
+            "TTL":300,
+            "ResourceRecords":[
+              {"Value":"35.167.2.48"
+              }
+            ]
+          },
+          {
+            "Name":"www.yoursite.com.",
+            "Type":"A","ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z2FDTNDATAQYW2",
+              "DNSName":"d1l7hx7of1tvg6.cloudfront.net.",
+              "EvaluateTargetHealth":false
+            }
+          },
+          {
+            "Name":"www.yoursite.com.",
+            "Type":"AAAA",
+            "ResourceRecords":[],
+            "AliasTarget": {
+              "HostedZoneId":"Z2FDTNDATAQYW2",
+              "DNSName":"d1l7hx7of1tvg6.cloudfront.net.",
+              "EvaluateTargetHealth":false
+            }
+          }
+        ],
+        "IsTruncated":false,
+        "MaxItems":"100"
+      };
+
+      //setting up awsRoute53Client Mock
+      let awsRoute53Mock = {
+        listResourceRecordSets: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(listResourceRecordSetResult);
+          }
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        Route53: function() {
+          return awsRoute53Mock;
+        }
+      };
+
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
+      const route53ClientService = new Route53();
+
+      let hostedZoneId = 'Z1PJUNE0O0S76K';
+      let dnsName = 'dev.yoursite.com';
+
+      //Act
+      let resultPromise = route53ClientService._getResourceRecordSetsByName(hostedZoneId, dnsName);
+
+
+      //Assert
+      return resultPromise.then(result => {
+        expect(result).to.have.length(2);
+      });
+    });
   });
 
   describe('_hasResourceRecordSetChanged', () => {

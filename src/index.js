@@ -363,7 +363,9 @@ class Deployer extends BaseClient {
     const scaleInResponse = await this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
     serviceConfig.putAlarmScaleInParams.AlarmActions[0] = scaleInResponse.PolicyARN;
 
-    return await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
+    await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
+
+    //
   }
 
   /**
@@ -413,33 +415,33 @@ class Deployer extends BaseClient {
     }
 
     if (!__.has(lambdaConfig, 'environments')) {
-      this.logError('lambdaConfig must have field \'environments\'');
-      throw new Error('lambdaConfig must have field \'environments\'');
-    }
+      return this._lambdaClient.deployLambdaFunction({}, lambdaConfig);
 
-    const envLambdas = [];
+    } else {
+      const envLambdas = [];
 
-    const environments = lambdaConfig.environments;
-    delete lambdaConfig.environments;
+      const environments = lambdaConfig.environments;
+      delete lambdaConfig.environments;
 
-    let currentEnvironment;
-    for(let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
-      currentEnvironment = environments[envIndex];
+      let currentEnvironment;
+      for(let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
+        currentEnvironment = environments[envIndex];
 
-      if(!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
-        this.logMessage(`Invalid Lambda environment, skipping entry. [Environment: ${currentEnvironment.name}] [Allowed Environments: ${JSON.stringify(Object.keys(ALLOWED_ENVIRONMENTS))}]`);
-        continue;
+        if(!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
+          this.logMessage(`Invalid Lambda environment, skipping entry. [Environment: ${currentEnvironment.name}] [Allowed Environments: ${JSON.stringify(Object.keys(ALLOWED_ENVIRONMENTS))}]`);
+          continue;
+        }
+
+        let currentDeploymentParams = {
+          environmentName: currentEnvironment.name,
+          variables: currentEnvironment.variables
+        };
+
+        envLambdas.push(this._lambdaClient.deployLambdaFunction(currentDeploymentParams, lambdaConfig));
       }
 
-      let currentDeploymentParams = {
-        environmentName: currentEnvironment.name,
-        variables: currentEnvironment.variables
-      };
-
-      envLambdas.push(this._lambdaClient.deployLambdaFunction(currentDeploymentParams, lambdaConfig));
+      return Promise.all(envLambdas);
     }
-
-    return Promise.all(envLambdas);
   }
 }
 

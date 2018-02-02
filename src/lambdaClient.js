@@ -389,8 +389,13 @@ class LambdaClient extends BaseClient {
   _cloneConfigObject (config, deploymentParams) {
     const resultConfig = JSON.parse(JSON.stringify(config));
 
-    const deployEnvironment = deploymentParams.environmentName.toLocaleLowerCase();
-    resultConfig.functionName = `${config.functionName}-${deployEnvironment}`;
+    if (deploymentParams.environmentName) {
+      const deployEnvironment = deploymentParams.environmentName.toLocaleLowerCase();
+      resultConfig.functionName = `${config.functionName}-${deployEnvironment}`;
+    } else {
+      resultConfig.functionName = config.functionName;
+    }
+
     resultConfig.Environment = {};
     resultConfig.Environment.Variables = deploymentParams.variables || {};
 

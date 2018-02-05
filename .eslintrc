@@ -4,6 +4,10 @@
     // in CommonJS
     "node": true
   },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
   "rules": {
     "no-extra-semi": 2,
     "semi": [2, "always"]

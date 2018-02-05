@@ -168,7 +168,9 @@ class VpcClient extends BaseClient {
           await this.addInternetGatewayToRouteTable(internetGatewayId, routeTableId);
         } else {
 
-          if(!(subnetObject.NATSubnetName in natGatewayNameToIdLookup) && )
+          if(!(subnetObject.NATSubnetName in natGatewayNameToIdLookup) && !isEmpty(subnetObject.NATSubnetName)) {
+            this.logError(`NATSubnetName on subnet is populated, but has no matching subnet.`);
+          }
 
           const natGatewayId = (subnetObject.NATSubnetName in natGatewayNameToIdLookup) && natGatewayNameToIdLookup[subnetObject.NATSubnetName];
           if(natGatewayId) {

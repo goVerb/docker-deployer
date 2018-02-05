@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const BlueBirdPromise = require('bluebird');
-import moment from 'moment';
+const moment = require('moment');
 import { isEmpty, isArray, has, find, keyBy, get } from 'lodash';
 
 const BaseClient = require('./baseClient');
@@ -181,8 +181,6 @@ class VpcClient extends BaseClient {
             //if subnet does not have a NatSubnetName, we can assume its a public subnet that can access the internet
             await this.addInternetGatewayToRouteTable(internetGatewayId, routeTableId);
           }
-
-
         }
 
         routeTableIds.push(routeTableId);
@@ -246,6 +244,7 @@ class VpcClient extends BaseClient {
       }
 
       //Iterate thru all given routeTableIds
+      const createRoutePromises = [];
       (routeTableIds || []).forEach(async (routeTableId) => {
         this.logMessage(`Checking if route exists [RouteTableId: ${routeTableId}]`);
         const routeTableData = await this._describeRouteTables(peeringConnectionId, routeTableId);
@@ -254,9 +253,11 @@ class VpcClient extends BaseClient {
           this.logMessage(`Route already exists. No action taken [RouteTableId: ${routeTableId}]`);
         } else {
           this.logMessage(`Route does not exist. Creating route [RouteTableId: ${routeTableId}]`);
-          await this._createRoute(destinationCidrBlock, routeTableId, peeringConnectionId);
+          createRoutePromises.push(this._createRoute(destinationCidrBlock, routeTableId, peeringConnectionId));
         }
       });
+
+      return BlueBirdPromise.all(createRoutePromises);
 
     } catch (err) {
       this.logError(`CreatePeeringConnectionError Error: ${JSON.stringify(err)}`);

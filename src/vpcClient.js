@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
-const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
-const __ = require('lodash');
+import moment from 'moment';
+import { isEmpty, isArray, has, find, keyBy, get } from 'lodash';
 
 const BaseClient = require('./baseClient');
 
@@ -35,6 +35,8 @@ class VpcClient extends BaseClient {
    *      availabilityZone: <string>,
    *      mapPublicIpOnLaunch: true | false
    *      cidrBlock: <this is a string of the cidrblock that represents the subnet>
+   *      isNAT: true | false
+   *      NATSubnetName: <name of the NAT that traffic must be routed thru>
    *    },
    *    ...
    *  ],
@@ -57,30 +59,35 @@ class VpcClient extends BaseClient {
   async createVpcFromConfig(environment, config) {
     this.logMessage(`Executing createVpcFromConfig. [Environment: ${environment}] [Config: ${JSON.stringify(config)}]`);
     let vpcId = '';
-    let routeTableId = '';
+    let routeTableIds = [];
+
     const existingVpcId = await this.getVpcIdFromName(config.name);
     // We will fetch availability zones here to match it up with the subnets based on region.
     const availabilityZones = await this.getAvailabilityZones();
-    if(!this.isAvailabilityZoneValid(config.subnets, availabilityZones)) {
+    if(!this._isAvailabilityZoneValid(config.subnets, availabilityZones)) {
       this.logError('Your subnet availability zone must be an index number or the zonename of an available zone');
       throw new Error('Subnet availability zone in config is not an active available zone');
     }
-    if (existingVpcId) {
+
+    if(existingVpcId) {
       this.logMessage(`Vpc already created.  Taking no action. [VpcName: ${config.name}] [ExistingVpcId: ${existingVpcId}]`);
       vpcId = existingVpcId;
-      routeTableId = await this.getRouteTableByVpcId(vpcId);
     } else {
-      let internetGatewayId = '';
+      vpcId = await this.createVpc(config.name, environment, config.cidrBlock);
+    }
+
+
+    if (existingVpcId) {
+      routeTableIds = await this.getRouteTableByVpcId(vpcId);
+    } else {
       let subnetIds = [];
       let networkAclNameToIdLookup = {};
       let subnetNameToIdLookup = {};
 
-      vpcId = await this.createVpc(config.name, environment, config.cidrBlock);
-
       let createNetworkAclPromises = [];
 
       //generates a function that takes the networkAclName
-      let assignNetworkAclToLookup = (networkAclName) => {
+      const assignNetworkAclToLookup = (networkAclName) => {
         return (createdNetworkAclId) => {
           networkAclNameToIdLookup[networkAclName] = createdNetworkAclId;
         };
@@ -95,13 +102,13 @@ class VpcClient extends BaseClient {
       await BlueBirdPromise.all(createNetworkAclPromises);
 
       this.logMessage(`Creating VPC Subnets. [VpcId: ${vpcId}]`);
-      let assignSubnetIdToArray = (subnetName) => {
+      const assignSubnetIdToArray = (subnetName) => {
         return (createdSubnetId) => {
           subnetIds.push(createdSubnetId);
           subnetNameToIdLookup[subnetName] = createdSubnetId;
         };
       };
-      
+
       let subnetPromises = [];
       let availabilityZonesLength = availabilityZones.length;
       for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
@@ -112,9 +119,13 @@ class VpcClient extends BaseClient {
         } else if(subnetObject.availabilityZone > availabilityZonesLength) {
           mappedZone = availabilityZones[subnetIndex % availabilityZonesLength];
         } else {
-          mappedZone = availabilityZones[subnetObject.availabilityZone - 1];          
+          mappedZone = availabilityZones[subnetObject.availabilityZone - 1];
         }
-        subnetPromises.push(this.createVpcSubnet(vpcId, subnetObject.name, environment, subnetObject.cidrBlock, mappedZone, subnetObject.mapPublicIpOnLaunch).then(assignSubnetIdToArray(subnetObject.name)));
+
+        const createVpcSubnet = this.createVpcSubnet(vpcId, subnetObject.name, environment, subnetObject.cidrBlock, mappedZone, subnetObject.mapPublicIpOnLaunch)
+          .then(assignSubnetIdToArray(subnetObject.name));
+
+        subnetPromises.push(createVpcSubnet);
       }
 
       await BlueBirdPromise.all(subnetPromises);
@@ -122,22 +133,58 @@ class VpcClient extends BaseClient {
       this.logMessage(`Associating VPC Subnets with Network Acl. [VpcId: ${vpcId}]`);
       let subnetToNetworkAclPromises = [];
       for(let subnetIndex = 0; subnetIndex < config.subnets.length; subnetIndex++) {
-        let subnetObject = config.subnets[subnetIndex];
-        let subnetId = subnetNameToIdLookup[subnetObject.name];
-        let networkAclId = networkAclNameToIdLookup[subnetObject.networkAclName];
+
+        const subnetObject = config.subnets[subnetIndex];
+        const subnetId = subnetNameToIdLookup[subnetObject.name];
+        const networkAclId = networkAclNameToIdLookup[subnetObject.networkAclName];
+
         subnetToNetworkAclPromises.push(this.replaceNetworkAclAssociation(networkAclId, subnetId));
       }
 
       await BlueBirdPromise.all(subnetToNetworkAclPromises);
-      internetGatewayId = await this.createAndAttachInternetGateway(vpcId, `${config.name} - Internet Gateway`, environment);
+      const internetGatewayId = await this.createAndAttachInternetGateway(vpcId, `${config.name} - Internet Gateway`, environment);
 
       //Create Route Table and associate it with Subnets
-      routeTableId = await this.createRouteTable(vpcId, `${config.name} - Route Table`, environment);
-      await this.addInternetGatewayToRouteTable(internetGatewayId, routeTableId);
 
       //associate subnets with route table
-      let subnetAssociationPromises = [];
+      const subnetAssociationPromises = [];
+      const natGatewayNameToIdLookup = {};
       for (let subnetIndex = 0; subnetIndex < subnetIds.length; subnetIndex++) {
+        const subnetObject = config.subnets[subnetIndex];
+        const subnetId = subnetNameToIdLookup[subnetObject.name];
+
+        //Create Route Table per subnet
+        const routeTableId = await this.createRouteTable(vpcId, `${config.name} - Route Table`, environment);
+
+
+
+        //if NAT is selected,
+        if(get(subnetObject, 'isNAT', false)) {
+
+          //NAT subnets are allowed to access open internet
+          const natGatewayId = await this.createNATGateway(vpcId, subnetId, subnetObject.name, environment);
+          natGatewayNameToIdLookup[subnetObject.name] = natGatewayId;
+
+          await this.addInternetGatewayToRouteTable(internetGatewayId, routeTableId);
+        } else {
+
+          if(!(subnetObject.NATSubnetName in natGatewayNameToIdLookup) && )
+
+          const natGatewayId = (subnetObject.NATSubnetName in natGatewayNameToIdLookup) && natGatewayNameToIdLookup[subnetObject.NATSubnetName];
+          if(natGatewayId) {
+            //if a subnet has a NATSubnetName, then its a private subnet and has to route all traffic thru a NAT Gateway
+            await this.addNATGatewayToRouteTable(natGatewayId, routeTableId);
+
+          } else {
+            //if subnet does not have a NatSubnetName, we can assume its a public subnet that can access the internet
+            await this.addInternetGatewayToRouteTable(internetGatewayId, routeTableId);
+          }
+
+
+        }
+
+        routeTableIds.push(routeTableId);
+
         subnetAssociationPromises.push(this.associateSubnetWithRouteTable(routeTableId, subnetIds[subnetIndex]));
       }
 
@@ -145,9 +192,11 @@ class VpcClient extends BaseClient {
     }
 
     // If DB peering destination provided, create peering connection and new route
-    if(__.has(config, 'peeringConnection.id') && __.has(config, 'peeringConnection.destinationCidrBlock')) {
-      await this.createOrUpdatePeeringConnection(config.peeringConnection.id, routeTableId, config.peeringConnection.destinationCidrBlock);
+    if(has(config, 'peeringConnection.id') && has(config, 'peeringConnection.destinationCidrBlock')) {
+      await this.createOrUpdatePeeringConnection(config.peeringConnection.id, routeTableIds, config.peeringConnection.destinationCidrBlock);
     }
+
+
     return vpcId;
   }
 
@@ -164,10 +213,10 @@ class VpcClient extends BaseClient {
        }
      }
    * @param peeringConnectionId
-   * @param routeTableId
+   * @param {Array} routeTableIds
    * @param destinationCidrBlock Target range for the VPC, in CIDR notation. For example, 10.0.0.0/16
    */
-  async createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock) {
+  async createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock) {
 
     try {
       let params = {
@@ -187,31 +236,39 @@ class VpcClient extends BaseClient {
 
       const peeringConnectionData = await this._awsEc2Client.describeVpcPeeringConnections(params).promise();
 
-      if(__.isEmpty(peeringConnectionData.VpcPeeringConnections)) {
+      if(isEmpty(peeringConnectionData.VpcPeeringConnections)) {
         this.logMessage('No pending peering connections were found. No action taken.');
       } else {
         this.logMessage('Accepting peering connection request');
         await this._acceptVpcPeeringConnection(peeringConnectionId);
       }
 
-      this.logMessage(`Checking if route exists [id: ${routeTableId}]`);
-      const routeTableData = await this._describeRouteTables(peeringConnectionId, routeTableId);
+      //Iterate thru all given routeTableIds
+      (routeTableIds || []).forEach(async (routeTableId) => {
+        this.logMessage(`Checking if route exists [RouteTableId: ${routeTableId}]`);
+        const routeTableData = await this._describeRouteTables(peeringConnectionId, routeTableId);
 
-      if(!__.isEmpty(routeTableData.RouteTables)) {
-        this.logMessage(`Route already exists. No action taken [RouteTableId: ${routeTableId}]`);
-      } else {
-        this.logMessage(`Route does not exist. Creating route [RouteTableId: ${routeTableId}]`);
-        await this._createRoute(destinationCidrBlock, routeTableId, peeringConnectionId);
-      }
+        if (!isEmpty(routeTableData.RouteTables)) {
+          this.logMessage(`Route already exists. No action taken [RouteTableId: ${routeTableId}]`);
+        } else {
+          this.logMessage(`Route does not exist. Creating route [RouteTableId: ${routeTableId}]`);
+          await this._createRoute(destinationCidrBlock, routeTableId, peeringConnectionId);
+        }
+      });
+
     } catch (err) {
       this.logError(`CreatePeeringConnectionError Error: ${JSON.stringify(err)}`);
       throw err;
     }
   }
+
   /**
    * Checks if the availability zones of the subnets are valid
+   * @param {Array} subnets
+   * @param availabilityZones
+   * @return {boolean}
    */
-  isAvailabilityZoneValid(subnets, availabilityZones) {
+  _isAvailabilityZoneValid(subnets, availabilityZones) {
     const availabilityZoneLookup = {};
     const availabilityZonesLength = availabilityZones.length;
     for(let i = 0; i < availabilityZonesLength; i ++) {
@@ -226,25 +283,24 @@ class VpcClient extends BaseClient {
     return true;
   }
 
-
   /**
    * Returns a list of available availability zones based off the region
-   * 
+   * @return {Promise<Array>}
    */
-
   async getAvailabilityZones() {
     try {
       const availableZones = [];
-      const fetchedZones = await this._awsEc2Client.describeAvailabilityZones({
+
+      const filter = {
         Filters: [
           {
             Name: 'region-name',
-            Values: [
-              this._region
-            ]
+            Values: [ this._region ]
           }
         ]
-      }).promise();
+      };
+
+      const fetchedZones = await this._awsEc2Client.describeAvailabilityZones(filter).promise();
       const availabilityZones = fetchedZones.AvailabilityZones;
       const length = availabilityZones.length;
       for(let i = 0; i < length; i++) {
@@ -255,7 +311,7 @@ class VpcClient extends BaseClient {
       return availableZones.sort();
     } catch(err) {
       this.logError(`getAvailabilityZonesError Error: ${JSON.stringify(err)}`);
-      throw err;      
+      throw err;
     }
   }
 
@@ -279,7 +335,7 @@ class VpcClient extends BaseClient {
   async createVpc(name, environment, cidrBlock) {
 
     try {
-      let params = {
+      const params = {
         CidrBlock: cidrBlock, /* required */
         DryRun: false,
         InstanceTenancy: 'default'//'default | dedicated | host'
@@ -290,13 +346,13 @@ class VpcClient extends BaseClient {
       const vpcId = createdVpcData.Vpc.VpcId;
 
       this.logMessage(`VPC Created [VpcId: ${vpcId}]`);
-      let vpcAvailableParams = {
+      const vpcAvailableParams = {
         VpcIds: [vpcId]
       };
 
       await this._awsEc2Client.waitFor('vpcAvailable', vpcAvailableParams).promise();
       //assign tags
-      let tags = [
+      const tags = [
         { Key: 'Name', Value: name },
         { Key: 'Environment', Value: environment },
       ];
@@ -344,7 +400,7 @@ class VpcClient extends BaseClient {
    * @returns {Promise<*>}
    */
   async getRouteTableByVpcId(vpcId) {
-    let params = {
+    const params = {
       DryRun: false,
       Filters: [
         {
@@ -356,13 +412,15 @@ class VpcClient extends BaseClient {
       ]
     };
 
-    this.logMessage(`Looking up RouteTableId by vpcId. [vpcId: ${vpcId}]`);
+    this.logMessage(`Looking up RouteTableId by vpcId. [VpcId: ${vpcId}]`);
     const result = await this._awsEc2Client.describeRouteTables(params).promise();
 
     if(result && result.RouteTables && result.RouteTables.length > 0) {
-      return result.RouteTables[0].RouteTableId;
+      return result.RouteTables.map(routeTable => {
+        return routeTable.RouteTableId;
+      });
     } else {
-      return '';
+      return [];
     }
   }
 
@@ -375,7 +433,7 @@ class VpcClient extends BaseClient {
   async getSubnetIdsFromSubnetName(vpcId, subnetNames) {
 
     let lookupValues = subnetNames;
-    if(!__.isArray(subnetNames)) {
+    if(!isArray(subnetNames)) {
       lookupValues = [subnetNames];
     }
 
@@ -415,7 +473,7 @@ class VpcClient extends BaseClient {
    * @param cidrBlock
    * @param availabilityZone
    * @param mapPublicIpOnLaunch
-   * @return
+   * @return {Promise<String | string>}
    */
   async createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch = true) {
     this.logMessage(`Creating Vpc Subnet. [VpcId: ${vpcId}] [VpcSubnetName: ${name}] [Environment: ${environment}] [CidrBlock: ${cidrBlock}] [AvailabilityZone: ${availabilityZone}]`);
@@ -427,7 +485,7 @@ class VpcClient extends BaseClient {
     };
     const createdSubnet = await this._awsEc2Client.createSubnet(params).promise();
 
-    let subnetId = createdSubnet.Subnet.SubnetId;
+    const subnetId = createdSubnet.Subnet.SubnetId;
     this.logMessage(`Creating Vpc Subnet Id. [SubnetId: ${subnetId}]`);
 
     //assign tags
@@ -446,7 +504,7 @@ class VpcClient extends BaseClient {
    * @param vpcId
    * @param name
    * @param environment
-   * @returns {Promise}
+   * @returns {Promise<String | string>}
    */
   async createAndAttachInternetGateway(vpcId, name, environment) {
     let params = {};
@@ -454,7 +512,7 @@ class VpcClient extends BaseClient {
     this.logMessage(`Creating Internet Gateway. [VpcId: ${vpcId}]`);
     const createdGateway = await this._awsEc2Client.createInternetGateway(params).promise();
 
-    let internetGatewayId = createdGateway.InternetGateway.InternetGatewayId;
+    const internetGatewayId = createdGateway.InternetGateway.InternetGatewayId;
 
     let tags = [
       { Key: 'Name', Value: name },
@@ -481,17 +539,17 @@ class VpcClient extends BaseClient {
    * @returns {Promise}
    */
   async createRouteTable(vpcId, name, environment) {
-    let params = {
+    const params = {
       VpcId: vpcId
     };
 
     this.logMessage(`Creating RouteTable. [VpcId: ${vpcId}] [RouteTableName: ${name}]`);
     const createdRouteTable = await this._awsEc2Client.createRouteTable(params).promise();
 
-    let routeTableId = createdRouteTable.RouteTable.RouteTableId;
+    const routeTableId = createdRouteTable.RouteTable.RouteTableId;
 
     //assign tags
-    let tags = [
+    const tags = [
       { Key: 'Name', Value: name },
       { Key: 'Environment', Value: environment },
     ];
@@ -502,12 +560,12 @@ class VpcClient extends BaseClient {
 
   /**
    * Associates the Internet Gateway with a specific Route Table
-   * @param internetGatewayId
-   * @param routeTableId
+   * @param {string} internetGatewayId
+   * @param {string} routeTableId
    * @returns {Promise<EC2.Types.CreateRouteResult>}
    */
   async addInternetGatewayToRouteTable(internetGatewayId, routeTableId) {
-    let params = {
+    const params = {
       DestinationCidrBlock: '0.0.0.0/0',
       GatewayId: internetGatewayId,
       RouteTableId: routeTableId
@@ -520,12 +578,122 @@ class VpcClient extends BaseClient {
 
   /**
    *
-   * @param routeTableId
-   * @param subnetId
+   * @param {string} vpcId
+   * @param {string} subnetId
+   * @param {string} [natGatewayName='']
+   * @param {string} [environment='']
+   * @return {Promise<String>}
+   */
+  async createNATGateway(vpcId, subnetId, natGatewayName = '', environment='') {
+
+    //if NAT Gateway with this name, then skip creation
+    this.logMessage(`Checking if existing NAT Gateway already exist. [NatGatewayName: ${natGatewayName}`);
+    const lookupNatGatewayParams = {
+      Filter: [
+        {
+          Name: 'tag:Name',
+          Values: [ natGatewayName ]
+        }
+      ]
+    };
+    const natGatewaysResult = await this._awsEc2Client.describeNatGateways(lookupNatGatewayParams).promise();
+    if(natGatewaysResult.NatGateways.length > 0) {
+      this.logMessage(`NAT Gateway already exist, no action taken.  Returning NAT Gateway Id. [NatGatewayName: ${natGatewayName}]`);
+      return natGatewaysResult.NatGateways[0].NatGatewayId;
+    }
+
+
+    let allocationId = await this._getAvailableElasticIp();
+    if(allocationId === '') {
+      //get allocationId
+      const allocateAddressParams = {
+        Domain: "vpc"
+      };
+      const allocateAddressResult = await this._awsEc2Client.allocateAddress(allocateAddressParams).promise();
+
+      allocationId = allocateAddressResult.AllocationId;
+    }
+
+    const params = {
+      AllocationId: allocationId, /* required */
+      SubnetId: subnetId, /* required */
+    };
+
+    this.logMessage(`Creating NAT Gateway. [VpcId: ${vpcId}] [SubnetId: ${subnetId}] [NATGatewayName: ${natGatewayName}]`);
+    const createdNATGatewayResult = await this._awsEc2Client.createNatGateway(params).promise();
+
+    const natGatewayId = createdNATGatewayResult.NatGateway.NatGatewayId;
+
+    //assign tags
+    const tags = [
+      { Key: 'Name', Value: natGatewayName },
+      { Key: 'Environment', Value: environment },
+    ];
+
+    await this._createTags(natGatewayId, tags);
+
+    return natGatewayId;
+  }
+
+  /**
+   *
+   * @return {Promise<string>}
+   * @private
+   */
+  async _getAvailableElasticIp() {
+    this.logMessage(`Calling _getAvailableElasticIp`);
+
+    const params = {
+      Filters: [
+        {
+          Name: "domain",
+          Values: [
+            "vpc"
+          ]
+        }
+      ]
+    };
+
+    const getAddressesResult = await this._awsEc2Client.describeAddresses(params).promise();
+
+    let availableElasticIpId = '';
+    const addressLength = getAddressesResult.Addresses.length;
+    for(let addressIndex = 0; addressIndex < addressLength; addressIndex++) {
+      const elasticIp = getAddressesResult.Addresses[addressIndex];
+      if(get(elasticIp, 'AssociationId', '') === '') {
+        availableElasticIpId = elasticIp.AllocationId;
+      }
+    }
+
+    return availableElasticIpId;
+  }
+
+  /**
+   *
+   * @param {string} natGatewayId
+   * @param {string} routeTableId
+   * @return {Promise<PromiseResult<D, E>>}
+   */
+  async addNATGatewayToRouteTable(natGatewayId, routeTableId) {
+    const params = {
+      DestinationCidrBlock: '0.0.0.0/0',
+      NatGatewayId: natGatewayId,
+      RouteTableId: routeTableId
+    };
+    const createdRoute = await this._awsEc2Client.createRoute(params).promise();
+
+    this.logMessage(`Adding NAT Gateway to RouteTable. [RouteTableId: ${routeTableId}] [NATGatewayId: ${natGatewayId}]`);
+    return createdRoute;
+  }
+
+  /**
+   *
+   * @param {string} routeTableId
+   * @param {string} subnetId
    * @returns {Promise<EC2.Types.AssociateRouteTableResult>}
    */
   async associateSubnetWithRouteTable(routeTableId, subnetId) {
-    let params = {
+    const params = {
       RouteTableId: routeTableId, /* required */
       SubnetId: subnetId, /* required */
       DryRun: false
@@ -544,7 +712,7 @@ class VpcClient extends BaseClient {
    * @returns {Promise}
    */
   async createNetworkAclWithRules(vpcId, name, environment, networkAclRules) {
-    let params = {
+    const params = {
       VpcId: vpcId
     };
 
@@ -554,14 +722,14 @@ class VpcClient extends BaseClient {
     let networkAclId = createdNetworkAcl.NetworkAcl.NetworkAclId;
 
     //assign tags
-    let tags = [
+    const tags = [
       { Key: 'Name', Value: name },
       { Key: 'Environment', Value: environment },
     ];
 
     await this._createTags(networkAclId, tags);
 
-    let createNetworkAclEntryPromises = [];
+    const createNetworkAclEntryPromises = [];
     //create rules on NetworkAcl
     for(let networkAclRuleIndex = 0; networkAclRuleIndex < networkAclRules.length; networkAclRuleIndex++) {
       let ruleObject = networkAclRules[networkAclRuleIndex];
@@ -574,12 +742,13 @@ class VpcClient extends BaseClient {
 
   /**
    *
-   * @param networkAclId This is the networkAclId that the rule will be added to
-   * @param cidrBlock This is the CIDR Block where the rule will be applied
+   * @param {string} networkAclId This is the networkAclId that the rule will be added to
+   * @param {string} cidrBlock This is the CIDR Block where the rule will be applied
    * @param egress If false, applies to inbound, if true, applies to outbound traffic
    * @param protocol -1 means all protocols
-   * @param ruleAction This is a string which can be 'allow | deny'
+   * @param {string} ruleAction This is a string which can be 'allow | deny'
    * @param ruleNumber This is the rule number
+   * @return {Promise<PromiseResult<D, E>>}
    */
   async createNetworkAclRule(networkAclId, cidrBlock, egress, protocol, ruleAction, ruleNumber) {
 
@@ -587,7 +756,7 @@ class VpcClient extends BaseClient {
       egress = true => outbound
       egress = false => inbound
      */
-    let params = {
+    const params = {
       CidrBlock: cidrBlock, /* required */
       Egress: egress, /* required */
       NetworkAclId: networkAclId, /* required */
@@ -606,15 +775,15 @@ class VpcClient extends BaseClient {
 
   /**
    * Replaces a subnet's Network ACL associate with the given network ACL
-   * @param networkAclId
-   * @param subnetId
+   * @param {string} networkAclId
+   * @param {string} subnetId
    * @return {Promise.<TResult>|*}
    */
   async replaceNetworkAclAssociation(networkAclId, subnetId) {
 
     const associationId = await this._findCurrentNetworkAclAssociationIdForSubnetId(subnetId);
 
-    let params = {
+    const params = {
       AssociationId: associationId, /* required */
       NetworkAclId: networkAclId, /* required */
       DryRun: false
@@ -649,7 +818,7 @@ class VpcClient extends BaseClient {
     this.logMessage(`Subnet NetworkAcls Lookup. [Result: ${JSON.stringify(networkAclsResult)}]`);
     if(networkAclsResult && networkAclsResult.NetworkAcls && networkAclsResult.NetworkAcls.length > 0) {
       let networkAclAssociations = networkAclsResult.NetworkAcls[0].Associations;
-      let subnetAssociationObject = __.find(networkAclAssociations, {'SubnetId': subnetId});
+      let subnetAssociationObject = find(networkAclAssociations, {'SubnetId': subnetId});
       if(subnetAssociationObject) {
         returnValue = subnetAssociationObject.NetworkAclAssociationId;
       }
@@ -701,7 +870,9 @@ class VpcClient extends BaseClient {
 
     this.logMessage(`Setting VPC Attributes. [VpcId: ${vpcId}] [EnableDnsHostnames: ${enableDnsHostnames}] [EnableDnsSupport: ${enableDnsSupport}]`);
     await this._awsEc2Client.modifyVpcAttribute(enableDnsHostnamesParams).promise();
-    await this._awsEc2Client.modifyVpcAttribute(enableDnsSupportParams).promise();
+
+
+    return await this._awsEc2Client.modifyVpcAttribute(enableDnsSupportParams).promise();
   }
 
   /**
@@ -715,7 +886,7 @@ class VpcClient extends BaseClient {
   async _createTags(resourceId, tags, addCreatedTag = true) {
 
     let localTags = tags;
-    if(!__.isArray(localTags)) {
+    if(!isArray(localTags)) {
       localTags = [];
     }
 
@@ -742,7 +913,7 @@ class VpcClient extends BaseClient {
    * @private
    */
   async _describeRouteTables(peeringConnectionId, routeTableId) {
-    let params = {
+    const params = {
       DryRun: false,
       Filters: [
         {
@@ -761,12 +932,12 @@ class VpcClient extends BaseClient {
 
   /**
    *
-   * @param peeringConnectionId
+   * @param {string} peeringConnectionId
    * @returns {Promise.<TResult>}
    * @private
    */
   async _acceptVpcPeeringConnection(peeringConnectionId) {
-    let params = {
+    const params = {
       DryRun: false,
       VpcPeeringConnectionId: peeringConnectionId
     };

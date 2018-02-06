@@ -6,8 +6,6 @@ const uuid = require('uuid');
 
 const BaseClient = require('./baseClient');
 
-AWS.config.setPromisesDependency(BlueBirdPromise);
-
 class Route53Client extends BaseClient {
 
   get _awsRoute53Client() {

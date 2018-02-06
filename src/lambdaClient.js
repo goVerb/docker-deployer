@@ -9,8 +9,6 @@ const __ = require('lodash');
 const promiseRetry = require('promise-retry');
 const path = require('path');
 
-AWS.config.setPromisesDependency(BlueBirdPromise);
-
 class LambdaClient extends BaseClient {
 
   get deployedLambdas() {

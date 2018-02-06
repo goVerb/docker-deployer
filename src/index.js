@@ -1,3 +1,7 @@
+const AWS = require('aws-sdk');
+const BlueBirdPromise = require('bluebird');
+AWS.config.setPromisesDependency(BlueBirdPromise);
+
 const S3 = require('./s3Client');
 const VPC = require('./vpcClient.js');
 const ECS = require('./ecsClient.js');
@@ -10,7 +14,6 @@ const CloudFront = require('./cloudFrontClient.js');
 const APIGateway = require('./apiGatewayClient');
 const ApplicationAutoScaling = require('./applicationAutoScalingClient.js');
 const CloudWatch = require('./cloudWatchClient.js');
-const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const util = require('util');
 const moment = require('moment');

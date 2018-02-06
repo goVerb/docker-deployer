@@ -5,8 +5,6 @@ const __ = require('lodash');
 
 const BaseClient = require('./baseClient');
 
-AWS.config.setPromisesDependency(BlueBirdPromise);
-
 class Ec2Client extends BaseClient {
 
   get _awsEc2Client() {

@@ -100,7 +100,7 @@ class Deployer extends BaseClient {
     await this._createApplicationLoadBalancerListener(config.appListener);
 
     //associate Load balancer with DNS Entry
-    await this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
+    await this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname, config.healthCheckResourcePath);
 
     //Create ECS Cluster
 
@@ -379,10 +379,10 @@ class Deployer extends BaseClient {
    * @private
    * @return {Promise<TResult>}
    */
-  async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
+  async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname, healthCheckResourcePath) {
 
     const dnsInfo = await this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName);
-    return await this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
+    return await this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId, healthCheckResourcePath);
   }
 
   /**

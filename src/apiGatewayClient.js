@@ -116,39 +116,39 @@ class APIGatewayClient extends BaseClient {
       }
 
 
-        let createParams = {
-          restApiId: restApiId, /* required */
-          stageName: stageName, /* required */
-          cacheClusterEnabled: false,
-          description: '',
-          variables: variableCollection
-        };
+      let createParams = {
+        restApiId: restApiId, /* required */
+        stageName: stageName, /* required */
+        cacheClusterEnabled: false,
+        description: '',
+        variables: variableCollection
+      };
 
-        this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-        await this._apiGatewayClient.createDeployment(createParams).promise();
-        const params = {
-          restApiId: restApiId,
-          stageName: stageName,
-          patchOperations: [
-            {
-              op: 'replace',
-              path: '/*/*/logging/loglevel',
-              value: 'INFO'
-            },
-            {
-              op: 'replace',
-              path: '/*/*/metrics/enabled',
-              value: 'true'
-            },
-            {
-              op: 'replace',
-              path: '/*/*/logging/dataTrace',
-              value: 'true'
-            }]
-        };
-        this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-        const data = await this._apiGatewayClient.updateStage(params).promise();
-        this.logMessage(`Success: ${JSON.stringify(data)}`);
+      this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
+      await this._apiGatewayClient.createDeployment(createParams).promise();
+      const params = {
+        restApiId: restApiId,
+        stageName: stageName,
+        patchOperations: [
+          {
+            op: 'replace',
+            path: '/*/*/logging/loglevel',
+            value: 'INFO'
+          },
+          {
+            op: 'replace',
+            path: '/*/*/metrics/enabled',
+            value: 'true'
+          },
+          {
+            op: 'replace',
+            path: '/*/*/logging/dataTrace',
+            value: 'true'
+          }]
+      };
+      this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
+      const data = await this._apiGatewayClient.updateStage(params).promise();
+      this.logMessage(`Success: ${JSON.stringify(data)}`);
 
     } catch (err) {
       this.logMessage(err);

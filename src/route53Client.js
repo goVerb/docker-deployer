@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
+const uuid = require('uuid');
 
 const BaseClient = require('./baseClient');
 
@@ -29,7 +30,7 @@ class Route53Client extends BaseClient {
    * @param hostedZoneId
    * @return {Promise.<TResult>}
    */
-  async associateDomainWithApplicationLoadBalancer(domainName, dnsName, hostedZoneId) {
+  async associateDomainWithApplicationLoadBalancer(domainName, dnsName, hostedZoneId, healthCheckResourcePath) {
     this.logMessage(`Starting associateDomainWithApplicationLoadBalancer. [DomainName: ${domainName}] [DNSName: ${dnsName}] [HostedZoneId: ${hostedZoneId}]`);
 
     //get hostedZoneID from domainName
@@ -47,6 +48,7 @@ class Route53Client extends BaseClient {
       this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
       return BlueBirdPromise.resolve();
     }
+    const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
     let params = {
       HostedZoneId: domainHostedZoneId,
       ChangeBatch: {
@@ -54,13 +56,14 @@ class Route53Client extends BaseClient {
           {
             Action: 'UPSERT',
             ResourceRecordSet: {
+              HealthCheckId: healthCheckData.HealthCheck.Id,
               Name: domainName,
               Region: this._region,
               SetIdentifier: `${this._region} ALB`,
               Type: 'A',
               AliasTarget: {
                 DNSName: dnsName,
-                EvaluateTargetHealth: false,
+                EvaluateTargetHealth: true,
                 HostedZoneId: hostedZoneId
               }
             }
@@ -68,13 +71,14 @@ class Route53Client extends BaseClient {
           {
             Action: 'UPSERT',
             ResourceRecordSet: {
+              HealthCheckId: healthCheckData.HealthCheck.Id,
               Name: domainName,
               Region: this._region,
               SetIdentifier: `${this._region} ALB`,
               Type: 'AAAA',
               AliasTarget: {
                 DNSName: dnsName,
-                EvaluateTargetHealth: false,
+                EvaluateTargetHealth: true,
                 HostedZoneId: hostedZoneId
               }
             }
@@ -331,6 +335,39 @@ class Route53Client extends BaseClient {
     return hostAndTld.join('.');
   }
 
+    /**
+   *
+   * @param domainName
+   * @param healthCheckResourcePath
+   * @return {Promise.<TResult>}
+   * @private
+   */
+  async _createHealthCheck(domainName, healthCheckResourcePath) {
+    this.logMessage(`Starting _createHealthCheck. [DomainName: ${domainName}] [ResourcePath: ${healthCheckResourcePath}]`);
+
+    const params = {
+      CallerReference: uuid(),
+      HealthCheckConfig: {
+        Type: 'HTTP',
+        EnableSNI: false,
+        FailureThreshold: 5,
+        FullyQualifiedDomainName: domainName,
+        HealthThreshold: 0,
+        InsufficientDataHealthStatus: 'Unhealthy',
+        Inverted: false,
+        MeasureLatency: true,
+        Port: 80,
+        Regions: [ this._region ],
+        RequestInterval: 30,
+        ResourcePath: healthCheckResourcePath
+      }
+    };
+
+    const healthCheckData = await this._awsRoute53Client.createHealthCheck(params).promise();
+    this.logMessage(`Created HealthCheck: [Id: ${healthCheckData.HealthCheck.Id}]`);
+
+    return healthCheckData;
+  }
 }
 
 module.exports = Route53Client;

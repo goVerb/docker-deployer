@@ -5,8 +5,6 @@ import { isEmpty, isArray, has, find, keyBy, get } from 'lodash';
 
 const BaseClient = require('./baseClient');
 
-AWS.config.setPromisesDependency(BlueBirdPromise);
-
 class VpcClient extends BaseClient {
 
   get _awsEc2Client() {
@@ -641,9 +639,10 @@ class VpcClient extends BaseClient {
     await this._createTags(natGatewayId, tags);
 
 
-    //TODO
+    this.logMessage(`Waiting for created NAT Gateway to become available. [NATGatewayName: ${natGatewayName}]`);
     await this._awsEc2Client.waitFor('natGatewayAvailable', {'NatGatewayIds': [natGatewayId]}).promise();
 
+    this.logMessage(`NAT Gateway available! [NATGatewayName: ${natGatewayName}]`);
     return natGatewayId;
   }
 

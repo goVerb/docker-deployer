@@ -1,11 +1,7 @@
 const AWS = require('aws-sdk');
-const moment = require('moment');
-const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 
 const BaseClient = require('./baseClient');
-
-AWS.config.setPromisesDependency(BlueBirdPromise);
 
 class ApplicationAutoScalingClient extends BaseClient {
 

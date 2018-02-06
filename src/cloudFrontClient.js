@@ -2,11 +2,8 @@
 const AWS = require('aws-sdk');
 const __ = require('lodash');
 const uuid = require('uuid');
-const BluebirdPromise = require('bluebird');
 
 const BaseClient = require('./baseClient');
-
-AWS.config.setPromisesDependency(BluebirdPromise);
 
 
 /**

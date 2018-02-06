@@ -5,8 +5,6 @@ const awspublish = require('gulp-awspublish');
 
 const BaseClient = require('./baseClient');
 
-AWS.config.setPromisesDependency(BlueBirdPromise);
-
 
 class S3Client extends BaseClient {
   // TODO: Disable SSL?

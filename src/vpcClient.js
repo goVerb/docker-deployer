@@ -501,7 +501,7 @@ class VpcClient extends BaseClient {
     await this._setMapPublicIpOnLaunchAttribute(subnetId, mapPublicIpOnLaunch);
 
     this.logMessage(`Waiting for subnet to become available. [VpcSubnetName: ${name}] [SubnetId: ${subnetId}]`);
-    await this._awsEc2Client.waitFor('subnetAvailable', {'subnet-id': subnetId}).promise();
+    await this._awsEc2Client.waitFor('subnetAvailable', {'SubnetIds': [subnetId]}).promise();
 
     this.logMessage(`Subnet available! [VpcSubnetName: ${name}] [SubnetId: ${subnetId}]`);
     return subnetId;
@@ -642,7 +642,7 @@ class VpcClient extends BaseClient {
 
 
     //TODO
-    await this._awsEc2Client.waitFor('natGatewayAvailable', {'nat-gateway-id': natGatewayId}).promise();
+    await this._awsEc2Client.waitFor('natGatewayAvailable', {'NatGatewayIds': [natGatewayId]}).promise();
 
     return natGatewayId;
   }

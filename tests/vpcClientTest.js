@@ -6513,7 +6513,7 @@ describe('VPC Client', function() {
       await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
 
       //Assert
-      expect(awsEc2ClientMock.waitFor.args[0][1]).to.be.deep.equal({'nat-gateway-id': 'nat-345'});
+      expect(awsEc2ClientMock.waitFor.args[0][1]).to.be.deep.equal({'NatGatewayIds': ['nat-345']});
     });
   });
 

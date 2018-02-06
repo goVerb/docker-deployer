@@ -599,6 +599,10 @@ class VpcClient extends BaseClient {
         {
           Name: 'tag:Name',
           Values: [ natGatewayName ]
+        },
+        {
+          Name: 'state',
+          Values: ['available']
         }
       ]
     };

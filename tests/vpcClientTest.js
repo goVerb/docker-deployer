@@ -2976,7 +2976,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3026,7 +3029,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3076,7 +3082,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3126,7 +3135,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3176,7 +3188,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3216,15 +3231,18 @@ describe('VPC Client', function() {
 
     it('should pass name parameter to _createTags', () => {
       //Arrange
-      let createSubnetResponse = {
+      const createSubnetResponse = {
         Subnet: {
           SubnetId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3254,12 +3272,12 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
-        let tagParams = vpcClientService._createTags.args[0][1];
-        let nameTag = __.filter(tagParams, {Key: 'Name'});
+        const tagParams = vpcClientService._createTags.args[0][1];
+        const nameTag = __.filter(tagParams, {Key: 'Name'});
         expect(nameTag[0]).to.have.property('Value', name);
       });
     });
@@ -3274,7 +3292,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3304,7 +3325,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3323,8 +3344,11 @@ describe('VPC Client', function() {
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3354,7 +3378,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3364,15 +3388,18 @@ describe('VPC Client', function() {
 
     it('should pass newly created subnetId to _setMapPublicIpOnLaunchAttribute', () => {
       //Arrange
-      let createSubnetResponse = {
+      const createSubnetResponse = {
         Subnet: {
           SubnetId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3402,7 +3429,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3422,7 +3449,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3452,7 +3482,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3464,15 +3494,18 @@ describe('VPC Client', function() {
 
     it('should call _setMapPublicIpOnLaunchAttribute once', () => {
       //Arrange
-      let createSubnetResponse = {
+      const createSubnetResponse = {
         Subnet: {
           SubnetId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3502,7 +3535,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3520,7 +3553,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3550,7 +3586,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(createdSubnetId => {
@@ -3563,14 +3599,14 @@ describe('VPC Client', function() {
 
     it('should call createInternetGateway once', () => {
       //Arrange
-      let createRouteTableResponse = {
+      const createRouteTableResponse = {
         InternetGateway: {
           InternetGatewayId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
+      const awsEc2ClientMock = {
         createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
@@ -6227,6 +6263,9 @@ describe('VPC Client', function() {
           promise: () => BluebirdPromise.resolve({
             NatGateway: {}
           })
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
         })
       };
 
@@ -6400,6 +6439,81 @@ describe('VPC Client', function() {
 
       //Assert
       expect(result).to.be.equal('nat-345');
+    });
+
+    it('should call waitFor once', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.waitFor.calledOnce).to.be.true;
+    });
+
+    it('should pass natGatewayAvailable constant to waitFor', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.waitFor.args[0][0]).to.be.equal('natGatewayAvailable');
+    });
+
+    it('should pass natGatewayId to waitFor', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.waitFor.args[0][1]).to.be.deep.equal({'nat-gateway-id': 'nat-345'});
     });
   });
 

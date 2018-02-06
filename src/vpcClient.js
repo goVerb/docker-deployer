@@ -499,14 +499,19 @@ class VpcClient extends BaseClient {
 
     await this._createTags(subnetId, tags);
     await this._setMapPublicIpOnLaunchAttribute(subnetId, mapPublicIpOnLaunch);
+
+    this.logMessage(`Waiting for subnet to become available. [VpcSubnetName: ${name}] [SubnetId: ${subnetId}]`);
+    await this._awsEc2Client.waitFor('subnetAvailable', {'subnet-id': subnetId}).promise();
+
+    this.logMessage(`Subnet available! [VpcSubnetName: ${name}] [SubnetId: ${subnetId}]`);
     return subnetId;
   }
 
   /**
    * Returns InternetGatewayId
-   * @param vpcId
-   * @param name
-   * @param environment
+   * @param {string} vpcId
+   * @param {string} name
+   * @param {string} environment
    * @returns {Promise<String | string>}
    */
   async createAndAttachInternetGateway(vpcId, name, environment) {
@@ -536,9 +541,9 @@ class VpcClient extends BaseClient {
 
   /**
    *
-   * @param vpcId
-   * @param name
-   * @param environment
+   * @param {string} vpcId
+   * @param {string} name
+   * @param {string} environment
    * @returns {Promise}
    */
   async createRouteTable(vpcId, name, environment) {
@@ -634,6 +639,10 @@ class VpcClient extends BaseClient {
     ];
 
     await this._createTags(natGatewayId, tags);
+
+
+    //TODO
+    await this._awsEc2Client.waitFor('natGatewayAvailable', {'nat-gateway-id': natGatewayId}).promise();
 
     return natGatewayId;
   }

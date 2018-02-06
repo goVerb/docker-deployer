@@ -351,11 +351,22 @@ describe('Route53 Client', function () {
           }
         };
 
+        let createHealthCheckResp = {
+          HealthCheck: {
+            Id: 'randomId'
+          }
+        };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
+          }
+        }),
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -507,6 +518,12 @@ describe('Route53 Client', function () {
         }
       };
 
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -514,7 +531,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {
@@ -559,6 +581,12 @@ describe('Route53 Client', function () {
         }
       };
 
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -566,7 +594,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {
@@ -607,8 +640,9 @@ describe('Route53 Client', function () {
         expect(changes[0]).to.have.nested.property('ResourceRecordSet.Name', domainName);
         expect(changes[0]).to.have.nested.property('ResourceRecordSet.Type', 'A');
         expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
         expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
 
       });
     });
@@ -623,6 +657,12 @@ describe('Route53 Client', function () {
         }
       };
 
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -630,7 +670,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {
@@ -670,8 +715,9 @@ describe('Route53 Client', function () {
         expect(changes[1]).to.have.property('Action', 'UPSERT');
         expect(changes[1]).to.have.nested.property('ResourceRecordSet.Name', domainName);
         expect(changes[1]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
         expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', false);
+        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
         expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
 
       });
@@ -687,6 +733,12 @@ describe('Route53 Client', function () {
         }
       };
 
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -694,7 +746,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {

@@ -2280,7 +2280,7 @@ describe('Route53 Client', function () {
       expect(result).to.equal(false);
     });
 
-    it('should return false if HealthCheckId does not exist in records', () => {
+    it('should return false if HealthCheckId does exist in records', () => {
       // Arrange
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
@@ -2295,7 +2295,7 @@ describe('Route53 Client', function () {
           "AliasTarget": {
             "HostedZoneId": "Z2FDTNDATAQYW2",
             "DNSName": "lalala.cloudfront.net.",
-            "EvaluateTargetHealth": false
+            "EvaluateTargetHealth": true
           }
         },
         {
@@ -2307,7 +2307,7 @@ describe('Route53 Client', function () {
           "AliasTarget": {
             "HostedZoneId": "Z2FDTNDATAQYW2",
             "DNSName": "lalala.cloudfront.net.",
-            "EvaluateTargetHealth": false
+            "EvaluateTargetHealth": true
           }
         }];
 

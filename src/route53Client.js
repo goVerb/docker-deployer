@@ -197,7 +197,6 @@ class Route53Client extends BaseClient {
    */
   _hasResourceRecordSetChanged(recordSetsByName, currentParameters, expectedAliasHostedZoneId) {
 
-    // const recordSetsByName = await this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName);
     let hasChanged = false;
 
     const parsedExpectedAliasHostedZoneId = expectedAliasHostedZoneId.replace('/hostedzone/','');
@@ -267,11 +266,10 @@ class Route53Client extends BaseClient {
    */
   _doResourceRecordsHaveHealthCheck(recordSets, dnsName) {
     this.logMessage(`Starting _doesResourceRecordHaveHealthCheck`);
-
     let result = true;
     recordSets.forEach(record => {
       if (record.AliasTarget.DNSName === dnsName) {
-        if (!record.HealthCheckId) {
+        if (!record.HealthCheckId || record.AliasTarget.EvaluateTargetHealth !== true) {
           result = false;
         }
       }

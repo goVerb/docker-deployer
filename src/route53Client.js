@@ -265,10 +265,11 @@ class Route53Client extends BaseClient {
    * @private
    */
   _doResourceRecordsHaveHealthCheck(recordSets, dnsName) {
-    this.logMessage(`Starting _doesResourceRecordHaveHealthCheck. [Records: ${JSON.stringify(recordSets)}]`);
+    this.logMessage(`Starting _doesResourceRecordHaveHealthCheck. [Records: ${JSON.stringify(recordSets)}] [DNSName: ${JSON.stringify(dnsName)}]`);
+    const reformattedDnsName = dnsName.toLocaleLowerCase() + '.';
     let result = true;
     recordSets.forEach(record => {
-      if (record.AliasTarget.DNSName === dnsName) {
+      if (record.AliasTarget.DNSName === reformattedDnsName) {
         if (!record.HealthCheckId || record.AliasTarget.EvaluateTargetHealth !== true) {
           result = false;
         }

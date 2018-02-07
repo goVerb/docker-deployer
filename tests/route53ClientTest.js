@@ -343,7 +343,7 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
       //Act
-      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
+      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, '');
 
 
       //Assert
@@ -407,7 +407,7 @@ describe('Route53 Client', function () {
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
-      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
+      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, '');
 
       //Assert
       return resultPromise.then(() => {
@@ -2247,31 +2247,33 @@ describe('Route53 Client', function () {
 
       const records = [
         {
-          "Name": "dev.yoursite.com.",
+          "Name": "sipapi.dev-internal.verb.net.",
           "Type": "A",
-          "ResourceRecords": [
-
-          ],
+          "SetIdentifier": "SIP API Load balancer",
+          "Region": "us-west-2",
+          "ResourceRecords": [],
           "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "lalala.cloudfront.net.",
+            "HostedZoneId": "Z1H1FL5HABSF5",
+            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
-        },
+        }, 
         {
-          "Name": "dev.yoursite.com.",
+          "Name": "sipapi.dev-internal.verb.net.",
           "Type": "AAAA",
-          "ResourceRecords": [
-
-          ],
+          "SetIdentifier": "SIP API Loadbalancer",
+          "Region": "us-west-2",
+          "ResourceRecords": [],
           "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "lalala.cloudfront.net.",
+            "HostedZoneId": "Z1H1FL5HABSF5",
+            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
-      }];
+        }
+      ];
 
-      const dnsName = "lalala.cloudfront.net."
+      const dnsName = "SIP-ECS-App-Load-Balancer-Dev-51682295.us-west-2.elb.amazonaws.com";
+      console.log(dnsName.toLowerCase())
 
       // Act
       const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
@@ -2287,31 +2289,34 @@ describe('Route53 Client', function () {
 
       const records = [
         {
-          "Name": "dev.yoursite.com.",
+          "Name": "sipapi.dev-internal.verb.net.",
           "Type": "A",
-          "ResourceRecords": [
-          ],
-          "HealthCheckId": 'notrealatall',
+          "SetIdentifier": "SIP API Load balancer",
+          "Region": "us-west-2",
+          "HealthCheckId": "ramdomId",
+          "ResourceRecords": [],
           "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "lalala.cloudfront.net.",
+            "HostedZoneId": "Z1H1FL5HABSF5",
+            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
             "EvaluateTargetHealth": true
           }
         },
         {
-          "Name": "dev.yoursite.com.",
+          "Name": "sipapi.dev-internal.verb.net.",
           "Type": "AAAA",
-          "ResourceRecords": [
-          ],
-          "HealthCheckId": 'notrealatall',
+          "SetIdentifier": "SIP API Loadbalancer",
+          "Region": "us-west-2",
+          "HealthCheckId": "ramdomId",
+          "ResourceRecords": [],
           "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "lalala.cloudfront.net.",
+            "HostedZoneId": "Z1H1FL5HABSF5",
+            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
             "EvaluateTargetHealth": true
           }
-        }];
+        }
+      ];
 
-      const dnsName = "lalala.cloudfront.net."
+      const dnsName = "SIP-ECS-App-Load-Balancer-Dev-51682295.us-west-2.elb.amazonaws.com";
 
       // Act
       const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);

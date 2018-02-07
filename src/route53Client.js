@@ -56,6 +56,34 @@ class Route53Client extends BaseClient {
       HostedZoneId: domainHostedZoneId,
       ChangeBatch: {
         Changes: [
+          // {
+          //   Action: 'UPSERT',
+          //   ResourceRecordSet: {
+          //     Name: domainName,
+          //     Region: this._region,
+          //     SetIdentifier: `${this._region} ALB`,
+          //     Type: 'A',
+          //     AliasTarget: {
+          //       DNSName: dnsName,
+          //       EvaluateTargetHealth: true,
+          //       HostedZoneId: hostedZoneId
+          //     }
+          //   }
+          // },
+          // {
+          //   Action: 'UPSERT',
+          //   ResourceRecordSet: {
+          //     Name: domainName,
+          //     Region: this._region,
+          //     SetIdentifier: `${this._region} ALB`,
+          //     Type: 'AAAA',
+          //     AliasTarget: {
+          //       DNSName: dnsName,
+          //       EvaluateTargetHealth: true,
+          //       HostedZoneId: hostedZoneId
+          //     }
+          //   }
+          // }
         ]
       }
     };
@@ -66,6 +94,7 @@ class Route53Client extends BaseClient {
         ResourceRecordSet: {}
       };
       changeParams.ResourceRecordSet = { ...record };
+      delete changeParams.ResourceRecordSet.ResourceRecords;
       changeParams.ResourceRecordSet.AliasTarget.EvaluateTargetHealth = 
         (record.AliasTarget.HostedZoneId === hostedZoneId && healthCheckResourcePath) 
         ? true

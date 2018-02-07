@@ -378,7 +378,6 @@ class Route53Client extends BaseClient {
         Inverted: false,
         MeasureLatency: true,
         Port: 80,
-        Regions: [ this._region ],
         RequestInterval: 30,
         ResourcePath: healthCheckResourcePath
       }

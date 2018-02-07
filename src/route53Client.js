@@ -372,7 +372,6 @@ class Route53Client extends BaseClient {
         Type: 'HTTP',
         EnableSNI: false,
         FullyQualifiedDomainName: domainName,
-        InsufficientDataHealthStatus: 'Unhealthy',
         Inverted: false,
         MeasureLatency: true,
         Port: 80,

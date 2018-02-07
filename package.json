@@ -1,6 +1,6 @@
 {
   "name": "docker-deployer",
-  "version": "1.21.5",
+  "version": "1.21.6",
   "description": "docker deployer utils",
   "main": "build/index.js",
   "files": "build",

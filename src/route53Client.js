@@ -52,7 +52,6 @@ class Route53Client extends BaseClient {
       this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
       return BlueBirdPromise.resolve();
     }
-    const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
     let params = {
       HostedZoneId: domainHostedZoneId,
       ChangeBatch: {
@@ -60,7 +59,6 @@ class Route53Client extends BaseClient {
           {
             Action: 'UPSERT',
             ResourceRecordSet: {
-              HealthCheckId: healthCheckData.HealthCheck.Id,
               Name: domainName,
               Region: this._region,
               SetIdentifier: `${this._region} ALB`,
@@ -75,7 +73,6 @@ class Route53Client extends BaseClient {
           {
             Action: 'UPSERT',
             ResourceRecordSet: {
-              HealthCheckId: healthCheckData.HealthCheck.Id,
               Name: domainName,
               Region: this._region,
               SetIdentifier: `${this._region} ALB`,
@@ -90,6 +87,13 @@ class Route53Client extends BaseClient {
         ]
       }
     };
+
+    if (healthCheckResourcePath) {
+      const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
+      params.ChangeBatch.Changes.forEach(item => {
+        item.ResourceRecordSet.HealthCheckId = healthCheckData.HealthCheck.Id;
+      });
+    }
 
     this.logMessage(`Associating Domain with Application Load Balancer. [DomainName: ${domainName}]`);
 

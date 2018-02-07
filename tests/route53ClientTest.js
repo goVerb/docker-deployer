@@ -667,7 +667,7 @@ describe('Route53 Client', function () {
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
-      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone);
+      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone, '/');
 
       //Assert
       return resultPromise.then(() => {
@@ -745,7 +745,7 @@ describe('Route53 Client', function () {
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
-      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone);
+      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone, '/');
 
       //Assert
       return resultPromise.then(() => {
@@ -829,6 +829,72 @@ describe('Route53 Client', function () {
         expect(awsRoute53Mock.waitFor.args[0][1]).to.have.property('Id', changeResourceRecordSetsResponse.ChangeInfo.Id);
       });
 
+    });
+    it('should not create health check if health check resource path is not provided', () => {
+      //Arrange
+      let changeResourceRecordSetsResponse = {
+        ChangeInfo: {
+          Id: '/change/C1NA97N1YR2S8Q',
+          Status: 'PENDING',
+          SubmittedAt: '2016-12-16T17:42:11.592Z'
+        }
+      };
+
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
+      //setting up route53Client Mock
+      let awsRoute53Mock = {
+        changeResourceRecordSets: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
+          }
+        }),
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        Route53: function () {
+          return awsRoute53Mock;
+        }
+      };
+
+
+      const domainName = 'apple.dev-internal.yoursite.com';
+      const ELB_DNSName = 'magic.dns.name';
+      const ELB_HostedZone = 'safjdkaslfjdas';
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
+      const route53ClientService = new Route53();
+
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
+      route53ClientService._createHealthCheck = sandbox.stub().resolves();
+      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
+      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+
+      //Act
+      let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(route53ClientService._createHealthCheck.callCount).to.equal(0);
+      });
     });
   });
 

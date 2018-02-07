@@ -43,8 +43,12 @@ class Route53Client extends BaseClient {
       domainNameHostedZoneId: domainHostedZoneId
     };
 
-    const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(parameters, hostedZoneId);
-    if (!hasRecordSetChangedResult) {
+    const recordSetsByName = await this._getResourceRecordSetsByName(domainHostedZoneId, domainName);
+
+    const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(recordSetsByName, parameters, hostedZoneId);
+    const recordSetsHaveHealthCheck = await this._doResourceRecordsHaveHealthCheck(recordSetsByName, dnsName);
+
+    if (!hasRecordSetChangedResult && recordSetsHaveHealthCheck === true) {
       this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
       return BlueBirdPromise.resolve();
     }
@@ -123,8 +127,9 @@ class Route53Client extends BaseClient {
     };
 
     this.logMessage(`Checking if resource record has changed. [Params: ${JSON.stringify(parameters)}]`);
+    const recordSetsByName = await this._getResourceRecordSetsByName(domainHostedZoneId, domainName);
 
-    const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(parameters, CLOUDFRONT_HOSTED_ZONE_ID);
+    const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(recordSetsByName, parameters, CLOUDFRONT_HOSTED_ZONE_ID);
     if (!hasRecordSetChangedResult) {
       this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
       return BlueBirdPromise.resolve();
@@ -177,7 +182,8 @@ class Route53Client extends BaseClient {
   }
 
   /**
-   *
+   * 
+   * @param recordSetsByName
    * @param currentParameters
    * @param currentParameters.domainName
    * @param currentParameters.dnsName
@@ -185,9 +191,9 @@ class Route53Client extends BaseClient {
    * @return {Promise.<bool>}
    * @private
    */
-  async _hasResourceRecordSetChanged(currentParameters, expectedAliasHostedZoneId) {
+  _hasResourceRecordSetChanged(recordSetsByName, currentParameters, expectedAliasHostedZoneId) {
 
-    const recordSetsByName = await this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName);
+    // const recordSetsByName = await this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName);
     let hasChanged = false;
 
     const parsedExpectedAliasHostedZoneId = expectedAliasHostedZoneId.replace('/hostedzone/','');
@@ -210,11 +216,6 @@ class Route53Client extends BaseClient {
           hasChanged = true;
         }
 
-        if(item.AliasTarget.EvaluateTargetHealth !== false) {
-          this.logMessage(`A Record EvaluateTargetHealth has changed. [ExistingValue: ${item.AliasTarget.EvaluateTargetHealth}] [NewValue: ${false}]`);
-          hasChanged = true;
-        }
-
         let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
         let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
 
@@ -231,10 +232,6 @@ class Route53Client extends BaseClient {
           hasChanged = true;
         }
 
-        if(item.AliasTarget.EvaluateTargetHealth !== false) {
-          this.logMessage(`AAAA Record EvaluateTargetHealth has changed. [ExistingValue: ${item.AliasTarget.EvaluateTargetHealth}] [NewValue: ${false}]`);
-          hasChanged = true;
-        }
 
         let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
         let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
@@ -256,6 +253,27 @@ class Route53Client extends BaseClient {
 
 
     return hasChanged;
+  }
+
+  /**
+   *
+   * @param recordsSets
+   * @returns {Promise<Bool>}
+   * @private
+   */
+  _doResourceRecordsHaveHealthCheck(recordSets, dnsName) {
+    this.logMessage(`Starting _doesResourceRecordHaveHealthCheck`);
+
+    let result = true;
+    recordSets.forEach(record => {
+      if (record.AliasTarget.DNSName === dnsName) {
+        if (!record.HealthCheckId) {
+          result = false;
+        }
+      }
+    });
+    return result;
+
   }
 
   /**
@@ -335,7 +353,7 @@ class Route53Client extends BaseClient {
     return hostAndTld.join('.');
   }
 
-    /**
+  /**
    *
    * @param domainName
    * @param healthCheckResourcePath

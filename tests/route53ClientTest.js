@@ -299,6 +299,12 @@ describe('Route53 Client', function () {
         }
       };
 
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -306,7 +312,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {
@@ -328,9 +339,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
-      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves();
+      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub();
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
-
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
 
@@ -391,6 +402,7 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
@@ -414,6 +426,12 @@ describe('Route53 Client', function () {
         }
       };
 
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -421,7 +439,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {
@@ -429,7 +452,7 @@ describe('Route53 Client', function () {
           setPromisesDependency: (promise) => {
           }
         },
-        Route53: function() {
+        Route53: function () {
           return awsRoute53Mock;
         }
       };
@@ -443,12 +466,13 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
-
       //Assert
       return resultPromise.then(() => {
         expect(awsRoute53Mock.changeResourceRecordSets.callCount).to.be.equal(0);
@@ -465,6 +489,11 @@ describe('Route53 Client', function () {
           SubmittedAt: '2016-12-16T17:42:11.592Z'
         }
       };
+      let createHealthCheckResp = {
+        HealthCheck: {
+          Id: 'randomId'
+        }
+      };
 
       //setting up route53Client Mock
       let awsRoute53Mock = {
@@ -473,7 +502,12 @@ describe('Route53 Client', function () {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
           }
         }),
-        waitFor: sandbox.stub().returns({ promise: () => {} })
+        createHealthCheck: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        waitFor: sandbox.stub().returns({ promise: () => { } })
       };
 
       let mockAwsSdk = {
@@ -495,7 +529,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
 
       //Act
@@ -503,12 +539,12 @@ describe('Route53 Client', function () {
 
       //Assert
       return resultPromise.then(() => {
-        expect(route53ClientService._hasResourceRecordSetChanged.args[0][0]).to.have.property('domainNameHostedZoneId', 'APPLESAUCE');
+        expect(route53ClientService._hasResourceRecordSetChanged.args[0][1]).to.have.property('domainNameHostedZoneId', 'APPLESAUCE');
       });
 
     });
 
-    it('should pass pass 2 Changes to changeResourceRecordSet', () => {
+    it('should pass 2 Changes to changeResourceRecordSet', () => {
       //Arrange
       let changeResourceRecordSetsResponse = {
         ChangeInfo: {
@@ -558,7 +594,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
@@ -623,7 +661,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
@@ -699,7 +739,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
@@ -773,7 +815,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
@@ -832,8 +876,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves();
-      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
+      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithCloudFront(domainName);
@@ -883,9 +928,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
-
       //Act
       let resultPromise = route53ClientService.associateDomainWithCloudFront(domainName);
 
@@ -906,11 +951,18 @@ describe('Route53 Client', function () {
         }
       };
 
+      const listResourceRecordSetResult = { "ResourceRecordSets": [{ "Name": "dev.yoursite.com.", "Type": "A", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z2FDTNDATAQYW2", "DNSName": "d2gzlhvii4ajca.cloudfront.net.", "EvaluateTargetHealth": false } }, { "Name": "dev.yoursite.com.", "Type": "AAAA", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z2FDTNDATAQYW2", "DNSName": "d2gzlhvii4ajca.cloudfront.net.", "EvaluateTargetHealth": false } }, { "Name": "api.dev.yoursite.com.", "Type": "A", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z2FDTNDATAQYW2", "DNSName": "d2296tvo3hsqb0.cloudfront.net.", "EvaluateTargetHealth": false } }, { "Name": "api.dev.yoursite.com.", "Type": "AAAA", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z2FDTNDATAQYW2", "DNSName": "d2296tvo3hsqb0.cloudfront.net.", "EvaluateTargetHealth": false } }, { "Name": "yourapi.prod-internal.yoursite.com.", "Type": "A", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z1H1FL5HABSF5", "DNSName": "app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.", "EvaluateTargetHealth": false } }, { "Name": "yourapi.prod-internal.yoursite.com.", "Type": "AAAA", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z1H1FL5HABSF5", "DNSName": "app-ecs-app-load-balancer-prod-774817212.us-west-2.elb.amazonaws.com.", "EvaluateTargetHealth": false } }, { "Name": "wordpress.prod.yoursite.com.", "Type": "A", "TTL": 300, "ResourceRecords": [{ "Value": "35.167.2.48" }] }, { "Name": "www.yoursite.com.", "Type": "A", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z2FDTNDATAQYW2", "DNSName": "d1l7hx7of1tvg6.cloudfront.net.", "EvaluateTargetHealth": false } }, { "Name": "www.yoursite.com.", "Type": "AAAA", "ResourceRecords": [], "AliasTarget": { "HostedZoneId": "Z2FDTNDATAQYW2", "DNSName": "d1l7hx7of1tvg6.cloudfront.net.", "EvaluateTargetHealth": false } }], "IsTruncated": false, "MaxItems": "100" };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
+          }
+        }),
+        listResourceRecordSets: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(listResourceRecordSetResult);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => {} })
@@ -929,13 +981,14 @@ describe('Route53 Client', function () {
 
       const domainName = 'apple.dev-internal.yoursite.com';
 
-            const mocks = {
+      const mocks = {
         'aws-sdk': mockAwsSdk
       };
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves();
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
 
       //Act
@@ -987,15 +1040,15 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
-      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
-
+      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
       //Act
       let resultPromise = route53ClientService.associateDomainWithCloudFront(domainName);
 
       //Assert
       return resultPromise.then(() => {
-        expect(route53ClientService._hasResourceRecordSetChanged.args[0][0]).to.have.property('domainNameHostedZoneId', 'APPLESAUCE');
+        expect(route53ClientService._hasResourceRecordSetChanged.args[0][1]).to.have.property('domainNameHostedZoneId', 'APPLESAUCE');
       });
 
     });
@@ -1039,6 +1092,7 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
@@ -1092,6 +1146,7 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
@@ -1155,7 +1210,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
@@ -1217,7 +1274,9 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
 
       //Act
@@ -1681,58 +1740,12 @@ describe('Route53 Client', function () {
   });
 
   describe('_hasResourceRecordSetChanged', () => {
-    it('should pass currentParameters.domainNameHostedZoneId to _getResourceRecordSetsByName', () => {
-      //Arrange
-      const Route53 = require('../src/route53Client');
-      const route53ClientService = new Route53();
-
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
-
-      const currentParameters = {
-        domainName: 'somethingUnique.yoursite.com',
-        dnsName: 'jfkldsjafjadskfljads.cloudfront.com',
-        domainNameHostedZoneId: 'yoursite.coms hosted zone'
-      };
-      const expectedHostedZoneId = 'madeupexpectedhostedId';
-
-      //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
-
-      //Assert
-      return resultPromise.then(() => {
-        expect(route53ClientService._getResourceRecordSetsByName.args[0][0]).to.be.deep.equal(currentParameters.domainNameHostedZoneId);
-      });
-    });
-
-    it('should pass currentParameters.domainName to _getResourceRecordSetsByName', () => {
-      //Arrange
-      const Route53 = require('../src/route53Client');
-      const route53ClientService = new Route53();
-
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
-
-      const currentParameters = {
-        domainName: 'somethingUnique.yoursite.com',
-        dnsName: 'jfkldsjafjadskfljads.cloudfront.com',
-        domainNameHostedZoneId: 'yoursite.coms hosted zone'
-      };
-      const expectedHostedZoneId = 'madeupexpectedhostedId';
-
-      //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
-
-      //Assert
-      return resultPromise.then(() => {
-        expect(route53ClientService._getResourceRecordSetsByName.args[0][1]).to.be.deep.equal(currentParameters.domainName);
-      });
-    });
-
     it('should return true if A record is missing', () => {
       //Arrange
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "AAAA",
@@ -1746,8 +1759,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'somethingUnique.yoursite.com',
         dnsName: 'jfkldsjafjadskfljads.cloudfront.com',
@@ -1756,13 +1767,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'madeupexpectedhostedId';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return true if AAAA record is missing', () => {
@@ -1770,7 +1779,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -1784,8 +1793,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'somethingUnique.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -1794,13 +1801,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'madeupexpectedhostedId';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return true if A record item.AliasTarget.HostedZoneId doesnt match the passed in value', () => {
@@ -1808,7 +1813,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -1831,8 +1836,6 @@ describe('Route53 Client', function () {
         }];
 
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -1841,13 +1844,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return true if AAAA record item.AliasTarget.HostedZoneId doesnt match the passed in value', () => {
@@ -1855,7 +1856,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -1881,8 +1882,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -1891,13 +1890,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return true if A record item.AliasTarget.DNSName doesnt startWith currentparameters.dnsname', () => {
@@ -1905,7 +1902,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -1931,8 +1928,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -1941,13 +1936,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return true if AAAA record item.AliasTarget.DNSName doesnt startWith currentparameters.dnsname', () => {
@@ -1955,7 +1948,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -1981,8 +1974,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -1991,13 +1982,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return false if A record item.AliasTarget.DNSName doesnt startWith currentparameters.dnsname and has different casing', () => {
@@ -2005,7 +1994,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -2031,8 +2020,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'APP-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
@@ -2041,13 +2028,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.false;
-      });
+      expect(result).to.be.false;
     });
 
     it('should return false if AAAA record item.AliasTarget.DNSName startWith currentparameters.dnsname and has different casing', () => {
@@ -2055,7 +2040,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -2081,8 +2066,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'APP-ECS-App-Load-Balancer-Dev-840139107.us-west-2.elb.amazonaws.com',
@@ -2091,113 +2074,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.false;
-      });
-    });
-
-    it('should return true if A record item.AliasTarget.EvaluateTargetHealth returns true', () => {
-      //Arrange
-      const Route53 = require('../src/route53Client');
-      const route53ClientService = new Route53();
-
-      const results = [
-        {
-          "Name": "dev.yoursite.com.",
-          "Type": "A",
-          "ResourceRecords": [
-
-          ],
-          "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "d2gzlhvii4ajca.cloudfront.net.",
-            "EvaluateTargetHealth": true
-          }
-        },
-        {
-          "Name": "dev.yoursite.com.",
-          "Type": "AAAA",
-          "ResourceRecords": [
-
-          ],
-          "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "d2gzlhvii4ajca.cloudfront.net.",
-            "EvaluateTargetHealth": false
-          }
-        }];
-
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
-      const currentParameters = {
-        domainName: 'dev.yoursite.com',
-        dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: 'yoursite.comshostedzone'
-      };
-      const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
-
-      //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
-
-
-      //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
-    });
-
-    it('should return true if AAAA record item.AliasTarget.EvaluateTargetHealth returns true', () => {
-      //Arrange
-      const Route53 = require('../src/route53Client');
-      const route53ClientService = new Route53();
-
-      const results = [
-        {
-          "Name": "dev.yoursite.com.",
-          "Type": "A",
-          "ResourceRecords": [
-
-          ],
-          "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "d2gzlhvii4ajca.cloudfront.net.",
-            "EvaluateTargetHealth": false
-          }
-        },
-        {
-          "Name": "dev.yoursite.com.",
-          "Type": "AAAA",
-          "ResourceRecords": [
-
-          ],
-          "AliasTarget": {
-            "HostedZoneId": "Z2FDTNDATAQYW2",
-            "DNSName": "d2gzlhvii4ajca.cloudfront.net.",
-            "EvaluateTargetHealth": true
-          }
-        }];
-
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
-      const currentParameters = {
-        domainName: 'dev.yoursite.com',
-        dnsName: 'd2gzlhvii4ajca.cloudfront.net',
-        domainNameHostedZoneId: 'yoursite.comshostedzone'
-      };
-      const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
-
-      //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
-
-
-      //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.false;
     });
 
     it('should return true if other record besides A or AAAA record found', () => {
@@ -2205,7 +2086,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "PTR",
@@ -2231,8 +2112,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -2241,13 +2120,11 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.true;
-      });
+      expect(result).to.be.true;
     });
 
     it('should return false if no changes', () => {
@@ -2255,7 +2132,7 @@ describe('Route53 Client', function () {
       const Route53 = require('../src/route53Client');
       const route53ClientService = new Route53();
 
-      const results = [
+      const records = [
         {
           "Name": "dev.yoursite.com.",
           "Type": "A",
@@ -2281,8 +2158,6 @@ describe('Route53 Client', function () {
           }
         }];
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(results);
-
       const currentParameters = {
         domainName: 'dev.yoursite.com',
         dnsName: 'd2gzlhvii4ajca.cloudfront.net',
@@ -2291,13 +2166,92 @@ describe('Route53 Client', function () {
       const expectedHostedZoneId = 'Z2FDTNDATAQYW2';
 
       //Act
-      const resultPromise = route53ClientService._hasResourceRecordSetChanged(currentParameters, expectedHostedZoneId);
+      const result = route53ClientService._hasResourceRecordSetChanged(records, currentParameters, expectedHostedZoneId);
 
 
       //Assert
-      return resultPromise.then(result => {
-        expect(result).to.be.false;
-      });
+      expect(result).to.be.false;
+    });
+  });
+  describe('_doResourceRecordsHaveHealthCheck', () => {
+    it('should return false if HealthCheckId does not exist in records', () => {
+      // Arrange
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53();
+
+      const records = [
+        {
+          "Name": "dev.yoursite.com.",
+          "Type": "A",
+          "ResourceRecords": [
+
+          ],
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "lalala.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        },
+        {
+          "Name": "dev.yoursite.com.",
+          "Type": "AAAA",
+          "ResourceRecords": [
+
+          ],
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "lalala.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+      }];
+
+      const dnsName = "lalala.cloudfront.net."
+
+      // Act
+      const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
+
+      // Assert 
+      expect(result).to.equal(false);
+    });
+
+    it('should return false if HealthCheckId does not exist in records', () => {
+      // Arrange
+      const Route53 = require('../src/route53Client');
+      const route53ClientService = new Route53();
+
+      const records = [
+        {
+          "Name": "dev.yoursite.com.",
+          "Type": "A",
+          "ResourceRecords": [
+          ],
+          "HealthCheckId": 'notrealatall',
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "lalala.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        },
+        {
+          "Name": "dev.yoursite.com.",
+          "Type": "AAAA",
+          "ResourceRecords": [
+          ],
+          "HealthCheckId": 'notrealatall',
+          "AliasTarget": {
+            "HostedZoneId": "Z2FDTNDATAQYW2",
+            "DNSName": "lalala.cloudfront.net.",
+            "EvaluateTargetHealth": false
+          }
+        }];
+
+      const dnsName = "lalala.cloudfront.net."
+
+      // Act
+      const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
+
+      // Assert 
+      expect(result).to.equal(true);
     });
   });
 });

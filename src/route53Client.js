@@ -371,14 +371,11 @@ class Route53Client extends BaseClient {
       HealthCheckConfig: {
         Type: 'HTTP',
         EnableSNI: false,
-        FailureThreshold: 5,
         FullyQualifiedDomainName: domainName,
-        HealthThreshold: 0,
         InsufficientDataHealthStatus: 'Unhealthy',
         Inverted: false,
         MeasureLatency: true,
         Port: 80,
-        RequestInterval: 30,
         ResourcePath: healthCheckResourcePath
       }
     };

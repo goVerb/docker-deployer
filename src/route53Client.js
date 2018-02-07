@@ -56,37 +56,23 @@ class Route53Client extends BaseClient {
       HostedZoneId: domainHostedZoneId,
       ChangeBatch: {
         Changes: [
-          {
-            Action: 'UPSERT',
-            ResourceRecordSet: {
-              Name: domainName,
-              Region: this._region,
-              SetIdentifier: `${this._region} ALB`,
-              Type: 'A',
-              AliasTarget: {
-                DNSName: dnsName,
-                EvaluateTargetHealth: true,
-                HostedZoneId: hostedZoneId
-              }
-            }
-          },
-          {
-            Action: 'UPSERT',
-            ResourceRecordSet: {
-              Name: domainName,
-              Region: this._region,
-              SetIdentifier: `${this._region} ALB`,
-              Type: 'AAAA',
-              AliasTarget: {
-                DNSName: dnsName,
-                EvaluateTargetHealth: true,
-                HostedZoneId: hostedZoneId
-              }
-            }
-          }
         ]
       }
     };
+
+    recordSetsByName.forEach(record => {
+      let changeParams = {
+        Action: 'UPSERT',
+        ResourceRecordSet: {}
+      };
+      changeParams.ResourceRecordSet = { ...record };
+      changeParams.ResourceRecordSet.AliasTarget.EvaluateTargetHealth = 
+        (record.AliasTarget.HostedZoneId === hostedZoneId && healthCheckResourcePath) 
+        ? true
+        : record.AliasTarget.EvaluateTargetHealth;
+
+      params.ChangeBatch.Changes.push(changeParams);
+    });
 
     if (healthCheckResourcePath) {
       const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
@@ -286,11 +272,11 @@ class Route53Client extends BaseClient {
    * @returns {Promise<Array>}
    * @private
    */
-  async _getResourceRecordSetsByName(hostedZoneId, dnsName) {
-    this.logMessage(`Starting _getResourceRecordSetsByName. [HostedZoneId: ${hostedZoneId}] [DnsName: ${dnsName}]`);
+  async _getResourceRecordSetsByName(hostedZoneId, domainName) {
+    this.logMessage(`Starting _getResourceRecordSetsByName. [HostedZoneId: ${hostedZoneId}] [DnsName: ${domainName}]`);
     const params = {
       HostedZoneId: hostedZoneId,
-      StartRecordName: dnsName
+      StartRecordName: domainName
     };
 
     const recordSets = await this._awsRoute53Client.listResourceRecordSets(params).promise();
@@ -302,8 +288,7 @@ class Route53Client extends BaseClient {
 
     return __.filter(recordSets.ResourceRecordSets, (item) => {
       itemName = __.get(item, 'Name', '').toLocaleUpperCase();
-      itemRegion = __.get(item, 'Region', '').toLocaleUpperCase();
-      return itemName === `${dnsName.toLocaleUpperCase()}.` && (!itemRegion || itemRegion === this._region.toLocaleUpperCase());
+      return itemName === `${domainName.toLocaleUpperCase()}.`;
     });
   }
 

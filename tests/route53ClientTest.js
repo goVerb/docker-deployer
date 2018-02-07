@@ -13,7 +13,58 @@ chai.use(chaiAsPromised);
 
 describe('Route53 Client', function () {
   let sandbox;
-
+  const recordSets = [{
+      Name: 'apple.dev-internal.yoursite.com',
+      Type: 'A',
+      SetIdentifier: 'SIP API Load balancer',
+      Region: 'us-west-2',
+      ResourceRecords: [],
+      AliasTarget:
+        {
+          HostedZoneId: 'lalala',
+          DNSName: 'magic.dns.name2',
+          EvaluateTargetHealth: false
+        }
+    },
+    {
+      Name: 'apple.dev-internal.yoursite.com',
+      Type: 'A',
+      SetIdentifier: 'ap-northeast-2 ALB',
+      Region: 'ap-northeast-2',
+      ResourceRecords: [],
+      AliasTarget:
+        {
+          HostedZoneId: 'lalala2',
+          DNSName: 'magic.dns.name',
+          EvaluateTargetHealth: false
+        }
+    },
+    {
+      Name: 'apple.dev-internal.yoursite.com',
+      Type: 'AAAA',
+      SetIdentifier: 'SIP API Load balancer',
+      Region: 'us-west-2',
+      ResourceRecords: [],
+      AliasTarget:
+        {
+          HostedZoneId: 'lalala',
+          DNSName: 'magic.dns.name2',
+          EvaluateTargetHealth: false
+        }
+    },
+    {
+      Name: 'apple.dev-internal.yoursite.com',
+      Type: 'AAAA',
+      SetIdentifier: 'ap-northeast-2 ALB',
+      Region: 'ap-northeast-2',
+      ResourceRecords: [],
+      AliasTarget:
+        {
+          HostedZoneId: 'lalala2',
+          DNSName: 'magic.dns.name',
+          EvaluateTargetHealth: false
+        }
+    }];
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
   });
@@ -340,7 +391,7 @@ describe('Route53 Client', function () {
       const route53ClientService = new Route53();
 
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub();
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(recordSets);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, '');
@@ -594,7 +645,7 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(recordSets);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
@@ -605,7 +656,7 @@ describe('Route53 Client', function () {
       //Assert
       return resultPromise.then(() => {
         let changeBatch = awsRoute53Mock.changeResourceRecordSets.args[0][0].ChangeBatch;
-        expect(changeBatch.Changes).to.have.length(2);
+        expect(changeBatch.Changes).to.have.length(4);
       });
     });
 
@@ -652,8 +703,8 @@ describe('Route53 Client', function () {
 
 
       const domainName = 'apple.dev-internal.yoursite.com';
-      const ELB_DNSName = 'magic.dns.name';
-      const ELB_HostedZone = 'safjdkaslfjdas';
+      const ELB_DNSName = 'magic.dns.name2';
+      const ELB_HostedZone = 'lalala';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -661,7 +712,7 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(recordSets);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
@@ -672,7 +723,7 @@ describe('Route53 Client', function () {
       //Assert
       return resultPromise.then(() => {
         let changeBatch = awsRoute53Mock.changeResourceRecordSets.args[0][0].ChangeBatch;
-        expect(changeBatch.Changes).to.have.length(2);
+        expect(changeBatch.Changes).to.have.length(4);
 
         let changes = changeBatch.Changes;
 
@@ -684,6 +735,13 @@ describe('Route53 Client', function () {
         expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
         expect(changes[0]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
 
+        expect(changes[2]).to.have.property('Action', 'UPSERT');
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
       });
     });
 
@@ -730,8 +788,8 @@ describe('Route53 Client', function () {
 
 
       const domainName = 'apple.dev-internal.yoursite.com';
-      const ELB_DNSName = 'magic.dns.name';
-      const ELB_HostedZone = 'safjdkaslfjdas';
+      const ELB_DNSName = 'magic.dns.name2';
+      const ELB_HostedZone = 'lalala';
 
             const mocks = {
         'aws-sdk': mockAwsSdk
@@ -739,7 +797,7 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(recordSets);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
@@ -750,17 +808,25 @@ describe('Route53 Client', function () {
       //Assert
       return resultPromise.then(() => {
         let changeBatch = awsRoute53Mock.changeResourceRecordSets.args[0][0].ChangeBatch;
-        expect(changeBatch.Changes).to.have.length(2);
+        expect(changeBatch.Changes).to.have.length(4);
 
         let changes = changeBatch.Changes;
 
-        expect(changes[1]).to.have.property('Action', 'UPSERT');
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.Name', domainName);
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
-        expect(changes[1]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        expect(changes[0]).to.have.property('Action', 'UPSERT');
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Type', 'A');
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
+        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+
+        expect(changes[2]).to.have.property('Action', 'UPSERT');
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
 
       });
     });

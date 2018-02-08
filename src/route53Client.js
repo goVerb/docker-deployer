@@ -278,7 +278,7 @@ class Route53Client extends BaseClient {
    * @private
    */
   async _doesHealthCheckAlreadyExist(domainName) {
-    this.logMessage(`Checking for existing health check [DomainName: ${domainName}]`)
+    this.logMessage(`Checking for existing health check [DomainName: ${domainName}]`);
 
     const healthCheckName = `${domainName} - HealthCheck`;
 

@@ -435,11 +435,11 @@ class Route53Client extends BaseClient {
     }
 
 
-    const retrievedHealthCheckId = await this._doesHealthCheckAlreadyExist(domainName);
+    const retrievedHealthCheckId = await this._doesHealthCheckAlreadyExist(dnsName);
 
     let healthCheckId = '';
     if(!retrievedHealthCheckId) {
-      const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
+      const healthCheckData = await this._createHealthCheck(dnsName, healthCheckResourcePath);
       healthCheckId = healthCheckData.HealthCheck.Id;
     } else {
       //get healthcheck Id somehow

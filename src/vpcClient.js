@@ -151,6 +151,7 @@ class VpcClient extends BaseClient {
         const subnetObject = config.subnets[subnetIndex];
         const subnetId = subnetNameToIdLookup[subnetObject.name];
 
+
         //Create Route Table per subnet
         const routeTableId = await this.createRouteTable(vpcId, `${config.name} - Route Table`, environment);
 
@@ -183,7 +184,7 @@ class VpcClient extends BaseClient {
 
         routeTableIds.push(routeTableId);
 
-        subnetAssociationPromises.push(this.associateSubnetWithRouteTable(routeTableId, subnetIds[subnetIndex]));
+        subnetAssociationPromises.push(this.associateSubnetWithRouteTable(routeTableId, subnetId));
       }
 
       await BlueBirdPromise.all(subnetAssociationPromises);

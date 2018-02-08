@@ -508,7 +508,7 @@ describe('VPC Client', function() {
       });
     });
 
-    it('should pass vpcId, name, environment, cidrBlock, availabileZone, mapPublicIpOnLaunch parameter to createVpcSubnet', () => {
+    it('should pass vpcId, name, environment, cidrBlock, availableZone, mapPublicIpOnLaunch parameter to createVpcSubnet', () => {
       //Arrange
 
       const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
@@ -1017,6 +1017,52 @@ describe('VPC Client', function() {
 
       //Assert
       expect(vpcClientService.addNATGatewayToRouteTable.calledOnce).to.be.true;
+    });
+
+    it('should not rely on ordering of items in subnet indexes', async () => {
+      //Arrange
+      const natSubnet1 = { name: 'NAT Subnet 1 - Prod', cidrBlock: `10.1.1.0/24`, availabilityZone: 1, networkAclName: 'Instance Network Acl - Prod', isNAT: true};
+      const instanceSubnet1 = { name: 'Instance Subnet 1 - Prod', cidrBlock: `10.1.2.0/24`, availabilityZone: 1, networkAclName: 'Instance Network Acl - Prod', NATSubnetName: 'NAT Subnet 1 - Prod'};
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1, instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId1 = 'subnet-1';
+      const createdSubnetId2 = 'subnet-2';
+      const natGatewayId = 'nat-12312312';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().onFirstCall().resolves(BluebirdPromise.delay(1000).then(() => createdSubnetId1)).onSecondCall().resolves(createdSubnetId2);
+      vpcClientService.createNATGateway = sandbox.stub().resolves(natGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().onFirstCall().resolves('rtb-1').onSecondCall().resolves('rtb-2');
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+
+      //Assert
+      expect(vpcClientService.associateSubnetWithRouteTable.args[0][0]).to.be.equal('rtb-1');
+      expect(vpcClientService.associateSubnetWithRouteTable.args[0][1]).to.be.equal(createdSubnetId1);
+
+      expect(vpcClientService.associateSubnetWithRouteTable.args[1][0]).to.be.equal('rtb-2');
+      expect(vpcClientService.associateSubnetWithRouteTable.args[1][1]).to.be.equal(createdSubnetId2);
     });
 
     it('should pass natGatewayId to addNATGatewayToRouteTable if subnet has NATSubnetName associated with it', async () => {

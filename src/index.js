@@ -70,12 +70,10 @@ class Deployer extends BaseClient {
     await this._vpcClient.createVpcFromConfig(config.environment, config.vpc);
 
     //Create security groups
-    let securityGroupPromises = [];
     for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
       let securityGroupConfig = config.securityGroups[sgIndex];
-      securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
+      await this._createSecurityGroup(config.environment, securityGroupConfig);
     }
-    await BlueBirdPromise.all(securityGroupPromises);
 
     // Create file hosting buckets if they do not exist already
     await this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
@@ -215,6 +213,7 @@ class Deployer extends BaseClient {
    */
   async _createSecurityGroup(environment, securityGroupConfig) {
     //convert vpcName to vpcId
+    this.logMessage(`Creating Security Group. [Config: ${JSON.stringify(securityGroupConfig)}]`);
     const vpcId = await this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName);
 
     //add vpcId

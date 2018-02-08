@@ -373,7 +373,7 @@ class VpcClient extends BaseClient {
   /**
    *
    * @param name
-   * @returns {Promise<*>}
+   * @returns {Promise<string>}
    */
   async getVpcIdFromName(name) {
     let params = {
@@ -389,11 +389,12 @@ class VpcClient extends BaseClient {
     this.logMessage(`Looking up VPC by name. [Vpc Name: ${name}]`);
     const result = await this._awsEc2Client.describeVpcs(params).promise();
 
+    let vpcId = '';
     if(result && result.Vpcs && result.Vpcs.length > 0) {
-      return result.Vpcs[0].VpcId;
-    } else {
-      return '';
+      vpcId = result.Vpcs[0].VpcId;
     }
+
+    return vpcId;
   }
 
   /**

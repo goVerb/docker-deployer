@@ -66,7 +66,7 @@ class Ec2Client extends BaseClient {
    */
   async _createSecurityGroup(environment, sgName, description = '', vpcId = null, rules = []) {
 
-    let params = {
+    const params = {
       Description: description, /* required */
       GroupName: sgName, /* required */
       DryRun: false
@@ -79,10 +79,10 @@ class Ec2Client extends BaseClient {
     this.logMessage(`Creating Security Group [Name: ${sgName}] [Description: ${description}] [VpcId: ${vpcId}]`);
     const createdSecurityGroup = await this._awsEc2Client.createSecurityGroup(params).promise();
 
-    let securityGroupId = createdSecurityGroup.GroupId;
+    const securityGroupId = createdSecurityGroup.GroupId;
 
     //assign tags
-    let tags = [
+    const tags = [
       { Key: 'Name', Value: sgName },
       { Key: 'Environment', Value: environment },
     ];
@@ -102,17 +102,16 @@ class Ec2Client extends BaseClient {
    * @private
    */
   async _createSecurityGroupRules(securityGroupId, vpcId, securityGroupRules) {
-    let securityGroupRulePromises = [];
+    const securityGroupRulePromises = [];
 
-    let lookupSecurityGroupIdFromName = (ruleObject) => {
-      return this.getSecurityGroupIdFromName(ruleObject.allowedSecurityGroupName, vpcId).then(allowedSecurityGroupId => {
-
-        return this._authorizeSecurityGroup(securityGroupId, ruleObject.egress, ruleObject.protocol, ruleObject.fromPort, ruleObject.toPort, ruleObject.allowedIpCidrBlock, allowedSecurityGroupId);
-      });
+    const lookupSecurityGroupIdFromName = async (ruleObject) => {
+      const allowedSecurityGroupId = await this.getSecurityGroupIdFromName(ruleObject.allowedSecurityGroupName, vpcId);
+      return this._authorizeSecurityGroup(securityGroupId, ruleObject.egress, ruleObject.protocol, ruleObject.fromPort, ruleObject.toPort, ruleObject.allowedIpCidrBlock, allowedSecurityGroupId);
     };
 
     for(let ruleIndex = 0; ruleIndex < securityGroupRules.length; ruleIndex++) {
       let ruleObject = securityGroupRules[ruleIndex];
+      this.logMessage(`Adding rule to Security group. [SecurityGroupId: ${securityGroupId}] [Rule: ${JSON.stringify(ruleObject)}]`);
       securityGroupRulePromises.push(lookupSecurityGroupIdFromName(ruleObject));
     }
 
@@ -168,7 +167,7 @@ class Ec2Client extends BaseClient {
    * Retrieves the SecurityGroupId based on the Name and VpcId
    * @param securityGroupName
    * @param vpcId
-   * @return {Promise.<TResult>}
+   * @return {Promise<string>}
    */
   async getSecurityGroupIdFromName(securityGroupName, vpcId = null) {
 
@@ -195,18 +194,19 @@ class Ec2Client extends BaseClient {
     this.logMessage(`Initiating call. [SecurityGroupName: ${securityGroupName}] [VpcId: ${vpcId}]`);
     const describeSecurityGroupsResult = await this._awsEc2Client.describeSecurityGroups(params).promise();
 
+    let securityGroupId = '';
     if(describeSecurityGroupsResult && describeSecurityGroupsResult.SecurityGroups && describeSecurityGroupsResult.SecurityGroups.length > 0) {
-      return describeSecurityGroupsResult.SecurityGroups[0].GroupId;
-    } else {
-      return '';
+      securityGroupId = describeSecurityGroupsResult.SecurityGroups[0].GroupId;
     }
+
+    return securityGroupId;
   }
 
   /**
    *
-   * @param resourceId
-   * @param tags Array of objects which contain a Key and Value key
-   * @param addCreatedTag
+   * @param {string} resourceId
+   * @param {Array} tags - Array of objects which contain a Key and Value key
+   * @param {boolean} addCreatedTag
    * @returns {Promise.<TResult>}
    * @private
    */

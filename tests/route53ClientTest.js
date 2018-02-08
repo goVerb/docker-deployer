@@ -794,25 +794,25 @@ describe('Route53 Client', function () {
 
         let changes = changeBatch.Changes;
 
-        expect(changes[0]).to.have.property('Action', 'UPSERT');
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Name', domainName);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Type', 'A');
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
-
         expect(changes[2]).to.have.property('Action', 'UPSERT');
         expect(changes[2]).to.have.nested.property('ResourceRecordSet.Name', domainName);
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Type', 'A');
         expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
         expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
         expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        expect(changes[2]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+
+        expect(changes[3]).to.have.property('Action', 'UPSERT');
+        expect(changes[3]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[3]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[3]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[3]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[3]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
+        expect(changes[3]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
       });
     });
 
-    it('should pass pass AAAA Record to changeResourceRecordSet', () => {
+    it('should pass AAAA Record to changeResourceRecordSet', () => {
       //Arrange
       let changeResourceRecordSetsResponse = {
         ChangeInfo: {
@@ -886,21 +886,23 @@ describe('Route53 Client', function () {
 
         let changes = changeBatch.Changes;
 
-        expect(changes[0]).to.have.property('Action', 'UPSERT');
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Name', domainName);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.Type', 'A');
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
-        expect(changes[0]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        const INDEX1 = 2;
+        expect(changes[INDEX1]).to.have.property('Action', 'UPSERT');
+        expect(changes[INDEX1]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[INDEX1]).to.have.nested.property('ResourceRecordSet.Type', 'A');
+        expect(changes[INDEX1]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[INDEX1]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[INDEX1]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
+        expect(changes[INDEX1]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
 
-        expect(changes[2]).to.have.property('Action', 'UPSERT');
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Name', domainName);
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
-        expect(changes[2]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
+        const INDEX2 = 3;
+        expect(changes[INDEX2]).to.have.property('Action', 'UPSERT');
+        expect(changes[INDEX2]).to.have.nested.property('ResourceRecordSet.Name', domainName);
+        expect(changes[INDEX2]).to.have.nested.property('ResourceRecordSet.Type', 'AAAA');
+        expect(changes[INDEX2]).to.have.nested.property('ResourceRecordSet.HealthCheckId', createHealthCheckResp.HealthCheck.Id);
+        expect(changes[INDEX2]).to.have.nested.property('ResourceRecordSet.AliasTarget.DNSName', ELB_DNSName);
+        expect(changes[INDEX2]).to.have.nested.property('ResourceRecordSet.AliasTarget.EvaluateTargetHealth', true);
+        expect(changes[INDEX2]).to.have.nested.property('ResourceRecordSet.AliasTarget.HostedZoneId', ELB_HostedZone);
 
       });
     });
@@ -2409,7 +2411,7 @@ describe('Route53 Client', function () {
             "DNSName": "lalala.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
-        }, 
+        },
         {
           "Name": "blah",
           "Type": "AAAA",
@@ -2429,7 +2431,7 @@ describe('Route53 Client', function () {
       // Act
       const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
 
-      // Assert 
+      // Assert
       expect(result).to.equal(false);
     });
 
@@ -2472,13 +2474,13 @@ describe('Route53 Client', function () {
       // Act
       const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
 
-      // Assert 
+      // Assert
       expect(result).to.equal(true);
     });
   });
 
   describe('_doesHealthCheckAlreadyExist', () => {
-    it('should return true if an existing healthCheck Name tag matches', async () => {
+    it('should return healthCheckId of existing healthCheck if an existing healthCheck Name tag matches', async () => {
       //Arrange
       let healthCheckTags = {
         "ResourceTagSets": [
@@ -2546,11 +2548,11 @@ describe('Route53 Client', function () {
       // Act
       const result = await route53ClientService._doesHealthCheckAlreadyExist(domainName);
 
-      // Assert 
-      expect(result).to.equal(true);
+      // Assert
+      expect(result).to.equal('111');
     });
 
-    it('should return true if no healthCheck Name tag matches found', async () => {
+    it('should return empty string if no healthCheck Name tag matches found', async () => {
       //Arrange
       let healthCheckTags = {
         "ResourceTagSets": [
@@ -2618,8 +2620,8 @@ describe('Route53 Client', function () {
       // Act
       const result = await route53ClientService._doesHealthCheckAlreadyExist(domainName);
 
-      // Assert 
-      expect(result).to.equal(false);
+      // Assert
+      expect(result).to.equal('');
     });
   });
 });

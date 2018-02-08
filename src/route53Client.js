@@ -48,20 +48,24 @@ class Route53Client extends BaseClient {
     const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(recordSetsByName, parameters, hostedZoneId);
     const recordSetsHaveHealthCheck = await this._doResourceRecordsHaveHealthCheck(recordSetsByName, dnsName);
 
-    const healthCheckExists = await this._doesHealthCheckAlreadyExist(domainName);
+    //create if necessary
+    const healthCheckId = await this._createOrGetHealthCheck(domainName, dnsName, healthCheckResourcePath);
+
 
     if (!hasRecordSetChangedResult && recordSetsHaveHealthCheck === true) {
       this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
       return BlueBirdPromise.resolve();
     }
-    
-    let params = {
+
+    const params = {
       HostedZoneId: domainHostedZoneId,
       ChangeBatch: {
         Changes: []
       }
     };
-    
+
+    //remove this region's Records from recordSetsByName
+
     recordSetsByName.forEach(record => {
       let changeParams = {
         Action: 'UPSERT',
@@ -69,22 +73,43 @@ class Route53Client extends BaseClient {
       };
       changeParams.ResourceRecordSet = { ...record };
       delete changeParams.ResourceRecordSet.ResourceRecords;
-      changeParams.ResourceRecordSet.AliasTarget.EvaluateTargetHealth =
-      (record.AliasTarget.HostedZoneId === hostedZoneId && healthCheckResourcePath)
-      ? true
-      : record.AliasTarget.EvaluateTargetHealth;
-      
-      params.ChangeBatch.Changes.push(changeParams);
+
+      if(record.Region !== this._region) {
+        params.ChangeBatch.Changes.push(changeParams);
+      }
     });
-    
-    if (healthCheckResourcePath && healthCheckExists === false) {
-      const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
-      params.ChangeBatch.Changes.forEach(item => {
-        if (item.ResourceRecordSet.AliasTarget.HostedZoneId === hostedZoneId) {
-          item.ResourceRecordSet.HealthCheckId = healthCheckData.HealthCheck.Id;
+
+    //Add hard coded items
+    params.ChangeBatch.Changes.push({
+        Action: 'UPSERT',
+        ResourceRecordSet: {
+          Name: domainName,
+          Region: this._region,
+          SetIdentifier: `${this._region} ALB`,
+          HealthCheckId: healthCheckId,
+          Type: 'A',
+          AliasTarget: {
+            DNSName: dnsName,
+            EvaluateTargetHealth: !!healthCheckId,
+            HostedZoneId: hostedZoneId
+          }
         }
       });
-    }
+    params.ChangeBatch.Changes.push({
+      Action: 'UPSERT',
+      ResourceRecordSet: {
+        Name: domainName,
+        Region: this._region,
+        SetIdentifier: `${this._region} ALB`,
+        HealthCheckId: healthCheckId,
+        Type: 'AAAA',
+        AliasTarget: {
+          DNSName: dnsName,
+          EvaluateTargetHealth: !!healthCheckId,
+          HostedZoneId: hostedZoneId
+        }
+      }
+    });
 
     this.logMessage(`Associating Domain with Application Load Balancer. [DomainName: ${domainName}]`);
 
@@ -103,9 +128,8 @@ class Route53Client extends BaseClient {
   /**
    *
    * @param domainName
-   * @param dnsName
-   * @param hostedZoneId
-   * @return {Promise.<TResult>}
+   * @return {Promise<void>}
+   * @param cloudFrontDNSName
    */
   async associateDomainWithCloudFront(domainName, cloudFrontDNSName) {
     // This is a hardcoded AWS CloudFront Value
@@ -177,7 +201,7 @@ class Route53Client extends BaseClient {
   }
 
   /**
-   * 
+   *
    * @param recordSetsByName
    * @param currentParameters
    * @param currentParameters.domainName
@@ -273,14 +297,14 @@ class Route53Client extends BaseClient {
 
   /**
    *
-   * @param domainName
-   * @returns {Promise<Bool>}
+   * @param healthCheckUrl
+   * @returns {Promise<string>}
    * @private
    */
-  async _doesHealthCheckAlreadyExist(domainName) {
-    this.logMessage(`Checking for existing health check [DomainName: ${domainName}]`);
+  async _doesHealthCheckAlreadyExist(healthCheckUrl) {
+    this.logMessage(`Checking for existing health check [DomainName: ${healthCheckUrl}]`);
 
-    const healthCheckName = `${domainName} - HealthCheck`;
+    const healthCheckName = `${healthCheckUrl} - HealthCheck`;
 
     const allHealthChecks = await this._awsRoute53Client.listHealthChecks().promise();
 
@@ -294,16 +318,29 @@ class Route53Client extends BaseClient {
     };
     const existingHealthCheckTags = await this._awsRoute53Client.listTagsForResources(params).promise();
 
-    let result = false;
+    let healthCheckId = '';
 
-    existingHealthCheckTags.ResourceTagSets.forEach(tagSet => {
-      tagSet.Tags.forEach(tag => {
+
+    const length = existingHealthCheckTags.ResourceTagSets.length;
+    for(let tagSetIndex = 0; tagSetIndex < length; tagSetIndex++) {
+      const tagSet = existingHealthCheckTags.ResourceTagSets[0];
+
+      const tagsLength = tagSet.Tags.length;
+      for (let tagItemIndex = 0; tagItemIndex < tagsLength; tagItemIndex++) {
+        let tag = tagSet.Tags[tagItemIndex];
         if (tag.Key === 'Name' && tag.Value === healthCheckName) {
-          result = true;
+          healthCheckId = tagSet.ResourceId;
+          break;
         }
-      });
-    });
-    return result;
+      }
+
+      //if healthCheckId if found, stop iterating over all health checks
+      if(healthCheckId) {
+        break;
+      }
+    }
+
+    return healthCheckId;
   }
 
   /**
@@ -336,7 +373,7 @@ class Route53Client extends BaseClient {
   /**
    *
    * @param domainName
-   * @return {Promise.<TResult>}
+   * @return {Promise<string>}
    * @private
    */
   async _getHostedZoneIdFromDomainName(domainName) {
@@ -380,6 +417,36 @@ class Route53Client extends BaseClient {
     let hostAndTld = __.slice(domainNameSplit, domainNameSplit.length - 2, domainNameSplit.length);
 
     return hostAndTld.join('.');
+  }
+
+  /**
+   *
+   * @param domainName
+   * @param dnsName
+   * @param healthCheckResourcePath
+   * @return {Promise<string>}
+   * @private
+   */
+  async _createOrGetHealthCheck(domainName, dnsName, healthCheckResourcePath = '') {
+
+    //should not create or look for healthcheck if healthCheckResourcePath is empty
+    if(!healthCheckResourcePath) {
+      return '';
+    }
+
+
+    const retrievedHealthCheckId = await this._doesHealthCheckAlreadyExist(domainName);
+
+    let healthCheckId = '';
+    if(!retrievedHealthCheckId) {
+      const healthCheckData = await this._createHealthCheck(domainName, healthCheckResourcePath);
+      healthCheckId = healthCheckData.HealthCheck.Id;
+    } else {
+      //get healthcheck Id somehow
+      healthCheckId = retrievedHealthCheckId;
+    }
+
+    return healthCheckId;
   }
 
   /**

@@ -390,9 +390,10 @@ describe('Route53 Client', function () {
       const Route53 = proxyquire('../src/route53Client', mocks);
       const route53ClientService = new Route53();
 
-      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub();
-      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(recordSets);
-      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
+      route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
+      route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
+      route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, '');
 
@@ -456,6 +457,7 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, '');
@@ -483,6 +485,16 @@ describe('Route53 Client', function () {
         }
       };
 
+      let healthCheckTags = {
+        ResourceTagSets: [
+          {
+            Tags: [
+              { Key: 'Name', Value: 'ugh' }
+            ]
+          }
+        ]
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -493,6 +505,11 @@ describe('Route53 Client', function () {
         createHealthCheck: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        listTagsForResources: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckTags);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -521,6 +538,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
@@ -540,10 +558,21 @@ describe('Route53 Client', function () {
           SubmittedAt: '2016-12-16T17:42:11.592Z'
         }
       };
+
       let createHealthCheckResp = {
         HealthCheck: {
           Id: 'randomId'
         }
+      };
+
+      let healthCheckTags = {
+        ResourceTagSets: [
+          {
+            Tags: [
+              { Key: 'Name', Value: 'ugh' }
+            ]
+          }
+        ]
       };
 
       //setting up route53Client Mock
@@ -556,6 +585,11 @@ describe('Route53 Client', function () {
         createHealthCheck: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        listTagsForResources: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckTags);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -584,6 +618,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(false);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
@@ -595,7 +630,7 @@ describe('Route53 Client', function () {
 
     });
 
-    it('should pass 2 Changes to changeResourceRecordSet', () => {
+    it('should pass all Changes to changeResourceRecordSet', () => {
       //Arrange
       let changeResourceRecordSetsResponse = {
         ChangeInfo: {
@@ -611,6 +646,16 @@ describe('Route53 Client', function () {
         }
       };
 
+      let healthCheckTags = {
+        ResourceTagSets: [
+          {
+            Tags: [
+              { Key: 'Name', Value: 'ugh' }
+            ]
+          }
+        ]
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -621,6 +666,11 @@ describe('Route53 Client', function () {
         createHealthCheck: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        listTagsForResources: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckTags);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -649,6 +699,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
@@ -676,6 +727,16 @@ describe('Route53 Client', function () {
         }
       };
 
+      let healthCheckTags = {
+        ResourceTagSets: [
+          {
+            Tags: [
+              { Key: 'Name', Value: 'ugh' }
+            ]
+          }
+        ]
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -686,6 +747,11 @@ describe('Route53 Client', function () {
         createHealthCheck: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        changeTagsForResource: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve();
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -716,6 +782,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone, '/');
@@ -761,6 +828,7 @@ describe('Route53 Client', function () {
         }
       };
 
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
@@ -771,6 +839,11 @@ describe('Route53 Client', function () {
         createHealthCheck: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(createHealthCheckResp);
+          }
+        }),
+        changeTagsForResource: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve();
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -801,6 +874,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone, '/');
@@ -847,16 +921,21 @@ describe('Route53 Client', function () {
         }
       };
 
+      let healthCheckTags = {
+        ResourceTagSets: [
+          {
+            Tags: [
+              { Key: 'Name', Value: 'ugh' }
+            ]
+          }
+        ]
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
-          }
-        }),
-        createHealthCheck: sandbox.stub().returns({
-          promise: () => {
-            return BluebirdPromise.resolve(createHealthCheckResp);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -885,6 +964,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName);
@@ -912,16 +992,21 @@ describe('Route53 Client', function () {
         }
       };
 
+      let healthCheckTags = {
+        ResourceTagSets: [
+          {
+            Tags: [
+              { Key: 'Name', Value: 'ugh' }
+            ]
+          }
+        ]
+      };
+
       //setting up route53Client Mock
       let awsRoute53Mock = {
         changeResourceRecordSets: sandbox.stub().returns({
           promise: () => {
             return BluebirdPromise.resolve(changeResourceRecordSetsResponse);
-          }
-        }),
-        createHealthCheck: sandbox.stub().returns({
-          promise: () => {
-            return BluebirdPromise.resolve(createHealthCheckResp);
           }
         }),
         waitFor: sandbox.stub().returns({ promise: () => { } })
@@ -953,6 +1038,7 @@ describe('Route53 Client', function () {
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
       route53ClientService._hasResourceRecordSetChanged = sandbox.stub().resolves(true);
+      route53ClientService._doesHealthCheckAlreadyExist = sandbox.stub().resolves(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, ELB_DNSName, ELB_HostedZone);
@@ -2313,33 +2399,32 @@ describe('Route53 Client', function () {
 
       const records = [
         {
-          "Name": "sipapi.dev-internal.verb.net.",
+          "Name": "blah",
           "Type": "A",
-          "SetIdentifier": "SIP API Load balancer",
+          "SetIdentifier": "blah LB",
           "Region": "us-west-2",
           "ResourceRecords": [],
           "AliasTarget": {
             "HostedZoneId": "Z1H1FL5HABSF5",
-            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
+            "DNSName": "lalala.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
         }, 
         {
-          "Name": "sipapi.dev-internal.verb.net.",
+          "Name": "blah",
           "Type": "AAAA",
-          "SetIdentifier": "SIP API Loadbalancer",
+          "SetIdentifier": "blah LB",
           "Region": "us-west-2",
           "ResourceRecords": [],
           "AliasTarget": {
             "HostedZoneId": "Z1H1FL5HABSF5",
-            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
+            "DNSName": "lalala.elb.amazonaws.com.",
             "EvaluateTargetHealth": false
           }
         }
       ];
 
-      const dnsName = "SIP-ECS-App-Load-Balancer-Dev-51682295.us-west-2.elb.amazonaws.com";
-      console.log(dnsName.toLowerCase())
+      const dnsName = "lalala.elb.amazonaws.com";
 
       // Act
       const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
@@ -2355,20 +2440,20 @@ describe('Route53 Client', function () {
 
       const records = [
         {
-          "Name": "sipapi.dev-internal.verb.net.",
+          "Name": "blah",
           "Type": "A",
-          "SetIdentifier": "SIP API Load balancer",
+          "SetIdentifier": "blah LB",
           "Region": "us-west-2",
           "HealthCheckId": "ramdomId",
           "ResourceRecords": [],
           "AliasTarget": {
             "HostedZoneId": "Z1H1FL5HABSF5",
-            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
+            "DNSName": "lalala.elb.amazonaws.com.",
             "EvaluateTargetHealth": true
           }
         },
         {
-          "Name": "sipapi.dev-internal.verb.net.",
+          "Name": "blah",
           "Type": "AAAA",
           "SetIdentifier": "SIP API Loadbalancer",
           "Region": "us-west-2",
@@ -2376,19 +2461,165 @@ describe('Route53 Client', function () {
           "ResourceRecords": [],
           "AliasTarget": {
             "HostedZoneId": "Z1H1FL5HABSF5",
-            "DNSName": "sip-ecs-app-load-balancer-dev-51682295.us-west-2.elb.amazonaws.com.",
+            "DNSName": "lalala.elb.amazonaws.com.",
             "EvaluateTargetHealth": true
           }
         }
       ];
 
-      const dnsName = "SIP-ECS-App-Load-Balancer-Dev-51682295.us-west-2.elb.amazonaws.com";
+      const dnsName = "lalala.elb.amazonaws.com";
 
       // Act
       const result = route53ClientService._doResourceRecordsHaveHealthCheck(records, dnsName);
 
       // Assert 
       expect(result).to.equal(true);
+    });
+  });
+
+  describe('_doesHealthCheckAlreadyExist', () => {
+    it('should return true if an existing healthCheck Name tag matches', async () => {
+      //Arrange
+      let healthCheckTags = {
+        "ResourceTagSets": [
+          {
+            "ResourceType": "healthcheck",
+            "ResourceId": "111",
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "ugh - HealthCheck"
+              }
+            ]
+          },
+          {
+            "ResourceType": "healthcheck",
+            "ResourceId": "222",
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "seton.uat.platform.goverb"
+              }
+            ]
+          }
+        ]
+      };
+
+      const healthCheckList = {
+        HealthChecks: [
+          { Id: '111'},
+          { Id: '222'}
+        ]
+      };
+      //setting up route53Client Mock
+      let awsRoute53Mock = {
+        listTagsForResources: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckTags);
+          }
+        }),
+        listHealthChecks: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckList);
+          },
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        Route53: function () {
+          return awsRoute53Mock;
+        }
+      };
+
+      const domainName = 'ugh';
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
+      const route53ClientService = new Route53();
+
+      // Act
+      const result = await route53ClientService._doesHealthCheckAlreadyExist(domainName);
+
+      // Assert 
+      expect(result).to.equal(true);
+    });
+
+    it('should return true if no healthCheck Name tag matches found', async () => {
+      //Arrange
+      let healthCheckTags = {
+        "ResourceTagSets": [
+          {
+            "ResourceType": "healthcheck",
+            "ResourceId": "111",
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "notugh - HealthCheck"
+              }
+            ]
+          },
+          {
+            "ResourceType": "healthcheck",
+            "ResourceId": "222",
+            "Tags": [
+              {
+                "Key": "Name",
+                "Value": "seton.uat.platform.goverb"
+              }
+            ]
+          }
+        ]
+      };
+
+      const healthCheckList = {
+        HealthChecks: [
+          { Id: '111' },
+          { Id: '222' }
+        ]
+      };
+      //setting up route53Client Mock
+      let awsRoute53Mock = {
+        listTagsForResources: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckTags);
+          }
+        }),
+        listHealthChecks: sandbox.stub().returns({
+          promise: () => {
+            return BluebirdPromise.resolve(healthCheckList);
+          },
+        })
+      };
+
+      let mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        Route53: function () {
+          return awsRoute53Mock;
+        }
+      };
+
+      const domainName = 'ugh';
+
+      const mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      const Route53 = proxyquire('../src/route53Client', mocks);
+      const route53ClientService = new Route53();
+
+      // Act
+      const result = await route53ClientService._doesHealthCheckAlreadyExist(domainName);
+
+      // Assert 
+      expect(result).to.equal(false);
     });
   });
 });

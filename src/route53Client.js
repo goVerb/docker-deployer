@@ -1,3 +1,7 @@
+'use strict';
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 const AWS = require('aws-sdk');
 const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
@@ -45,17 +49,8 @@ class Route53Client extends BaseClient {
 
     const recordSetsByName = await this._getResourceRecordSetsByName(domainHostedZoneId, domainName);
 
-    const hasRecordSetChangedResult = await this._hasResourceRecordSetChanged(recordSetsByName, parameters, hostedZoneId);
-    const recordSetsHaveHealthCheck = await this._doResourceRecordsHaveHealthCheck(recordSetsByName, dnsName);
-
     //create if necessary
     const healthCheckId = await this._createOrGetHealthCheck(domainName, dnsName, healthCheckResourcePath);
-
-
-    if (!hasRecordSetChangedResult && recordSetsHaveHealthCheck === true) {
-      this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
-      return BlueBirdPromise.resolve();
-    }
 
     const params = {
       HostedZoneId: domainHostedZoneId,
@@ -71,36 +66,36 @@ class Route53Client extends BaseClient {
         Action: 'UPSERT',
         ResourceRecordSet: {}
       };
-      changeParams.ResourceRecordSet = { ...record };
+      changeParams.ResourceRecordSet = _extends({}, record);
       delete changeParams.ResourceRecordSet.ResourceRecords;
 
-      if(record.Region !== this._region) {
+      if (record.Region !== this._region) {
         params.ChangeBatch.Changes.push(changeParams);
       }
     });
 
     //Add hard coded items
     params.ChangeBatch.Changes.push({
-        Action: 'UPSERT',
-        ResourceRecordSet: {
-          Name: domainName,
-          Region: this._region,
-          SetIdentifier: `${this._region} ALB`,
-          HealthCheckId: healthCheckId,
-          Type: 'A',
-          AliasTarget: {
-            DNSName: dnsName,
-            EvaluateTargetHealth: !!healthCheckId,
-            HostedZoneId: hostedZoneId
-          }
+      Action: 'UPSERT',
+      ResourceRecordSet: {
+        Name: domainName,
+        Region: this._region,
+        SetIdentifier: `${this._region} - ALB`,
+        HealthCheckId: healthCheckId,
+        Type: 'A',
+        AliasTarget: {
+          DNSName: dnsName,
+          EvaluateTargetHealth: !!healthCheckId,
+          HostedZoneId: hostedZoneId
         }
-      });
+      }
+    });
     params.ChangeBatch.Changes.push({
       Action: 'UPSERT',
       ResourceRecordSet: {
         Name: domainName,
         Region: this._region,
-        SetIdentifier: `${this._region} ALB`,
+        SetIdentifier: `${this._region} - ALB`,
         HealthCheckId: healthCheckId,
         Type: 'AAAA',
         AliasTarget: {
@@ -111,7 +106,15 @@ class Route53Client extends BaseClient {
       }
     });
 
+    const isNewRRSetSame = this._isResourceRecordSame(params, recordSetsByName);
+
+    console.log(isNewRRSetSame)
+    if (isNewRRSetSame) {
+      this.logMessage(`No RRSet changes need to be made.  No Action taken.`);
+      return BlueBirdPromise.resolve();
+    }
     this.logMessage(`Associating Domain with Application Load Balancer. [DomainName: ${domainName}]`);
+
 
     const changeRecordSetsResult = await this._awsRoute53Client.changeResourceRecordSets(params).promise();
     this.logMessage(`Result: ${JSON.stringify(changeRecordSetsResult)}`);
@@ -123,6 +126,58 @@ class Route53Client extends BaseClient {
     this.logMessage('Waiting for Route53 change to propagate');
     await this._awsRoute53Client.waitFor('resourceRecordSetsChanged', waitParams).promise();
     this.logMessage(`Change Propagated! [DomainName: ${domainName}]`);
+  }
+
+
+  /**
+   *
+   * @param params
+   * @param recordSetsByName
+   * @return {bool}
+   * @private
+   */
+  _isResourceRecordSame(params, recordSetsByName) {
+    //diffing our newly constructed RRSet with that is in the system
+    let paramsDict = {};
+    let recordSetDict = {};
+    params.ChangeBatch.Changes.forEach(set => {
+      paramsDict[`${set.ResourceRecordSet.Type} - ${set.ResourceRecordSet.SetIdentifier} - ${set.ResourceRecordSet.Region}`] = set.ResourceRecordSet;
+    });
+
+    recordSetsByName.forEach(set => {
+      recordSetDict[`${set.Type} - ${set.SetIdentifier} - ${set.Region}`] = set;
+      delete recordSetDict[`${set.Type} - ${set.SetIdentifier} - ${set.Region}`].ResourceRecords;
+    });
+
+    this.logMessage(JSON.stringify(paramsDict), 'plz params')
+
+    this.logMessage(JSON.stringify(recordSetDict), 'plz params')
+
+    let isNewRRSetSame = true;
+    for (let key in paramsDict) {
+      let formattedCurrentParamDnsName = __.get(paramsDict[key], 'AliasTarget.DNSName', '').toLocaleUpperCase();
+      let formattedExistingAliasTargetDNSName = __.get(recordSetDict[key], 'AliasTarget.DNSName', '').toLocaleUpperCase();
+
+      if (!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
+        this.logMessage(`DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}] [Key: ${key}] `);
+        isNewRRSetSame = false;
+        break;
+      }
+
+      if (__.get(paramsDict[key], 'HealthCheckId', '') !== __.get(recordSetDict[key], 'HealthCheckId', '')) {
+        this.logMessage(`HealthCheckId has changed. [ExistingValue: ${recordSetDict[key].HealthCheckId}] [NewValue: ${paramsDict[key].HealthCheckId}] [Key: ${key}]`);
+        isNewRRSetSame = false;
+        break;
+      }
+
+      if (paramsDict[key].AliasTarget.EvaluateTargetHealth !== recordSetDict[key].AliasTarget.EvaluateTargetHealth) {
+        this.logMessage(`EvaluateTargetHealth has changed. [ExistingValue: ${recordSetDict[key].AliasTarget.EvaluateTargetHealth}] [NewValue: ${paramsDict[key].AliasTarget.EvaluateTargetHealth}] [Key: ${key}]`);
+        isNewRRSetSame = false;
+        break;
+      }
+    }
+
+    return isNewRRSetSame;
   }
 
   /**
@@ -157,32 +212,29 @@ class Route53Client extends BaseClient {
     let params = {
       HostedZoneId: domainHostedZoneId,
       ChangeBatch: {
-        Changes: [
-          {
-            Action: 'UPSERT',
-            ResourceRecordSet: {
-              Name: domainName,
-              Type: 'A',
-              AliasTarget: {
-                DNSName: cloudFrontDNSName,
-                EvaluateTargetHealth: false,
-                HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
-              }
-            }
-          },
-          {
-            Action: 'UPSERT',
-            ResourceRecordSet: {
-              Name: domainName,
-              Type: 'AAAA',
-              AliasTarget: {
-                DNSName: cloudFrontDNSName,
-                EvaluateTargetHealth: false,
-                HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
-              }
+        Changes: [{
+          Action: 'UPSERT',
+          ResourceRecordSet: {
+            Name: domainName,
+            Type: 'A',
+            AliasTarget: {
+              DNSName: cloudFrontDNSName,
+              EvaluateTargetHealth: false,
+              HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
             }
           }
-        ]
+        }, {
+          Action: 'UPSERT',
+          ResourceRecordSet: {
+            Name: domainName,
+            Type: 'AAAA',
+            AliasTarget: {
+              DNSName: cloudFrontDNSName,
+              EvaluateTargetHealth: false,
+              HostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
+            }
+          }
+        }]
       }
     };
 
@@ -197,80 +249,6 @@ class Route53Client extends BaseClient {
     this.logMessage('Waiting for Route53 change to propagate');
     await this._awsRoute53Client.waitFor('resourceRecordSetsChanged', waitParams).promise();
     this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
-
-  }
-
-  /**
-   *
-   * @param recordSetsByName
-   * @param currentParameters
-   * @param currentParameters.domainName
-   * @param currentParameters.dnsName
-   * @param currentParameters.domainNameHostedZoneId
-   * @return {Promise.<bool>}
-   * @private
-   */
-  _hasResourceRecordSetChanged(recordSetsByName, currentParameters, expectedAliasHostedZoneId) {
-
-    let hasChanged = false;
-
-    const parsedExpectedAliasHostedZoneId = expectedAliasHostedZoneId.replace('/hostedzone/', '');
-    this.logMessage(`ParsedExpectedAliasHostedZoneId: ${parsedExpectedAliasHostedZoneId}`);
-
-    let foundARecord = false;
-    let foundAAAARecord = false;
-
-    recordSetsByName.forEach(item => {
-
-      //break if the true condition is met
-      if (hasChanged) {
-        return;
-      }
-
-      if (item.Type === 'A') {
-
-        if (item.AliasTarget.HostedZoneId !== parsedExpectedAliasHostedZoneId) {
-          this.logMessage(`A Record hostedZoneId has changed. [ExistingValue: ${item.AliasTarget.HostedZoneId}] [NewValue: ${parsedExpectedAliasHostedZoneId}]`);
-          hasChanged = true;
-        }
-
-        let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
-        let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
-
-        if (!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
-          this.logMessage(`A Record DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}]`);
-          hasChanged = true;
-        }
-
-        foundARecord = true;
-      } else if (item.Type === 'AAAA') {
-
-        if (item.AliasTarget.HostedZoneId !== parsedExpectedAliasHostedZoneId) {
-          this.logMessage(`AAAA Record hostedZoneId has changed. [ExistingValue: ${item.AliasTarget.HostedZoneId}] [NewValue: ${parsedExpectedAliasHostedZoneId}]`);
-          hasChanged = true;
-        }
-
-
-        let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
-        let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
-
-        if (!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
-          this.logMessage(`AAAA Record DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}]`);
-          hasChanged = true;
-        }
-
-        foundAAAARecord = true;
-      } else {
-        hasChanged = true;
-      }
-    });
-
-    if (!foundARecord || !foundAAAARecord) {
-      hasChanged = true;
-    }
-
-
-    return hasChanged;
   }
 
   /**
@@ -292,7 +270,6 @@ class Route53Client extends BaseClient {
     });
 
     return result;
-
   }
 
   /**
@@ -320,14 +297,14 @@ class Route53Client extends BaseClient {
 
     let healthCheckId = '';
 
-
     const length = existingHealthCheckTags.ResourceTagSets.length;
-    for(let tagSetIndex = 0; tagSetIndex < length; tagSetIndex++) {
-      const tagSet = existingHealthCheckTags.ResourceTagSets[0];
+    for (let tagSetIndex = 0; tagSetIndex < length; tagSetIndex++) {
+      const tagSet = existingHealthCheckTags.ResourceTagSets[tagSetIndex];
 
       const tagsLength = tagSet.Tags.length;
       for (let tagItemIndex = 0; tagItemIndex < tagsLength; tagItemIndex++) {
         let tag = tagSet.Tags[tagItemIndex];
+        this.logMessage(`[Key: ${tag.Key}] [Value: ${tag.Value}]`)
         if (tag.Key === 'Name' && tag.Value === healthCheckName) {
           healthCheckId = tagSet.ResourceId;
           break;
@@ -335,7 +312,7 @@ class Route53Client extends BaseClient {
       }
 
       //if healthCheckId if found, stop iterating over all health checks
-      if(healthCheckId) {
+      if (healthCheckId) {
         break;
       }
     }
@@ -364,7 +341,7 @@ class Route53Client extends BaseClient {
     let itemName;
     let itemRegion;
 
-    return __.filter(recordSets.ResourceRecordSets, (item) => {
+    return __.filter(recordSets.ResourceRecordSets, item => {
       itemName = __.get(item, 'Name', '').toLocaleUpperCase();
       return itemName === `${domainName.toLocaleUpperCase()}.`;
     });
@@ -383,12 +360,11 @@ class Route53Client extends BaseClient {
     let params = {};
     const foundHostedZones = await this._awsRoute53Client.listHostedZonesByName(params).promise();
 
-
     this.logMessage(`Looking up HostedZones by Name. [ParsedHostName: ${parsedHostName}] [Results: ${JSON.stringify(foundHostedZones)}]`);
     let resultHostedZoneId = '';
     if (foundHostedZones && foundHostedZones.HostedZones && foundHostedZones.HostedZones.length > 0) {
       //find hostedZones that match
-      let matchingHostedZones = __.filter(foundHostedZones.HostedZones, (hostedZone) => {
+      let matchingHostedZones = __.filter(foundHostedZones.HostedZones, hostedZone => {
         return hostedZone.Name.startsWith(parsedHostName);
       });
 
@@ -430,15 +406,14 @@ class Route53Client extends BaseClient {
   async _createOrGetHealthCheck(domainName, dnsName, healthCheckResourcePath = '') {
 
     //should not create or look for healthcheck if healthCheckResourcePath is empty
-    if(!healthCheckResourcePath) {
+    if (!healthCheckResourcePath) {
       return '';
     }
-
 
     const retrievedHealthCheckId = await this._doesHealthCheckAlreadyExist(dnsName);
 
     let healthCheckId = '';
-    if(!retrievedHealthCheckId) {
+    if (!retrievedHealthCheckId) {
       const healthCheckData = await this._createHealthCheck(dnsName, healthCheckResourcePath);
       healthCheckId = healthCheckData.HealthCheck.Id;
     } else {
@@ -478,12 +453,10 @@ class Route53Client extends BaseClient {
     const healthCheckTagParams = {
       ResourceId: healthCheckData.HealthCheck.Id,
       ResourceType: 'healthcheck',
-      AddTags: [
-        {
-          Key: 'Name',
-          Value: `${domainName} - HealthCheck`
-        },
-      ]
+      AddTags: [{
+        Key: 'Name',
+        Value: `${domainName} - HealthCheck`
+      }]
     };
 
     // add Name tag to HealthCheck

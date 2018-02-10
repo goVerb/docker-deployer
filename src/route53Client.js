@@ -108,7 +108,6 @@ class Route53Client extends BaseClient {
 
     const isNewRRSetSame = this._isResourceRecordSame(params, recordSetsByName);
 
-    console.log(isNewRRSetSame)
     if (isNewRRSetSame) {
       this.logMessage(`No RRSet changes need to be made.  No Action taken.`);
       return BlueBirdPromise.resolve();
@@ -148,10 +147,6 @@ class Route53Client extends BaseClient {
       recordSetDict[`${set.Type} - ${set.SetIdentifier} - ${set.Region}`] = set;
       delete recordSetDict[`${set.Type} - ${set.SetIdentifier} - ${set.Region}`].ResourceRecords;
     });
-
-    this.logMessage(JSON.stringify(paramsDict), 'plz params')
-
-    this.logMessage(JSON.stringify(recordSetDict), 'plz params')
 
     let isNewRRSetSame = true;
     for (let key in paramsDict) {
@@ -304,7 +299,6 @@ class Route53Client extends BaseClient {
       const tagsLength = tagSet.Tags.length;
       for (let tagItemIndex = 0; tagItemIndex < tagsLength; tagItemIndex++) {
         let tag = tagSet.Tags[tagItemIndex];
-        this.logMessage(`[Key: ${tag.Key}] [Value: ${tag.Value}]`)
         if (tag.Key === 'Name' && tag.Value === healthCheckName) {
           healthCheckId = tagSet.ResourceId;
           break;

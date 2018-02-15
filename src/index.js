@@ -1,3 +1,7 @@
+const AWS = require('aws-sdk');
+const BlueBirdPromise = require('bluebird');
+AWS.config.setPromisesDependency(BlueBirdPromise);
+
 const S3 = require('./s3Client');
 const VPC = require('./vpcClient.js');
 const ECS = require('./ecsClient.js');
@@ -10,7 +14,6 @@ const CloudFront = require('./cloudFrontClient.js');
 const APIGateway = require('./apiGatewayClient');
 const ApplicationAutoScaling = require('./applicationAutoScalingClient.js');
 const CloudWatch = require('./cloudWatchClient.js');
-const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const util = require('util');
 const moment = require('moment');
@@ -67,12 +70,10 @@ class Deployer extends BaseClient {
     await this._vpcClient.createVpcFromConfig(config.environment, config.vpc);
 
     //Create security groups
-    let securityGroupPromises = [];
     for (let sgIndex = 0; sgIndex < config.securityGroups.length; sgIndex++) {
       let securityGroupConfig = config.securityGroups[sgIndex];
-      securityGroupPromises.push(this._createSecurityGroup(config.environment, securityGroupConfig));
+      await this._createSecurityGroup(config.environment, securityGroupConfig);
     }
-    await BlueBirdPromise.all(securityGroupPromises);
 
     // Create file hosting buckets if they do not exist already
     await this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
@@ -97,7 +98,7 @@ class Deployer extends BaseClient {
     await this._createApplicationLoadBalancerListener(config.appListener);
 
     //associate Load balancer with DNS Entry
-    await this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname);
+    await this._createDNSEntryForApplicationLoadBalancer(config.environment, config.appLoadBalancer.name, config.dnsHostname, config.healthCheckResourcePath);
 
     //Create ECS Cluster
 
@@ -212,6 +213,7 @@ class Deployer extends BaseClient {
    */
   async _createSecurityGroup(environment, securityGroupConfig) {
     //convert vpcName to vpcId
+    this.logMessage(`Creating Security Group. [Config: ${JSON.stringify(securityGroupConfig)}]`);
     const vpcId = await this._vpcClient.getVpcIdFromName(securityGroupConfig.vpcName);
 
     //add vpcId
@@ -363,7 +365,9 @@ class Deployer extends BaseClient {
     const scaleInResponse = await this._applicationAutoScalingClient.putScalingPolicy(serviceConfig.serviceScaleInPolicyParams);
     serviceConfig.putAlarmScaleInParams.AlarmActions[0] = scaleInResponse.PolicyARN;
 
-    return await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
+    await this._cloudWatchClient.putMetricAlarm(serviceConfig.putAlarmScaleInParams);
+
+    //
   }
 
   /**
@@ -374,10 +378,10 @@ class Deployer extends BaseClient {
    * @private
    * @return {Promise<TResult>}
    */
-  async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname) {
+  async _createDNSEntryForApplicationLoadBalancer(environment, applicationLoadBalancerName, dnsHostname, healthCheckResourcePath) {
 
     const dnsInfo = await this._elbClient.getApplicationLoadBalancerDNSInfoFromName(applicationLoadBalancerName);
-    return await this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId);
+    return await this._route53Client.associateDomainWithApplicationLoadBalancer(dnsHostname, dnsInfo.DNSName, dnsInfo.CanonicalHostedZoneId, healthCheckResourcePath);
   }
 
   /**
@@ -413,33 +417,33 @@ class Deployer extends BaseClient {
     }
 
     if (!__.has(lambdaConfig, 'environments')) {
-      this.logError('lambdaConfig must have field \'environments\'');
-      throw new Error('lambdaConfig must have field \'environments\'');
-    }
+      return this._lambdaClient.deployLambdaFunction({}, lambdaConfig);
 
-    const envLambdas = [];
+    } else {
+      const envLambdas = [];
 
-    const environments = lambdaConfig.environments;
-    delete lambdaConfig.environments;
+      const environments = lambdaConfig.environments;
+      delete lambdaConfig.environments;
 
-    let currentEnvironment;
-    for(let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
-      currentEnvironment = environments[envIndex];
+      let currentEnvironment;
+      for(let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
+        currentEnvironment = environments[envIndex];
 
-      if(!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
-        this.logMessage(`Invalid Lambda environment, skipping entry. [Environment: ${currentEnvironment.name}] [Allowed Environments: ${JSON.stringify(Object.keys(ALLOWED_ENVIRONMENTS))}]`);
-        continue;
+        if(!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
+          this.logMessage(`Invalid Lambda environment, skipping entry. [Environment: ${currentEnvironment.name}] [Allowed Environments: ${JSON.stringify(Object.keys(ALLOWED_ENVIRONMENTS))}]`);
+          continue;
+        }
+
+        let currentDeploymentParams = {
+          environmentName: currentEnvironment.name,
+          variables: currentEnvironment.variables
+        };
+
+        envLambdas.push(this._lambdaClient.deployLambdaFunction(currentDeploymentParams, lambdaConfig));
       }
 
-      let currentDeploymentParams = {
-        environmentName: currentEnvironment.name,
-        variables: currentEnvironment.variables
-      };
-
-      envLambdas.push(this._lambdaClient.deployLambdaFunction(currentDeploymentParams, lambdaConfig));
+      return Promise.all(envLambdas);
     }
-
-    return Promise.all(envLambdas);
   }
 }
 

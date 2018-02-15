@@ -158,30 +158,30 @@ describe('VPC Client', function() {
           AvailabilityZones: [
              {
             Messages: [
-            ], 
-            RegionName: "us-east-1", 
-            State: "available", 
+            ],
+            RegionName: "us-east-1",
+            State: "available",
             ZoneName: "us-east-1b"
-           }, 
+           },
              {
             Messages: [
-            ], 
-            RegionName: "us-east-1", 
-            State: "available", 
+            ],
+            RegionName: "us-east-1",
+            State: "available",
             ZoneName: "us-east-1c"
-           }, 
+           },
              {
             Messages: [
-            ], 
-            RegionName: "us-east-1", 
-            State: "available", 
+            ],
+            RegionName: "us-east-1",
+            State: "available",
             ZoneName: "us-east-1d"
-           }, 
+           },
              {
             Messages: [
-            ], 
-            RegionName: "us-east-1", 
-            State: "available", 
+            ],
+            RegionName: "us-east-1",
+            State: "available",
             ZoneName: "us-east-1e"
            }
           ]
@@ -248,16 +248,16 @@ describe('VPC Client', function() {
           AvailabilityZones: [
              {
             Messages: [
-            ], 
-            RegionName: "us-east-1", 
-            State: "available", 
+            ],
+            RegionName: "us-east-1",
+            State: "available",
             ZoneName: "us-east-1b"
-           }, 
+           },
              {
             Messages: [
-            ], 
-            RegionName: "us-east-1", 
-            State: "some-other-state", 
+            ],
+            RegionName: "us-east-1",
+            State: "some-other-state",
             ZoneName: "us-east-1c"
            }
           ]
@@ -277,7 +277,7 @@ describe('VPC Client', function() {
     beforeEach(() => {
       VPC = require('../src/vpcClient');
       vpcClientService = new VPC();
-      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');      
+      vpcClientService.getVpcIdFromName = sandbox.stub().resolves('');
       vpcClientService.createVpc = sandbox.stub().resolves({});
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves({});
       vpcClientService.createVpcSubnet = sandbox.stub().resolves({});
@@ -289,18 +289,19 @@ describe('VPC Client', function() {
       vpcClientService.getRouteTableByVpcId = sandbox.stub().resolves({});
       vpcClientService.createOrUpdatePeeringConnection = sandbox.stub().resolves({});
       vpcClientService.getAvailabilityZones = sandbox.stub().resolves(['us-west-2a']);
+      vpcClientService.addNATGatewayToRouteTable = sandbox.stub().resolves({});
+      vpcClientService.createNATGateway = sandbox.stub().resolves({});
     });
 
     afterEach(() => {
       VPC = null;
       vpcClientService = null;
     });
-    
+
     it('should pass config.name to getVpcIdFromName', () => {
       //Arrange
-
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -318,7 +319,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -328,9 +329,8 @@ describe('VPC Client', function() {
 
     it('should return existingVpcId if vpc already exists', () => {
       //Arrange
-
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -345,15 +345,15 @@ describe('VPC Client', function() {
         ]
       };
 
-      let existingVpcId = 'vpc-test123';
+      const existingVpcId = 'vpc-test123';
 
 
       //Setting up VPC clients
       vpcClientService.getVpcIdFromName = sandbox.stub().resolves(existingVpcId);
-      
+
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(foundVpcId => {
@@ -363,9 +363,8 @@ describe('VPC Client', function() {
 
     it('should return vpcId to getRouteTableByVpcId if vpc already exists', () => {
       //Arrange
-
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -380,14 +379,14 @@ describe('VPC Client', function() {
         ]
       };
 
-      let existingVpcId = 'vpc-test123';
+      const existingVpcId = 'vpc-test123';
 
 
       //Setting up VPC clients
       vpcClientService.getVpcIdFromName = sandbox.stub().resolves(existingVpcId);
-      
+
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(foundVpcId => {
@@ -397,9 +396,8 @@ describe('VPC Client', function() {
 
     it('should pass config.name, environment, and config.cidrBlock to createVpc', () => {
       //Arrange
-
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -414,13 +412,13 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
+      const newlyCreatedVpcId = 'vpc-test123';
 
       //Setting up VPC clients
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -434,8 +432,8 @@ describe('VPC Client', function() {
     it('should pass vpcId, name, environment, and rules parameter to createNetworkAclWithRules', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -450,17 +448,17 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
 
       //Setting up VPC clients
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
-      
+
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -475,8 +473,8 @@ describe('VPC Client', function() {
     it('should call createNetworkAclWithRules for each networkAcl', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -491,18 +489,18 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
 
       //Setting up VPC clients
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
 
-      
+
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -510,11 +508,11 @@ describe('VPC Client', function() {
       });
     });
 
-    it('should pass vpcId, name, environment, cidrBlock, availabileZone, mapPublicIpOnLaunch parameter to createVpcSubnet', () => {
+    it('should pass vpcId, name, environment, cidrBlock, availableZone, mapPublicIpOnLaunch parameter to createVpcSubnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -529,9 +527,9 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
 
@@ -540,7 +538,7 @@ describe('VPC Client', function() {
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -557,11 +555,11 @@ describe('VPC Client', function() {
     it('should pass the availability zones that match the passed in index for each subnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
@@ -576,24 +574,24 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
-      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+      const availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
       //Setting up VPC clients
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
         expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
         expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
-        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2a');        
+        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2a');
       });
     });
 
@@ -601,11 +599,11 @@ describe('VPC Client', function() {
     it('should still pass a correct availability zone even if the index is higher than the number of the available zones', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 5, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 5, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
@@ -620,78 +618,36 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
-      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+      const availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
       //Setting up VPC clients
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
 
+
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
         expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
         expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
-        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2a');        
+        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2a');
       });
     });
 
     it('should pass a correct availability zone if the zone is passed as a string and is active', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2z', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      
-      let vpcConfig = {
-        name: 'TEST VPC',
-        cidrBlock: '10.0.0.0/16',
-        subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
-        networkAcls: [ 
-          {
-            name: 'Instance Network Acl',
-            rules: [
-              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
-              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
-            ]
-          }
-        ]
-      };
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'us-west-2z', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
-      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
-      //Setting up VPC clients
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
-      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
-      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
-      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
-
-      //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
-
-      //Assert
-      return resultPromise.then(() => {
-        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
-        expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
-        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2z');        
-      });
-    });
-
-    it('should throw an error if one of the subnets holds an inactive or incorrect availability zone', () => {
-      //Arrange
-
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'iam-totally-fake', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      
-      let vpcConfig = {
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
@@ -706,30 +662,73 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
-      let availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+      const availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
       //Setting up VPC clients
-      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);      
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);
       vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      return resultPromise.then(() => {
+        expect(vpcClientService.createVpcSubnet.args[0][4]).to.be.equal('us-west-2a');
+        expect(vpcClientService.createVpcSubnet.args[1][4]).to.be.equal('us-west-2b');
+        expect(vpcClientService.createVpcSubnet.args[2][4]).to.be.equal('us-west-2z');
+      });
+    });
+
+    it('should throw an error if one of the subnets holds an inactive or incorrect availability zone', () => {
+      //Arrange
+
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet2 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 2, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const instanceSubnet3 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 'iam-totally-fake', networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [instanceSubnet1, instanceSubnet2, instanceSubnet3],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+      const availabilityZones = ['us-west-2a', 'us-west-2b', 'us-west-2z'];
+      //Setting up VPC clients
+      vpcClientService.getAvailabilityZones = sandbox.stub().resolves(availabilityZones);
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.catch(err => {
-        expect(err).to.have.property('message','Subnet availability zone in config is not an active available zone');      
+        expect(err).to.have.property('message','Subnet availability zone in config is not an active available zone');
       });
     });
 
     it('should call createVpcSubnet for each subnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -744,9 +743,9 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
 
@@ -755,7 +754,7 @@ describe('VPC Client', function() {
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
 
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -765,9 +764,8 @@ describe('VPC Client', function() {
 
     it('should pass networkAclId and subnetId to replaceNetworkAclAssociation', () => {
       //Arrange
-
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -782,9 +780,9 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
 
@@ -792,9 +790,9 @@ describe('VPC Client', function() {
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
 
-      
+
       //Act
-      let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+      const resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
       //Assert
       return resultPromise.then(() => {
@@ -803,11 +801,369 @@ describe('VPC Client', function() {
       });
     });
 
+    it('should call createNATGateway once if subnet.isNAT=true', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.createNATGateway.calledOnce).to.be.true;
+    });
+
+    it('should pass vpcId to createNATGateway if subnet.isNAT=true', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.createNATGateway.args[0][0]).to.be.equal(newlyCreatedVpcId);
+    });
+
+    it('should pass subnetId to createNATGateway if subnet.isNAT=true', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.createNATGateway.args[0][1]).to.be.equal(createdSubnetId);
+    });
+
+    it('should call addInternetGatewayToRouteTable once if subnet.isNAT=true', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.addInternetGatewayToRouteTable.calledOnce).to.be.true;
+    });
+
+    it('should call addNATGatewayToRouteTable once if subnet has NATSubnetName associated with it', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const instanceSubnet1 = {
+        name: 'Instance Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        NATSubnetName: 'NAT Subnet 1'
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1, instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.addNATGatewayToRouteTable.calledOnce).to.be.true;
+    });
+
+    it('should not rely on ordering of items in subnet indexes', async () => {
+      //Arrange
+      const natSubnet1 = { name: 'NAT Subnet 1 - Prod', cidrBlock: `10.1.1.0/24`, availabilityZone: 1, networkAclName: 'Instance Network Acl - Prod', isNAT: true};
+      const instanceSubnet1 = { name: 'Instance Subnet 1 - Prod', cidrBlock: `10.1.2.0/24`, availabilityZone: 1, networkAclName: 'Instance Network Acl - Prod', NATSubnetName: 'NAT Subnet 1 - Prod'};
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1, instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId1 = 'subnet-1';
+      const createdSubnetId2 = 'subnet-2';
+      const natGatewayId = 'nat-12312312';
+
+      //Setting up VPC clients
+
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().onFirstCall().resolves(BluebirdPromise.delay(1000).then(() => createdSubnetId1)).onSecondCall().resolves(createdSubnetId2);
+      vpcClientService.createNATGateway = sandbox.stub().resolves(natGatewayId);
+      vpcClientService.createRouteTable = sandbox.stub().onFirstCall().resolves('rtb-1').onSecondCall().resolves('rtb-2');
+      vpcClientService.associateSubnetWithRouteTable = sandbox.stub().resolves({});
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+
+      //Assert
+      expect(vpcClientService.associateSubnetWithRouteTable.args[0][0]).to.be.equal('rtb-1');
+      expect(vpcClientService.associateSubnetWithRouteTable.args[0][1]).to.be.equal(createdSubnetId1);
+
+      expect(vpcClientService.associateSubnetWithRouteTable.args[1][0]).to.be.equal('rtb-2');
+      expect(vpcClientService.associateSubnetWithRouteTable.args[1][1]).to.be.equal(createdSubnetId2);
+    });
+
+    it('should pass natGatewayId to addNATGatewayToRouteTable if subnet has NATSubnetName associated with it', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const instanceSubnet1 = {
+        name: 'Instance Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        NATSubnetName: 'NAT Subnet 1'
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1, instanceSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+      const natGatewayId = 'nat-12312321321321312';
+
+      //Setting up VPC clients
+      vpcClientService.createNATGateway = sandbox.stub().resolves(natGatewayId);
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.addNATGatewayToRouteTable.args[0][0]).to.be.equal(natGatewayId);
+    });
+
+    it('should pass internetGatewayId to addInternetGatewayToRouteTable if subnet.isNAT=true', async () => {
+      //Arrange
+      const natSubnet1 = {
+        name: 'NAT Subnet 1',
+        cidrBlock: '10.0.2.0/24',
+        availabilityZone: 1,
+        networkAclName: 'Instance Network Acl',
+        mapPublicIpOnLaunch: true,
+        isNAT: true
+      };
+      const vpcConfig = {
+        name: 'TEST VPC',
+        cidrBlock: '10.0.0.0/16',
+        subnets: [natSubnet1],
+        networkAcls: [
+          {
+            name: 'Instance Network Acl',
+            rules: [
+              { cidrBlock: '0.0.0.0/0', egress: false, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 },
+              { cidrBlock: '0.0.0.0/0', egress: true, protocol: '-1', ruleAction: 'allow', ruleNumber: 100 }
+            ]
+          }
+        ]
+      };
+
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
+      const internetGatewayId = 'igw-1231231';
+
+      //Setting up VPC clients
+      vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(internetGatewayId);
+      vpcClientService.createVpc = sandbox.stub().resolves(newlyCreatedVpcId);
+      vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
+      vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
+
+      //Act
+      await vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
+
+      //Assert
+      expect(vpcClientService.addInternetGatewayToRouteTable.args[0][0]).to.be.equal(internetGatewayId);
+    });
+
     it('should call replaceNetworkAclAssociation for each subnet', () => {
       //Arrange
 
-      let instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
-      let vpcConfig = {
+      const instanceSubnet1 = { name: 'Instance Subnet 1', cidrBlock: '10.0.2.0/24', availabilityZone: 1, networkAclName: 'Instance Network Acl', mapPublicIpOnLaunch: true};
+      const vpcConfig = {
         name: 'TEST VPC',
         cidrBlock: '10.0.0.0/16',
         subnets: [instanceSubnet1],
@@ -822,9 +1178,9 @@ describe('VPC Client', function() {
         ]
       };
 
-      let newlyCreatedVpcId = 'vpc-test123';
-      let createdNetworkAclId = 'acl-123';
-      let createdSubnetId = 'subnet-123abc';
+      const newlyCreatedVpcId = 'vpc-test123';
+      const createdNetworkAclId = 'acl-123';
+      const createdSubnetId = 'subnet-123abc';
 
       //Setting up VPC clients
 
@@ -1041,7 +1397,7 @@ describe('VPC Client', function() {
       vpcClientService.createNetworkAclWithRules = sandbox.stub().resolves(createdNetworkAclId);
       vpcClientService.createVpcSubnet = sandbox.stub().resolves(createdSubnetId);
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
-      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);      
+      vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
 
 
       //Act
@@ -1130,7 +1486,7 @@ describe('VPC Client', function() {
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
 
-      
+
       //Act
       let resultPromise = vpcClientService.createVpcFromConfig('environmentTest', vpcConfig);
 
@@ -1221,7 +1577,7 @@ describe('VPC Client', function() {
       vpcClientService.createAndAttachInternetGateway = sandbox.stub().resolves(createdInternetGatewayId);
       vpcClientService.createRouteTable = sandbox.stub().resolves(createdRouteTableId);
 
-      
+
 
 
       //Act
@@ -2666,7 +3022,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2716,7 +3075,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2766,7 +3128,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2816,7 +3181,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2866,7 +3234,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2906,15 +3277,18 @@ describe('VPC Client', function() {
 
     it('should pass name parameter to _createTags', () => {
       //Arrange
-      let createSubnetResponse = {
+      const createSubnetResponse = {
         Subnet: {
           SubnetId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2944,12 +3318,12 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
-        let tagParams = vpcClientService._createTags.args[0][1];
-        let nameTag = __.filter(tagParams, {Key: 'Name'});
+        const tagParams = vpcClientService._createTags.args[0][1];
+        const nameTag = __.filter(tagParams, {Key: 'Name'});
         expect(nameTag[0]).to.have.property('Value', name);
       });
     });
@@ -2964,7 +3338,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -2994,7 +3371,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3013,8 +3390,11 @@ describe('VPC Client', function() {
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3044,7 +3424,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3054,15 +3434,18 @@ describe('VPC Client', function() {
 
     it('should pass newly created subnetId to _setMapPublicIpOnLaunchAttribute', () => {
       //Arrange
-      let createSubnetResponse = {
+      const createSubnetResponse = {
         Subnet: {
           SubnetId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3092,7 +3475,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3112,7 +3495,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3142,7 +3528,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3154,15 +3540,18 @@ describe('VPC Client', function() {
 
     it('should call _setMapPublicIpOnLaunchAttribute once', () => {
       //Arrange
-      let createSubnetResponse = {
+      const createSubnetResponse = {
         Subnet: {
           SubnetId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+      const awsEc2ClientMock = {
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3192,7 +3581,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(() => {
@@ -3210,7 +3599,10 @@ describe('VPC Client', function() {
 
       //setting up ec2Client Mock
       let awsEc2ClientMock = {
-        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} })
+        createSubnet: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createSubnetResponse);} }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
       };
 
       const mockAwsSdk = {
@@ -3240,7 +3632,7 @@ describe('VPC Client', function() {
 
 
       //Act
-      let resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
+      const resultPromise = vpcClientService.createVpcSubnet(vpcId, name, environment, cidrBlock, availabilityZone, mapPublicIpOnLaunch);
 
       //Assert
       return resultPromise.then(createdSubnetId => {
@@ -3253,14 +3645,14 @@ describe('VPC Client', function() {
 
     it('should call createInternetGateway once', () => {
       //Arrange
-      let createRouteTableResponse = {
+      const createRouteTableResponse = {
         InternetGateway: {
           InternetGatewayId: 'newlyCreatedId'
         }
       };
 
       //setting up ec2Client Mock
-      let awsEc2ClientMock = {
+      const awsEc2ClientMock = {
         createInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve(createRouteTableResponse);} }),
         attachInternetGateway: sandbox.stub().returns({promise: () => { return BluebirdPromise.resolve({});} })
       };
@@ -5710,7 +6102,7 @@ describe('VPC Client', function() {
 
     let vpcClientService;
     let peeringConnectionId;
-    let routeTableId;
+    let routeTableIds;
     let destinationCidrBlock;
     let awsEc2ClientMock;
     beforeEach(() => {
@@ -5748,13 +6140,13 @@ describe('VPC Client', function() {
       vpcClientService._acceptVpcPeeringConnection = sandbox.stub().resolves({});
 
       peeringConnectionId = 'myPeeringConnectionId';
-      routeTableId = 'myRouteTableId';
+      routeTableIds = ['myRouteTableId'];
       destinationCidrBlock = 'myDestinationCidrBlock';
     });
 
     it('should call _awsEc2Client.describeVpcPeeringConnections once', async () => {
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(awsEc2ClientMock.describeVpcPeeringConnections.callCount).to.be.equal(1);
@@ -5778,7 +6170,7 @@ describe('VPC Client', function() {
       };
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(awsEc2ClientMock.describeVpcPeeringConnections.args[0][0]).to.be.deep.equal(expectedParams);
@@ -5791,7 +6183,7 @@ describe('VPC Client', function() {
       });
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._acceptVpcPeeringConnection.callCount).to.be.equal(0);
@@ -5804,7 +6196,7 @@ describe('VPC Client', function() {
       });
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._acceptVpcPeeringConnection.callCount).to.be.equal(1);
@@ -5817,7 +6209,7 @@ describe('VPC Client', function() {
       });
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._acceptVpcPeeringConnection.args[0][0]).to.be.equal('myPeeringConnectionId');
@@ -5825,7 +6217,7 @@ describe('VPC Client', function() {
 
     it('should call _describeRouteTables once', async () => {
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._describeRouteTables.callCount).to.be.equal(1);
@@ -5833,7 +6225,7 @@ describe('VPC Client', function() {
 
     it('should pass params to _describeRouteTables', async () => {
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._describeRouteTables.args[0][0]).to.be.equal('myPeeringConnectionId');
@@ -5845,7 +6237,7 @@ describe('VPC Client', function() {
       vpcClientService._describeRouteTables = sandbox.stub().resolves({ RouteTables: ['a', 'b'] });
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._createRoute.callCount).to.be.equal(0);
@@ -5856,7 +6248,7 @@ describe('VPC Client', function() {
       vpcClientService._describeRouteTables = sandbox.stub().resolves({ RouteTables: [] });
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._createRoute.callCount).to.be.equal(1);
@@ -5867,7 +6259,7 @@ describe('VPC Client', function() {
       vpcClientService._describeRouteTables = sandbox.stub().resolves({ RouteTables: [] });
 
       // Act
-      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+      await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       // Assert
       expect(vpcClientService._createRoute.args[0][0]).to.be.equal('myDestinationCidrBlock');
@@ -5883,12 +6275,468 @@ describe('VPC Client', function() {
 
       try {
         // Act
-        await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableId, destinationCidrBlock);
+        await vpcClientService.createOrUpdatePeeringConnection(peeringConnectionId, routeTableIds, destinationCidrBlock);
 
       } catch (err) {
         // Assert
         expect(err.message).to.be.equal('An unexpected error occurred!');
       }
+    });
+  });
+
+  describe('createNATGateway', () => {
+
+    const VPC_ID = 'vpc-123adb';
+    const SUBNET_ID = 'sub-asfdasfdas';
+    const ENVIRONMENT = 'safdsafdas';
+    let vpcClientService;
+    let awsEc2ClientMock;
+    let mocks;
+
+    beforeEach(() => {
+
+      //setting up ec2Client Mock
+      awsEc2ClientMock = {
+        describeNatGateways: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({
+            NatGateways: []
+          })
+        }),
+        allocateAddress: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        }),
+        createNatGateway: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({
+            NatGateway: {}
+          })
+        }),
+        waitFor: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
+      };
+
+      const mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: function() {
+          return awsEc2ClientMock;
+        }
+      };
+
+      //Setting up VPC clients
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+    });
+
+
+    it('should return without calling createNatGateway if one with the same name exists', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.describeNatGateways = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateways: [
+            {
+              NatGatewayId: 'nat-123',
+              subnetId: SUBNET_ID,
+              vpcId: VPC_ID,
+              Tags: [
+                { Key: 'Name', Value: natGatewayName }
+              ]
+            }
+          ]
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.createNatGateway.callCount).to.be.equal(0);
+    });
+
+    it('should return NatGatewayId if Nat Gateway with that name already exists', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.describeNatGateways = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateways: [
+            {
+              NatGatewayId: 'nat-123',
+              subnetId: SUBNET_ID,
+              vpcId: VPC_ID,
+              Tags: [
+                { Key: 'Name', Value: natGatewayName }
+              ]
+            }
+          ]
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      const result = await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(result).to.be.equal('nat-123');
+    });
+
+    it('should call _getAvailableElasticIp once', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(vpcClientService._getAvailableElasticIp.calledOnce).to.be.true;
+    });
+
+    it('should call a new elasticIp if none are available', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves('');
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.allocateAddress.calledOnce).to.be.true;
+    });
+
+    it('should call createTags once', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(vpcClientService._createTags.calledOnce).to.be.true;
+    });
+
+    it('should call createNatGateway once if one doesnt exist', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.describeNatGateways = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateways: []
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.createNatGateway.callCount).to.be.equal(1);
+    });
+
+    it('should return natGatewayId after successfully creating a new one', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      const result = await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(result).to.be.equal('nat-345');
+    });
+
+    it('should call waitFor once', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.waitFor.calledOnce).to.be.true;
+    });
+
+    it('should pass natGatewayAvailable constant to waitFor', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.waitFor.args[0][0]).to.be.equal('natGatewayAvailable');
+    });
+
+    it('should pass natGatewayId to waitFor', async () => {
+      //Arrange
+      const natGatewayName = 'safdsafas';
+      awsEc2ClientMock.createNatGateway = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          NatGateway: {
+            NatGatewayId: 'nat-345'
+          }
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+
+      //Act
+      await vpcClientService.createNATGateway(VPC_ID, SUBNET_ID, natGatewayName, ENVIRONMENT);
+
+      //Assert
+      expect(awsEc2ClientMock.waitFor.args[0][1]).to.be.deep.equal({'NatGatewayIds': ['nat-345']});
+    });
+  });
+
+  describe('_getAvailableElasticIp', () => {
+
+    let vpcClientService;
+    let awsEc2ClientMock;
+    let mocks;
+
+    beforeEach(() => {
+
+      //setting up ec2Client Mock
+      awsEc2ClientMock = {
+        describeAddresses: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({
+            Addresses: []
+          })
+        })
+      };
+
+      const mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: function() {
+          return awsEc2ClientMock;
+        }
+      };
+
+      //Setting up VPC clients
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+    });
+
+    it('should call describeAddresses once', async () => {
+      //Arrange
+
+      //Act
+      await vpcClientService._getAvailableElasticIp();
+
+      //Assert
+      expect(awsEc2ClientMock.describeAddresses.calledOnce).to.be.true;
+    });
+
+    it('should return empty string if no available elasticIPs', async () => {
+      //Arrange
+      awsEc2ClientMock.describeAddresses = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          Addresses: [
+            {
+              AllocationId: "eipalloc-12345678",
+              AssociationId: "eipassoc-12345678",
+              Domain: "vpc",
+              InstanceId: "i-1234567890abcdef0",
+              NetworkInterfaceId: "eni-12345678",
+              NetworkInterfaceOwnerId: "123456789012",
+              PrivateIpAddress: "10.0.1.241",
+              PublicIp: "203.0.113.0"
+            }
+          ]
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      //Act
+      const result = await vpcClientService._getAvailableElasticIp();
+
+      //Assert
+      expect(result).to.be.equal('');
+    });
+
+    it('should return allocationId of unassociated elasticIP', async () => {
+      //Arrange
+      awsEc2ClientMock.describeAddresses = sandbox.stub().returns({
+        promise: () => BluebirdPromise.resolve({
+          Addresses: [
+            {
+              AllocationId: "eipalloc-12345678",
+              Domain: "vpc",
+              PublicIp: "203.0.113.0"
+            },
+            {
+              AllocationId: "eipalloc-12345678",
+              AssociationId: "eipassoc-12345678",
+              Domain: "vpc",
+              InstanceId: "i-1234567890abcdef0",
+              NetworkInterfaceId: "eni-12345678",
+              NetworkInterfaceOwnerId: "123456789012",
+              PrivateIpAddress: "10.0.1.241",
+              PublicIp: "203.0.113.0"
+            }
+          ]
+        })
+      });
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      //Act
+      const result = await vpcClientService._getAvailableElasticIp();
+
+      //Assert
+      expect(result).to.be.equal('eipalloc-12345678');
+    });
+  });
+
+  describe('addNATGatewayToRouteTable', () => {
+
+    let vpcClientService;
+    let awsEc2ClientMock;
+    let mocks;
+
+    beforeEach(() => {
+
+      //setting up ec2Client Mock
+      awsEc2ClientMock = {
+        createRoute: sandbox.stub().returns({
+          promise: () => BluebirdPromise.resolve({})
+        })
+      };
+
+      const mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        EC2: function() {
+          return awsEc2ClientMock;
+        }
+      };
+
+      //Setting up VPC clients
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+
+      const VPC = proxyquire('../src/vpcClient', mocks);
+      vpcClientService = new VPC();
+
+      vpcClientService._getAvailableElasticIp = sandbox.stub().resolves({});
+      vpcClientService._createTags = sandbox.stub().resolves({});
+
+    });
+
+    it('should call createRoute once', async () => {
+      //Arrange
+
+      //Act
+      await vpcClientService.addNATGatewayToRouteTable('nat-123123', 'rt-asfdafdas');
+
+      //Assert
+      expect(awsEc2ClientMock.createRoute.calledOnce).to.be.true;
+    });
+
+    it('should pass natGatewayId to createRoute', async () => {
+      //Arrange
+
+      //Act
+      await vpcClientService.addNATGatewayToRouteTable('nat-123123', 'rt-asfdafdas');
+
+      //Assert
+      expect(awsEc2ClientMock.createRoute.calledOnce).to.be.true;
+    });
+
+    it('should pass routeTableId to createRoute', async () => {
+      //Arrange
+
+      //Act
+      await vpcClientService.addNATGatewayToRouteTable('nat-123123', 'rt-asfdafdas');
+
+      //Assert
+      expect(awsEc2ClientMock.createRoute.calledOnce).to.be.true;
     });
   });
 });

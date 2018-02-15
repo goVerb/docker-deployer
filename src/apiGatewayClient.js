@@ -1,13 +1,9 @@
 const AWS = require('aws-sdk');
 const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
-const __ = require('lodash');
-const base64 = require('base-64');
 let util = require('util');
 
 const BaseClient = require('./baseClient');
-
-AWS.config.setPromisesDependency(BlueBirdPromise);
 
 
 class APIGatewayClient extends BaseClient {
@@ -27,11 +23,24 @@ class APIGatewayClient extends BaseClient {
     return this._internalAPIGatewayClient;
   }
 
+  /**
+   *
+   * @param {string} restApiId
+   * @param {string} stageName
+   * @return {string}
+   * @private
+   */
   _getInvokeUrl(restApiId, stageName) {
     const region = this._region;
     return `https://${restApiId}.execute-api.${region}.amazonaws.com/${stageName}`;
   }
 
+  /**
+   *
+   * @param {string} restApiId
+   * @return {string}
+   * @private
+   */
   _getDomainName(restApiId) {
     const region = this._region;
     return `${restApiId}.execute-api.${region}.amazonaws.com`;
@@ -52,6 +61,12 @@ class APIGatewayClient extends BaseClient {
     return await this._apiGatewayClient.getStage(params).promise();
   }
 
+  /**
+   *
+   * @param {string} apiName
+   * @param {string} stageName
+   * @return {Promise<*>}
+   */
   async lookupApiGatewayURL(apiName, stageName) {
     let restApiId;
     const api = await this.lookupApiGatewayByName(apiName);
@@ -101,39 +116,39 @@ class APIGatewayClient extends BaseClient {
       }
 
 
-        let createParams = {
-          restApiId: restApiId, /* required */
-          stageName: stageName, /* required */
-          cacheClusterEnabled: false,
-          description: '',
-          variables: variableCollection
-        };
+      let createParams = {
+        restApiId: restApiId, /* required */
+        stageName: stageName, /* required */
+        cacheClusterEnabled: false,
+        description: '',
+        variables: variableCollection
+      };
 
-        this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-        await this._apiGatewayClient.createDeployment(createParams).promise();
-        const params = {
-          restApiId: restApiId,
-          stageName: stageName,
-          patchOperations: [
-            {
-              op: 'replace',
-              path: '/*/*/logging/loglevel',
-              value: 'INFO'
-            },
-            {
-              op: 'replace',
-              path: '/*/*/metrics/enabled',
-              value: 'true'
-            },
-            {
-              op: 'replace',
-              path: '/*/*/logging/dataTrace',
-              value: 'true'
-            }]
-        };
-        this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
-        const data = await this._apiGatewayClient.updateStage(params).promise();
-        this.logMessage(`Success: ${JSON.stringify(data)}`);
+      this.logMessage(`Creating Deployment. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
+      await this._apiGatewayClient.createDeployment(createParams).promise();
+      const params = {
+        restApiId: restApiId,
+        stageName: stageName,
+        patchOperations: [
+          {
+            op: 'replace',
+            path: '/*/*/logging/loglevel',
+            value: 'INFO'
+          },
+          {
+            op: 'replace',
+            path: '/*/*/metrics/enabled',
+            value: 'true'
+          },
+          {
+            op: 'replace',
+            path: '/*/*/logging/dataTrace',
+            value: 'true'
+          }]
+      };
+      this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
+      const data = await this._apiGatewayClient.updateStage(params).promise();
+      this.logMessage(`Success: ${JSON.stringify(data)}`);
 
     } catch (err) {
       this.logMessage(err);
@@ -141,6 +156,14 @@ class APIGatewayClient extends BaseClient {
     }
   }
 
+  /**
+   *
+   * @param {string} apiGatewayId
+   * @param {string} stageName
+   * @param {string} stageFullName
+   * @return {Promise<PromiseResult<D, E>>}
+   * @private
+   */
   async _deployApiGatewayToStage(apiGatewayId, stageName, stageFullName) {
 
     try {
@@ -173,6 +196,14 @@ class APIGatewayClient extends BaseClient {
     }
   }
 
+  /**
+   *
+   * @param {Object} environment
+   * @param {string} apiName
+   * @param {number} [delayInMilliseconds=16000]
+   * @return {Promise<PromiseResult<D, E>>}
+   * @private
+   */
   async _deployApiGatewayToStageForEnvByGatewayName(environment, apiName, delayInMilliseconds = 16000) {
 
     try {
@@ -206,7 +237,7 @@ class APIGatewayClient extends BaseClient {
 
       const data = await this._deployApiGatewayToStage(foundApiId, environment.ShortName, environment.FullName);
       await BlueBirdPromise.delay(delayInMilliseconds);
-      
+
       this.logMessage(`deployApiGatewayToStageForEnvByGatewayName was a success ${this._getObjectAsString(data)}`);
       return data;
     } catch (err) {
@@ -216,6 +247,13 @@ class APIGatewayClient extends BaseClient {
     }
   }
 
+  /**
+   *
+   * @param swaggerEntity
+   * @param {boolean} [failOnWarnings=false]
+   * @return {Promise<*>}
+   * @private
+   */
   async _createSwagger(swaggerEntity, failOnWarnings = false) {
     this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}]`);
 
@@ -277,13 +315,13 @@ class APIGatewayClient extends BaseClient {
         this.logMessage(`${methodName}: creating api gateway`);
         data = await this._createSwagger(swaggerEntity, failOnWarnings);
         await BlueBirdPromise.delay(delayInMilliseconds);
-        return data;         
+        return data;
       }
 
       this.logMessage(`${methodName}: Found the [foundApid: ${JSON.stringify(foundApi.id)}]`);
 
       data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings);
-      await BlueBirdPromise.delay(delayInMilliseconds);      
+      await BlueBirdPromise.delay(delayInMilliseconds);
       this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
       return data;
 

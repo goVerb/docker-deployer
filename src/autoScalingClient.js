@@ -1,12 +1,9 @@
 const AWS = require('aws-sdk');
 const moment = require('moment');
-const BlueBirdPromise = require('bluebird');
 const __ = require('lodash');
 const base64 = require('base-64');
 const amiIds = require('./constants/amiIds')();
 const BaseClient = require('./baseClient');
-
-AWS.config.setPromisesDependency(BlueBirdPromise);
 
 
 class AutoScalingClient extends BaseClient {
@@ -42,7 +39,7 @@ class AutoScalingClient extends BaseClient {
     try {
       let launchConfigurationNameToDelete = ''; // default, assuming that the LC doesn't exist therefore nothing needs to be deleted
       let launchConfigurationNameToReturn = launchConfigurationConfig.name; // default, assuming that the LC doesn't exist and will be created
-  
+
       const foundLaunchConfiguration = await this.getLaunchConfiguration(launchConfigurationConfig.name);
       if (!foundLaunchConfiguration) {
         this.logMessage(`LaunchConfiguration not found. Creating [LaunchConfigurationName: ${launchConfigurationConfig.name}]`);
@@ -87,7 +84,7 @@ class AutoScalingClient extends BaseClient {
    * @private
    */
   _isLaunchConfigurationOutOfDate(launchConfigurationConfig, foundLaunchConfiguration) {
-    
+
     const {
       name,
       baseImageId=amiIds.getIdByRegion(this._region),
@@ -152,7 +149,7 @@ class AutoScalingClient extends BaseClient {
       if(!imageId) {
         imageId = amiIds.getIdByRegion(this._region);
       }
-  
+
       let params = {
         LaunchConfigurationName: name, /* required */
         AssociatePublicIpAddress: true,
@@ -167,11 +164,11 @@ class AutoScalingClient extends BaseClient {
         PlacementTenancy: 'default',
         SecurityGroups: [securityGroupId]
       };
-  
+
       if(sshKeyName) {
         params.KeyName = sshKeyName;
       }
-  
+
       if(ecsClusterName) {
         /*esfmt-ignore-start*/
         let ec2StartupScript = `#!/bin/bash
@@ -179,10 +176,10 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
         /*esfmt-ignore-end*/
         params.UserData = base64.encode(ec2StartupScript);
       }
-  
+
       this.logMessage(`Creating Launch Configuration. [Name: ${name}] [Params: ${JSON.stringify(params)}]`);
       return await this._awsAutoScalingClient.createLaunchConfiguration(params).promise();
-  
+
     } catch (err) {
       this.logError(`_createOrUpdateLaunchConfiguration: Error! [err: ${JSON.stringify(err)}]`);
       throw err;
@@ -207,7 +204,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
     try {
       const { environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets } = params;
       const foundAutoScalingGroup = await this.getAutoScalingGroup(name);
-  
+
       if(!foundAutoScalingGroup) {
         return this._createAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets);
       } else {
@@ -381,7 +378,7 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
     try {
       const config = {environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets};
       const params = this._generateAutoScalingParams(config, true);
-  
+
       return await this._awsAutoScalingClient.createAutoScalingGroup(params).promise();
     } catch (err) {
       this.logError(`_createAutoScalingGroup: Error! [err: ${JSON.stringify(err)}]`);
@@ -405,9 +402,9 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
   async _updateAutoScalingGroup(environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets) {
     try {
       const config = {environment, name, launchConfigurationName, minSize, maxSize, desiredCapacity, targetGroupArns, vpcSubnets};
-  
+
       let params = this._generateAutoScalingParams(config, false);
-  
+
       return await this._awsAutoScalingClient.updateAutoScalingGroup(params).promise();
     } catch (err) {
       this.logError(`_updateAutoScalingGroup: Error! [err: ${JSON.stringify(err)}]`);
@@ -427,9 +424,9 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
         // Disabled launch config for now
         // LaunchConfigurationNames: [launchConfigurationName]
       };
-  
+
       const launchConfigurationResult = await this._awsAutoScalingClient.describeLaunchConfigurations(params).promise();
-  
+
       if(launchConfigurationResult && launchConfigurationResult.LaunchConfigurations && launchConfigurationResult.LaunchConfigurations.length > 0) {
         return this._getLatestLaunchConfig(launchConfigurationResult.LaunchConfigurations, launchConfigurationName);
       } else {
@@ -502,9 +499,9 @@ echo ECS_CLUSTER=${ecsClusterName} >> /etc/ecs/ecs.config`;
       let params = {
         AutoScalingGroupNames: [autoScalingGroupName]
       };
-  
+
       const result = await this._awsAutoScalingClient.describeAutoScalingGroups(params).promise();
-  
+
       if(result && result.AutoScalingGroups && result.AutoScalingGroups.length > 0) {
         return result.AutoScalingGroups[0];
       } else {

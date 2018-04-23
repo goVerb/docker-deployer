@@ -146,7 +146,7 @@ class APIGatewayClient extends BaseClient {
             value: loggingParams.dataTraceOn || 'true'
           }]
       };
-      this.logMessage(`Params for deploy [Params: ${JSON.stringify(params)}]`);
+      this.logMessage(`Params for deploy [Params: ${JSON.stringify(params.patchOperations)}]`);
       this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);
       const data = await this._apiGatewayClient.updateStage(params).promise();
       this.logMessage(`Success: ${JSON.stringify(data)}`);

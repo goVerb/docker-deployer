@@ -189,8 +189,8 @@ class Deployer extends BaseClient {
    * @param variableCollection
    * @returns {Promise.<*>}
    */
-  async createDeployment(restApiId, stageName, variableCollection) {
-    return await this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection);
+  async createDeployment(restApiId, stageName, variableCollection, loggingParams) {
+    return await this._apiGatewayClient.createDeployment(restApiId, stageName, variableCollection, loggingParams);
   }
 
 

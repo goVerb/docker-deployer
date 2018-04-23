@@ -100,7 +100,7 @@ class APIGatewayClient extends BaseClient {
     return this._getDomainName(api.id);
   }
 
-  async createDeployment(restApiId, stageName, variableCollection) {
+  async createDeployment(restApiId, stageName, variableCollection, loggingParams={}) {
 
     try {
       if (util.isNullOrUndefined(stageName) || stageName === "") {
@@ -133,17 +133,17 @@ class APIGatewayClient extends BaseClient {
           {
             op: 'replace',
             path: '/*/*/logging/loglevel',
-            value: 'INFO'
+            value: loggingParams.logLevel || 'INFO'
           },
           {
             op: 'replace',
             path: '/*/*/metrics/enabled',
-            value: 'true'
+            value: loggingParams.metricsOn || 'true'
           },
           {
             op: 'replace',
             path: '/*/*/logging/dataTrace',
-            value: 'true'
+            value: loggingParams.dataTraceOn || 'true'
           }]
       };
       this.logMessage(`Updating Stage. [ApiGatewayId: ${restApiId}] [StageName: ${stageName}]`);

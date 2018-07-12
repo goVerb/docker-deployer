@@ -135,6 +135,19 @@ class Deployer extends BaseClient {
   async lookupApiGatewayDomainName(apiName) {
     return await this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
+  
+  /**
+   *
+   * @param params
+   * @returns {Promise<void>}
+   */
+  async upsertApiGatewayCustomDomainName(params) {
+    const { apiGatewayId, domainName, basePath, stage, regionalCertificateArn, endpointConfiguration = 'REGIONAL' } = params;
+    
+    await this._apiGatewayClient.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+    
+    await this._apiGatewayClient.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  }
 
 
   /**

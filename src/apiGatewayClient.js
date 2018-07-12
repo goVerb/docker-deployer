@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 let util = require('util');
+const __ = require('lodash');
 
 const BaseClient = require('./baseClient');
 
@@ -99,7 +100,15 @@ class APIGatewayClient extends BaseClient {
     this.logMessage(`API available: [API ID: ${api.id}]`);
     return this._getDomainName(api.id);
   }
-
+  
+  /**
+   *
+   * @param restApiId
+   * @param stageName
+   * @param variableCollection
+   * @param loggingParams
+   * @returns {Promise<void>}
+   */
   async createDeployment(restApiId, stageName, variableCollection, loggingParams={}) {
 
     try {
@@ -292,7 +301,14 @@ class APIGatewayClient extends BaseClient {
       throw err;
     }
   }
-
+  
+  /**
+   *
+   * @param swaggerEntity
+   * @param delayInMilliseconds
+   * @param failOnWarnings
+   * @returns {Promise<*>}
+   */
   async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false){
 
     try {
@@ -331,8 +347,89 @@ class APIGatewayClient extends BaseClient {
       throw err;
     }
   }
-
-
+  
+  /**
+   *
+   * @param {string} domainName
+   * @param {string} regionalCertificateArn
+   * @param {string} endpointConfiguration
+   * @returns {Promise<PromiseResult<APIGateway.DomainName, AWSError>>}
+   */
+  async upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration) {
+    try {
+    
+      //check if domainName exists, if it does return
+      const getDomainNameParams = {
+        domainName
+      };
+      
+      const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
+      if(!__.isEmpty(result.data)) {
+        return;
+      }
+      
+      //create custom domain name
+      const createDomainNameParams = {
+        domainName,
+        regionalCertificateArn,
+        endpointConfiguration: {
+          types: [endpointConfiguration]
+        }
+      };
+      
+      return await this._apiGatewayClient.createDomainName(createDomainNameParams).promise();
+      
+    } catch(err) {
+      this.logMessage(err);
+      throw err;
+    }
+  }
+  
+  /**
+   *
+   * @param {string} domainName
+   * @param {string} apiGatewayId
+   * @param {string} basePath
+   * @param {string} stage
+   * @returns {void|Promise<PromiseResult<APIGateway.Types.BasePathMapping, AWSError>>}
+   */
+  async upsertBasePathMapping(domainName, apiGatewayId, basePath, stage) {
+    try {
+      
+      const getBasePathMappingParams = {
+        basePath: basePath,
+        domainName: domainName
+      };
+  
+      const result = await this._apiGatewayClient.getBasePathMapping(getBasePathMappingParams).promise();
+      if(!__.isEmpty(result.data)) {
+        return;
+      }
+      
+      
+      //create new basePathMapping
+      const createBasePathMappingParams = {
+        domainName: domainName,
+        restApiId: apiGatewayId,
+        basePath: basePath,
+        stage: stage
+      };
+      
+      return await this._apiGatewayClient.createBasePathMapping(createBasePathMappingParams).promise();
+    
+    } catch(err) {
+      this.logMessage(err);
+      throw err;
+    }
+  }
+  
+  
+  /**
+   *
+   * @param entity
+   * @returns {string}
+   * @private
+   */
   _getObjectAsString(entity) {
     return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity);
   }

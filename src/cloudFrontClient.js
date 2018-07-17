@@ -597,6 +597,7 @@ class CloudFrontClient extends BaseClient {
           Items: []
         }
       },
+      FieldLevelEncryptionId: '',
       MinTTL: minTTL, /* required */
       PathPattern: pathPattern, /* required */
       TargetOriginId: originName, /* required */

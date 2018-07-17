@@ -3026,4 +3026,113 @@ describe('Deployer', function() {
       expect(stub.args[0][3]).to.be.deep.equal(params.stage);
     });
   });
+  
+  describe('associateCustomDomainWithCName', () => {
+  
+    let deployerClient;
+  
+    beforeEach(() => {
+      //Arrange
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+    
+      const mocks = {
+        ...defaultMocks
+      };
+    
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region,
+        logLevel: 'info'
+      };
+    
+      deployerClient = new Deployer(deployerParams);
+    
+      //default stubs
+      deployerClient._apiGatewayClient.getCustomDomainCname = sandbox.stub().resolves('fdsajlfkdjfkla');
+      deployerClient._route53Client.associateCustomDomainWithCName = sandbox.stub().resolves({});
+    });
+    
+    it('should call getCustomDomainCname once', async () => {
+      //Arrange
+      const domainName = 'afdsfsafdsaf.internal.something';
+      
+      //Act
+      await deployerClient.associateCustomDomainWithCName(domainName);
+      
+      
+      //Assert
+      const stub = deployerClient._apiGatewayClient.getCustomDomainCname;
+      expect(stub.calledOnce).to.be.true;
+    });
+    
+    it('should pass domainName to getCustomDomainCname', async () => {
+      //Arrange
+      const domainName = 'afdsfsafdsaf.internal.something';
+  
+      //Act
+      await deployerClient.associateCustomDomainWithCName(domainName);
+      
+      //Assert
+      const stub = deployerClient._apiGatewayClient.getCustomDomainCname;
+      expect(stub.args[0][0]).to.be.deep.equal(domainName);
+    });
+  
+    it('should NOT call associateCustomDomainWithCName if result from getCustomDomainCname is empty', async () => {
+      //Arrange
+      const domainName = 'afdsfsafdsaf.internal.something';
+  
+      deployerClient._apiGatewayClient.getCustomDomainCname = sandbox.stub().resolves('');
+      
+      //Act
+      await deployerClient.associateCustomDomainWithCName(domainName);
+  
+  
+      //Assert
+      const stub = deployerClient._route53Client.associateCustomDomainWithCName;
+      expect(stub.callCount).to.be.equal(0);
+    });
+    
+    it('should call associateCustomDomainWithCName once', async () => {
+      //Arrange
+      const domainName = 'afdsfsafdsaf.internal.something';
+      
+      //Act
+      await deployerClient.associateCustomDomainWithCName(domainName);
+  
+  
+      //Assert
+      const stub = deployerClient._route53Client.associateCustomDomainWithCName;
+      expect(stub.calledOnce).to.be.true;
+    });
+    
+    it('should pass domainName to associateCustomDomainWithCName', async () => {
+      //Arrange
+      const domainName = 'afdsfsafdsaf.internal.something';
+      
+      //Act
+      await deployerClient.associateCustomDomainWithCName(domainName);
+  
+  
+      //Assert
+      const stub = deployerClient._route53Client.associateCustomDomainWithCName;
+      expect(stub.args[0][0]).to.be.deep.equal('afdsfsafdsaf.internal.something');
+    });
+    
+    it('should pass customDomainCname to associateCustomDomainWithCName', async () => {
+      //Arrange
+      const domainName = 'afdsfsafdsaf.internal.something';
+  
+      //Act
+      await deployerClient.associateCustomDomainWithCName(domainName);
+  
+  
+      //Assert
+      const stub = deployerClient._route53Client.associateCustomDomainWithCName;
+      expect(stub.args[0][1]).to.be.deep.equal('fdsajlfkdjfkla');
+    });
+  });
 });

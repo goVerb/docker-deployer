@@ -1647,4 +1647,108 @@ describe('APIGateway Client', function() {
     });
   });
   
+  describe('getCustomDomainCname', () => {
+  
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let getDomainNameStub;
+    let mocks;
+    let accessKey = 'fdsafads';
+    let secretKey = '123232131';
+    let region = 'us-west-2';
+    const getDomainNameResult = {"domainName":"apigateway.demo-internal.verb.net","certificateUploadDate":"2018-07-17T15:32:15.000Z","regionalDomainName":"d-kvsgrzichl.execute-api.us-west-2.amazonaws.com","regionalHostedZoneId":"Z2OJLYMUO9EFXC","regionalCertificateArn":"arn:aws:acm:us-west-2:368933298027:certificate/8c7ce13b-d615-474a-af32-1396c3213d84","endpointConfiguration":{"types":["REGIONAL"]}};
+    beforeEach(() => {
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve(getDomainNameResult));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub}),
+      };
+    
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      
+      };
+    
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+    
+    });
+  
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      getDomainNameStub = null;
+    });
+  
+    it('should call getDomainName once', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+    
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+    
+      //Act
+      await apiGatewayService.getCustomDomainCname(domainName);
+    
+      //Assert
+      expect(getDomainNameStub.calledOnce).to.be.true;
+    });
+    
+    it('should return regionalDomainName from result if it exists', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      const result = await apiGatewayService.getCustomDomainCname(domainName);
+  
+      //Assert
+      expect(result).to.be.equal(getDomainNameResult.regionalDomainName);
+    });
+    
+    it('should return empty string if error is thrown', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+  
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.reject(new NotFoundException('invalid item')));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub})
+      };
+  
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      };
+  
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      const result = await apiGatewayService.getCustomDomainCname(domainName);
+  
+      //Assert
+      expect(result).to.be.equal('');
+    });
+  });
+  
 });

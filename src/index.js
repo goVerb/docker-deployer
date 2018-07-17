@@ -194,13 +194,31 @@ class Deployer extends BaseClient {
   async publishChangesToBucket(config) {
     return await this._s3Client.publishToBucket(config);
   }
-
+  
+  /**
+   *
+   * @param domainName
+   * @returns {Promise<void>}
+   */
+  async associateCustomDomainWithCName(domainName) {
+    this.logMessage(`Calling associateCustomDomainWithCName. [DomainName: ${domainName}]`);
+    
+    //get customDomainCname from customDomainName
+    const customDomainCname = await this._apiGatewayClient.getCustomDomainCname(domainName);
+    if(__.isEmpty(customDomainCname)) {
+      this.logMessage('customDomainCname is blank, no further action required');
+      return;
+    }
+    
+    await this._route53Client.associateCustomDomainWithCName(domainName, customDomainCname);
+  }
 
   /**
    *
    * @param restApiId
    * @param stageName
    * @param variableCollection
+   * @param loggingParams
    * @returns {Promise.<*>}
    */
   async createDeployment(restApiId, stageName, variableCollection, loggingParams) {

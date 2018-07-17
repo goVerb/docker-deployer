@@ -413,6 +413,40 @@ class APIGatewayClient extends BaseClient {
   
   /**
    *
+   * @param customDomainName
+   * @returns {Promise<string>}
+   */
+  async getCustomDomainCname(customDomainName) {
+    try {
+    
+      //check if domainName exists, if it does return
+      const getDomainNameParams = {
+        domainName: customDomainName
+      };
+    
+      let regionalDomainName = '';
+      
+      try {
+        this.logMessage(`Calling ApiGatewayClient.getDomainName`);
+        const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
+        this.logMessage(`Results from getDomainName: ${JSON.stringify(result)}`);
+        if (!__.isEmpty(result)) {
+          regionalDomainName = result.regionalDomainName;
+        }
+      } catch(err) {
+        this.logMessage(`err.name: ${err.name}`);
+      }
+      
+      return regionalDomainName;
+  
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
+  }
+  
+  /**
+   *
    * @param {string} domainName
    * @param {string} apiGatewayId
    * @param {string} basePath

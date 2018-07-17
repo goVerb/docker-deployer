@@ -597,6 +597,7 @@ class CloudFrontClient extends BaseClient {
           Items: []
         }
       },
+      FieldLevelEncryptionId: '',
       MinTTL: minTTL, /* required */
       PathPattern: pathPattern, /* required */
       TargetOriginId: originName, /* required */
@@ -705,7 +706,7 @@ class CloudFrontClient extends BaseClient {
       resultObject.ResponsePagePath = responsePagePath;
     } else {
       if((__.isEmpty(responseCode) && !__.isEmpty(responsePagePath)) || (!__.isEmpty(responseCode) && __.isEmpty(responsePagePath))) {
-        this.logMessage(`Setting ResponseCode and ResponsePagePath to empty string since one of the values was invalid.  
+        this.logMessage(`Setting ResponseCode and ResponsePagePath to empty string since one of the values was invalid.
         Both values must be populated for the fields to be passed to Cloudfront. [ResponseCode: ${responseCode}] [ResponsePagePath: ${responsePagePath}]`);
       }
       resultObject.ResponseCode = '';

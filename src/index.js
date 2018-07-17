@@ -155,10 +155,11 @@ class Deployer extends BaseClient {
    * @param {Object} swaggerEntity Note: swaggerEntity must have valid info.title. Pulling from here because the is the aws importer strategy
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
    * @param {boolean} [failOnWarnings=false]
+   * @param {string} endpointConfiguration
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
-  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
-    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false, endpointConfiguration = 'EDGE') {
+    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings, endpointConfiguration);
   }
 
 

@@ -261,15 +261,19 @@ class APIGatewayClient extends BaseClient {
    *
    * @param swaggerEntity
    * @param {boolean} [failOnWarnings=false]
+   * @param endpointConfiguration
    * @return {Promise<*>}
    * @private
    */
-  async _createSwagger(swaggerEntity, failOnWarnings = false) {
-    this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}]`);
+  async _createSwagger(swaggerEntity, failOnWarnings = false, endpointConfiguration = 'EDGE') {
+    this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}] [EndpointConfiguration: ${endpointConfiguration}]`);
 
     try {
       const options = {
         body: JSON.stringify(swaggerEntity),
+        endpointConfiguration: {
+          types: [endpointConfiguration]
+        },
         failOnWarnings: failOnWarnings
       };
 
@@ -283,15 +287,27 @@ class APIGatewayClient extends BaseClient {
     }
 
   }
-
-  async _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false) {
-    this.logMessage(`overwriting swagger for [ApiGatewayId: ${apiGatewayId}]`);
+  
+  /**
+   *
+   * @param apiGatewayId
+   * @param swaggerEntity
+   * @param failOnWarnings
+   * @param endpointConfiguration
+   * @returns {Promise<PromiseResult<APIGateway.RestApi, AWSError>>}
+   * @private
+   */
+  async _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false, endpointConfiguration = 'EDGE') {
+    this.logMessage(`overwriting swagger for [ApiGatewayId: ${apiGatewayId}] [EndpointConfiguration: ${endpointConfiguration}]`);
 
     try {
       const options = {
         restApiId: apiGatewayId,
         body: JSON.stringify(swaggerEntity),
         failOnWarnings: failOnWarnings,
+        endpointConfiguration: {
+          types: [endpointConfiguration]
+        },
         mode: "overwrite"
       };
 
@@ -307,9 +323,10 @@ class APIGatewayClient extends BaseClient {
    * @param swaggerEntity
    * @param delayInMilliseconds
    * @param failOnWarnings
+   * @param endpointConfiguration
    * @returns {Promise<*>}
    */
-  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false){
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false, endpointConfiguration = 'EDGE') {
 
     try {
       let methodName = 'createOrOverwriteApiSwagger';
@@ -330,14 +347,14 @@ class APIGatewayClient extends BaseClient {
       let data;
       if (util.isNullOrUndefined(foundApi)) {
         this.logMessage(`${methodName}: creating api gateway`);
-        data = await this._createSwagger(swaggerEntity, failOnWarnings);
+        data = await this._createSwagger(swaggerEntity, failOnWarnings, endpointConfiguration);
         await BlueBirdPromise.delay(delayInMilliseconds);
         return data;
       }
 
       this.logMessage(`${methodName}: Found the [foundApid: ${JSON.stringify(foundApi.id)}]`);
 
-      data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings);
+      data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings, endpointConfiguration);
       await BlueBirdPromise.delay(delayInMilliseconds);
       this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
       return data;

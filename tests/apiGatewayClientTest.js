@@ -489,30 +489,31 @@ describe('APIGateway Client', function() {
       apiGatewayService = null;
     });
 
-    it('should call apiGatewayClient.putRestApi', (done) => {
+    it('should call apiGatewayClient.putRestApi', () => {
       //Act
       const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{});
+      
       //Assert
-      promiseResult.then(data => {
+      return promiseResult.then(() => {
         expect(APIGatewayMock.putRestApi.calledOnce).to.be.true;
-        done();
       });
     });
 
-    it('should pass options apiGatewayClient.putRestApi', (done) => {
+    it('should pass options apiGatewayClient.putRestApi', () => {
       //Arrange
       let options = {
         restApiId: 'gatewayId',
         body: '{}',
         failOnWarnings: false,
+        endpointConfiguration: { types: [ 'EDGE' ] },
         mode: 'overwrite'
       };
       //Act
       const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{});
+      
       //Assert
-      promiseResult.then(data => {
+      return promiseResult.then(data => {
         expect(APIGatewayMock.putRestApi.args[0][0]).to.deep.equal(options);
-        done();
       });
     });
   });
@@ -568,9 +569,15 @@ describe('APIGateway Client', function() {
 
     it('should pass options apiGatewayClient.putRestApi', (done) => {
       //Arrange
-      let options = {"body":"{\"info\":{\"title\":\"test\"}}","failOnWarnings":false};
+      const options = {
+        body: "{\"info\":{\"title\":\"test\"}}",
+        endpointConfiguration: { types: [ 'EDGE' ] },
+        failOnWarnings:false
+      };
+      
       //Act
       const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}});
+      
       //Assert
       promiseResult.then(data => {
         expect(APIGatewayMock.importRestApi.args[0][0]).to.deep.equal(options);

@@ -128,13 +128,13 @@ class Route53Client extends BaseClient {
     await this._awsRoute53Client.waitFor('resourceRecordSetsChanged', waitParams).promise();
     this.logMessage(`Change Propagated! [DomainName: ${domainName}]`);
   }
-
-
+  
+  
   /**
    *
    * @param params
    * @param recordSetsByName
-   * @return {bool}
+   * @returns {boolean}
    * @private
    */
   _isResourceRecordSame(params, recordSetsByName) {

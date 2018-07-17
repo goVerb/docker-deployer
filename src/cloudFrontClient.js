@@ -102,7 +102,7 @@ class CloudFrontClient extends BaseClient {
       return distribution;
 
     } catch (err) {
-      this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
+      this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN! [Message: ${err.message}]`);
       return await this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
     }
   }

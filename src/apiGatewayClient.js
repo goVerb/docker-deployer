@@ -362,13 +362,21 @@ class APIGatewayClient extends BaseClient {
       const getDomainNameParams = {
         domainName
       };
-      
-      const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
-      this.logMessage(`Results from getDomainName: ${JSON.stringify(result)}`);
-      if(!__.isEmpty(result.data)) {
-        return;
+    
+      try {
+        this.logMessage(`Calling ApiGatewayClient.getDomainName`);
+        const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
+        this.logMessage(`Results from getDomainName: ${JSON.stringify(result)}`);
+        if (!__.isEmpty(result)) {
+          return;
+        }
+      } catch(err) {
+        this.logMessage(`err.name: ${err.name}`);
+        if(err.name !== 'NotFoundException') {
+          throw err;
+        }
       }
-      
+    
       //create custom domain name
       const createDomainNameParams = {
         domainName,
@@ -377,10 +385,10 @@ class APIGatewayClient extends BaseClient {
           types: [endpointConfiguration]
         }
       };
-      
+    
+      this.logMessage(`Calling ApiGatewayClient.createDomainName`);
       return await this._apiGatewayClient.createDomainName(createDomainNameParams).promise();
-      
-    } catch(err) {
+    } catch (err) {
       this.logMessage(err);
       throw err;
     }
@@ -396,19 +404,30 @@ class APIGatewayClient extends BaseClient {
    */
   async upsertBasePathMapping(domainName, apiGatewayId, basePath, stage) {
     try {
-      
+    
       const getBasePathMappingParams = {
         basePath: basePath,
         domainName: domainName
       };
-  
-      const result = await this._apiGatewayClient.getBasePathMapping(getBasePathMappingParams).promise();
-      this.logMessage(`Results from getBasePathMapping: ${JSON.stringify(result)}`);
-      if(!__.isEmpty(result.data)) {
-        return;
+    
+      if(__.isEmpty(basePath)) {
+        getBasePathMappingParams.basePath = '(none)';
       }
-      
-      
+    
+      try {
+        this.logMessage(`Calling ApiGatewayClient.getBasePathMapping`);
+        const result = await this._apiGatewayClient.getBasePathMapping(getBasePathMappingParams).promise();
+        this.logMessage(`Results from getBasePathMapping: ${JSON.stringify(result)}`);
+        if (!__.isEmpty(result)) {
+          return;
+        }
+      } catch(err) {
+        this.logMessage(`err.name: ${err.name}`);
+        if(err.name !== 'NotFoundException') {
+          throw err;
+        }
+      }
+    
       //create new basePathMapping
       const createBasePathMappingParams = {
         domainName: domainName,
@@ -416,10 +435,10 @@ class APIGatewayClient extends BaseClient {
         basePath: basePath,
         stage: stage
       };
-      
-      return await this._apiGatewayClient.createBasePathMapping(createBasePathMappingParams).promise();
     
-    } catch(err) {
+      this.logMessage(`Calling ApiGatewayClient.createBasePathMappingParams`);
+      return await this._apiGatewayClient.createBasePathMapping(createBasePathMappingParams).promise();
+    } catch (err) {
       this.logMessage(err);
       throw err;
     }

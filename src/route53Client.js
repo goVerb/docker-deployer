@@ -246,6 +246,14 @@ class Route53Client extends BaseClient {
     this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
   }
 
+  async addCNameRecordForCustomDomain() {
+    try {
+    
+    } catch(err) {
+    
+    }
+  }
+  
   /**
    *
    * @param recordsSets

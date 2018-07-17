@@ -364,6 +364,7 @@ class APIGatewayClient extends BaseClient {
       };
       
       const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
+      this.logMessage(`Results from getDomainName: ${JSON.stringify(result)}`);
       if(!__.isEmpty(result.data)) {
         return;
       }
@@ -402,6 +403,7 @@ class APIGatewayClient extends BaseClient {
       };
   
       const result = await this._apiGatewayClient.getBasePathMapping(getBasePathMappingParams).promise();
+      this.logMessage(`Results from getBasePathMapping: ${JSON.stringify(result)}`);
       if(!__.isEmpty(result.data)) {
         return;
       }

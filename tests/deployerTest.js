@@ -1,22 +1,33 @@
-const chai = require('chai');
-const sinon = require('sinon');
-const chaiAsPromised = require('chai-as-promised');
-const expect = chai.expect;
+import { expect } from 'chai';
+import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 import { Promise as BluebirdPromise } from 'bluebird';
 
-
-
-chai.use(chaiAsPromised);
 
 
 const sampleConfig1 = require('./sampleConfigs/sampleConfig.js');
 
 describe('Deployer', function() {
   let sandbox;
+  let defaultMocks;
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
+    
+    defaultMocks = {
+      './s3Client': sandbox.stub(),
+      './ecsClient.js': sandbox.stub(),
+      './elbClient.js': sandbox.stub(),
+      './ec2Client.js': sandbox.stub(),
+      './lambdaClient.js': sandbox.stub(),
+      './autoScalingClient.js': sandbox.stub(),
+      './route53Client.js': sandbox.stub(),
+      './cloudFrontClient.js': sandbox.stub(),
+      './apiGatewayClient': sandbox.stub(),
+      './applicationAutoScalingClient.js': sandbox.stub(),
+      './cloudWatchClient.js': sandbox.stub()
+    };
+    
   });
 
   afterEach(() => {
@@ -27,14 +38,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to VPC client', () => {
       //Arrange
       let vpcClientStub = sandbox.stub();
-      const mocks = {'./vpcClient.js': vpcClientStub};
+      const mocks = {
+        ...defaultMocks,
+        './vpcClient.js': vpcClientStub
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -54,14 +68,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to EC2 client', () => {
       //Arrange
       let ec2ClientStub = sandbox.stub();
-      const mocks = {'./ec2Client.js': ec2ClientStub};
+      const mocks = {
+        ...defaultMocks,
+        './ec2Client.js': ec2ClientStub
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -80,14 +97,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to ECS client', () => {
       //Arrange
       let ecsClientStub = sandbox.stub();
-      const mocks = {'./ecsClient.js': ecsClientStub};
+      const mocks = {
+        ...defaultMocks,
+        './ecsClient.js': ecsClientStub
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -106,14 +126,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to ELB client', () => {
       //Arrange
       let elbClientStub = sandbox.stub();
-      const mocks = {'./elbClient.js': elbClientStub};
+      const mocks = {
+        ...defaultMocks,
+        './elbClient.js': elbClientStub
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -138,7 +161,7 @@ describe('Deployer', function() {
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -157,14 +180,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to Route53 client', () => {
       //Arrange
       let route53ClientMock = sandbox.stub();
-      const mocks = {'./route53Client.js': route53ClientMock};
+      const mocks = {
+        ...defaultMocks,
+        './route53Client.js': route53ClientMock
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -183,14 +209,17 @@ describe('Deployer', function() {
     it('should pass accessKey and secretKey to CloudFront client', () => {
       //Arrange
       let cloudFrontClientMock = sandbox.stub();
-      const mocks = {'./cloudFrontClient.js': cloudFrontClientMock};
+      const mocks = {
+        ...defaultMocks,
+        './cloudFrontClient.js': cloudFrontClientMock
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-4';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -208,14 +237,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to CloudWatch client', () => {
       //Arrange
       let cloudWatchClientStub = sandbox.stub();
-      const mocks = {'./cloudWatchClient.js': cloudWatchClientStub};
+      const mocks = {
+        ...defaultMocks,
+        './cloudWatchClient.js': cloudWatchClientStub
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -234,14 +266,17 @@ describe('Deployer', function() {
     it('should pass accessKey, secretKey, and region to ApplicationAutoScaling client', () => {
       //Arrange
       let applicationAutoScalingStub = sandbox.stub();
-      const mocks = {'./applicationAutoScalingClient.js': applicationAutoScalingStub};
+      const mocks = {
+        ...defaultMocks,
+        './applicationAutoScalingClient.js': applicationAutoScalingStub
+      };
 
       //Setting up Deployer clients
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-3';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -286,6 +321,7 @@ describe('Deployer', function() {
       route53ClientStub = sandbox.stub();
 
       mocks = {
+        ...defaultMocks,
         './vpcClient.js': function() {
           return vpcClientStub;
         },
@@ -764,7 +800,7 @@ describe('Deployer', function() {
     });
   });
 
-  describe('_createOrUpdateAutoScaleGroup', () => {
+  describe('_createApplicationLoadBalancer', () => {
     let vpcClientStub;
     let ec2ClientStub;
     let ecsClientStub;
@@ -909,7 +945,7 @@ describe('Deployer', function() {
     });
   });
 
-  describe('_createOrUpdateAutoScaleGroup', () => {
+  describe('_createECSService', () => {
     let vpcClientStub;
     let ec2ClientStub;
     let ecsClientStub;
@@ -2754,13 +2790,14 @@ describe('Deployer', function() {
       };
 
     });
+    
     it('should call createOrOverwriteApiSwagger', () => {
       //Arrange
       const accessKey = 'acckey';
       const secretKey = 'secret';
       const region = 'us-west-2';
 
-      const Deployer = proxyquire('../src/index', mocks);
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
       const deployerParams = {
         accessKey: accessKey,
         secretKey: secretKey,
@@ -2768,9 +2805,11 @@ describe('Deployer', function() {
         logLevel: 'info'
       };
 
-      let deployerClient = new Deployer(deployerParams);
+      const  deployerClient = new Deployer(deployerParams);
+      
       //Act
       deployerClient.createOrOverwriteApiSwagger('name');
+      
       //Assert
       expect(apiClientStub.createOrOverwriteApiSwagger.calledOnce).to.be.true;
     });
@@ -2794,6 +2833,197 @@ describe('Deployer', function() {
       deployerClient.createOrOverwriteApiSwagger({info: {title: 'dang'}});
 
       expect(apiClientStub.createOrOverwriteApiSwagger.args[0][0]).to.deep.equal({info: {title: 'dang'}});
+    });
+  });
+  
+  describe('upsertApiGatewayCustomDomainName', () => {
+    
+    let deployerClient;
+    
+    beforeEach(() => {
+      //Arrange
+      const accessKey = 'acckey';
+      const secretKey = 'secret';
+      const region = 'us-west-2';
+      
+      const mocks = {
+        ...defaultMocks
+      };
+  
+      const Deployer = proxyquire.noCallThru()('../src/index', mocks);
+      const deployerParams = {
+        accessKey: accessKey,
+        secretKey: secretKey,
+        region: region,
+        logLevel: 'info'
+      };
+  
+      deployerClient = new Deployer(deployerParams);
+      
+      //default stubs
+      deployerClient._apiGatewayClient.upsertCustomDomainName = sandbox.stub().resolves({});
+      deployerClient._apiGatewayClient.upsertBasePathMapping = sandbox.stub().resolves({});
+    });
+    
+    it('should call upsertCustomDomainName once', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev'
+      };
+      
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+      
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertCustomDomainName;
+      expect(stub.calledOnce).to.be.true;
+    });
+    
+    it('should pass domainName to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertCustomDomainName;
+      expect(stub.args[0][0]).to.be.deep.equal(params.domainName);
+    });
+  
+    it('should pass regionalCertificateArn to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertCustomDomainName;
+      expect(stub.args[0][1]).to.be.deep.equal(params.regionalCertificateArn);
+    });
+  
+    it('should pass endpointConfiguration to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertCustomDomainName;
+      expect(stub.args[0][2]).to.be.deep.equal('REGIONAL');
+    });
+    
+    it('should call upsertBasePathMapping once', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertBasePathMapping;
+      expect(stub.calledOnce).to.be.true;
+    });
+    
+    it('should pass domainName to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertBasePathMapping;
+      expect(stub.args[0][0]).to.be.deep.equal(params.domainName);
+    });
+  
+    it('should pass apiGatewayId to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertBasePathMapping;
+      expect(stub.args[0][1]).to.be.deep.equal(params.apiGatewayId);
+    });
+    
+    it('should pass basePath to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertBasePathMapping;
+      expect(stub.args[0][2]).to.be.deep.equal(params.basePath);
+    });
+  
+    it('should pass stage to upsertApiGatewayCustomDomainName', async () => {
+      //Arrange
+      const params = {
+        apiGatewayId: '1231321312',
+        domainName: 'something.something.com',
+        basePath: '/',
+        stage: 'dev',
+        regionalCertificateArn: 'fdsafadsf'
+      };
+  
+      //Act
+      await deployerClient.upsertApiGatewayCustomDomainName(params);
+  
+      //Assert
+      const stub = deployerClient._apiGatewayClient.upsertBasePathMapping;
+      expect(stub.args[0][3]).to.be.deep.equal(params.stage);
     });
   });
 });

@@ -505,7 +505,9 @@ describe('APIGateway Client', function() {
         restApiId: 'gatewayId',
         body: '{}',
         failOnWarnings: false,
-        endpointConfiguration: { types: [ 'EDGE' ] },
+        parameters: {
+          'endpointConfigurationTypes': 'EDGE'
+        },
         mode: 'overwrite'
       };
       //Act
@@ -571,7 +573,9 @@ describe('APIGateway Client', function() {
       //Arrange
       const options = {
         body: "{\"info\":{\"title\":\"test\"}}",
-        endpointConfiguration: { types: [ 'EDGE' ] },
+        parameters: {
+          'endpointConfigurationTypes': 'EDGE'
+        },
         failOnWarnings:false
       };
       

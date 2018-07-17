@@ -271,8 +271,8 @@ class APIGatewayClient extends BaseClient {
     try {
       const options = {
         body: JSON.stringify(swaggerEntity),
-        endpointConfiguration: {
-          types: [endpointConfiguration]
+        parameters: {
+          'endpointConfigurationTypes': endpointConfiguration
         },
         failOnWarnings: failOnWarnings
       };
@@ -305,8 +305,8 @@ class APIGatewayClient extends BaseClient {
         restApiId: apiGatewayId,
         body: JSON.stringify(swaggerEntity),
         failOnWarnings: failOnWarnings,
-        endpointConfiguration: {
-          types: [endpointConfiguration]
+        parameters: {
+          'endpointConfigurationTypes': endpointConfiguration
         },
         mode: "overwrite"
       };

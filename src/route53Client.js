@@ -106,7 +106,7 @@ class Route53Client extends BaseClient {
       }
     });
 
-    const isNewRRSetSame = this._isResourceRecordSame(params, recordSetsByName);
+    const isNewRRSetSame = this._isRoute53ResourceRecordSame(params, recordSetsByName);
 
     if (isNewRRSetSame) {
       this.logMessage(`No RRSet changes need to be made.  No Action taken.`);
@@ -127,6 +127,87 @@ class Route53Client extends BaseClient {
     this.logMessage(`Change Propagated! [DomainName: ${domainName}]`);
   }
 
+    /**
+   *
+   * @param currentParameters
+   * @param currentParameters.domainName
+   * @param currentParameters.dnsName
+   * @param currentParameters.domainNameHostedZoneId
+   * @return {Promise.<bool>}
+   * @private
+   */
+  _hasCloudFrontResourceRecordSetChanged(currentParameters, expectedAliasHostedZoneId) {
+
+    return this._getResourceRecordSetsByName(currentParameters.domainNameHostedZoneId, currentParameters.domainName).then(results => {
+      let hasChanged = false;
+
+      const parsedExpectedAliasHostedZoneId = expectedAliasHostedZoneId.replace('/hostedzone/', '');
+      this.logMessage(`ParsedExpectedAliasHostedZoneId: ${parsedExpectedAliasHostedZoneId}`);
+
+      let foundARecord = false;
+      let foundAAAARecord = false;
+      results.forEach(item => {
+
+        //break if the true condition is met
+        if (hasChanged) {
+          return;
+        }
+
+        if (item.Type === 'A') {
+
+          if (item.AliasTarget.HostedZoneId !== parsedExpectedAliasHostedZoneId) {
+            this.logMessage(`A Record hostedZoneId has changed. [ExistingValue: ${item.AliasTarget.HostedZoneId}] [NewValue: ${parsedExpectedAliasHostedZoneId}]`);
+            hasChanged = true;
+          }
+
+          if (item.AliasTarget.EvaluateTargetHealth !== false) {
+            this.logMessage(`A Record EvaluateTargetHealth has changed. [ExistingValue: ${item.AliasTarget.EvaluateTargetHealth}] [NewValue: ${false}]`);
+            hasChanged = true;
+          }
+
+          let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
+          let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
+
+          if (!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
+            this.logMessage(`A Record DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}]`);
+            hasChanged = true;
+          }
+
+          foundARecord = true;
+        } else if (item.Type === 'AAAA') {
+
+          if (item.AliasTarget.HostedZoneId !== parsedExpectedAliasHostedZoneId) {
+            this.logMessage(`AAAA Record hostedZoneId has changed. [ExistingValue: ${item.AliasTarget.HostedZoneId}] [NewValue: ${parsedExpectedAliasHostedZoneId}]`);
+            hasChanged = true;
+          }
+
+          if (item.AliasTarget.EvaluateTargetHealth !== false) {
+            this.logMessage(`AAAA Record EvaluateTargetHealth has changed. [ExistingValue: ${item.AliasTarget.EvaluateTargetHealth}] [NewValue: ${false}]`);
+            hasChanged = true;
+          }
+
+          let formattedCurrentParamDnsName = __.get(currentParameters, 'dnsName', '').toLocaleUpperCase();
+          let formattedExistingAliasTargetDNSName = __.get(item, 'AliasTarget.DNSName', '').toLocaleUpperCase();
+
+          if (!formattedExistingAliasTargetDNSName.startsWith(formattedCurrentParamDnsName)) {
+            this.logMessage(`AAAA Record DNSName has changed. [ExistingValue: ${formattedExistingAliasTargetDNSName}] [NewValue: ${formattedCurrentParamDnsName}]`);
+            hasChanged = true;
+          }
+
+          foundAAAARecord = true;
+        } else {
+          hasChanged = true;
+        }
+      });
+
+      if (!foundARecord || !foundAAAARecord) {
+        hasChanged = true;
+      }
+
+      console.log(hasChanged);
+      return hasChanged;
+    });
+  }
 
   /**
    *
@@ -135,7 +216,7 @@ class Route53Client extends BaseClient {
    * @return {bool}
    * @private
    */
-  _isResourceRecordSame(params, recordSetsByName) {
+  _isRoute53ResourceRecordSame(params, recordSetsByName) {
     //diffing our newly constructed RRSet with that is in the system
     let paramsDict = {};
     let recordSetDict = {};
@@ -196,6 +277,12 @@ class Route53Client extends BaseClient {
     };
 
     this.logMessage(`Checking if resource record has changed. [Params: ${JSON.stringify(parameters)}]`);
+
+    const hasRecordSetChangedResult = await this._hasCloudFrontResourceRecordSetChanged(parameters, CLOUDFRONT_HOSTED_ZONE_ID);
+    if (!hasRecordSetChangedResult) {
+      this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
+      return BlueBirdPromise.resolve();
+    }
 
     let params = {
       HostedZoneId: domainHostedZoneId,

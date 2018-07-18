@@ -392,7 +392,7 @@ describe('Route53 Client', function () {
 
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
-      route53ClientService._isResourceRecordSame = sandbox.stub().returns(false);
+      route53ClientService._isRoute53ResourceRecordSame = sandbox.stub().returns(false);
 
       //Act
       let resultPromise = route53ClientService.associateDomainWithApplicationLoadBalancer(domainName, '');
@@ -456,7 +456,7 @@ describe('Route53 Client', function () {
 
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
-      route53ClientService._isResourceRecordSame = sandbox.stub().returns(false);
+      route53ClientService._isRoute53ResourceRecordSame = sandbox.stub().returns(false);
 
 
       //Act
@@ -537,7 +537,7 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
-      route53ClientService._isResourceRecordSame = sandbox.stub().returns(true);
+      route53ClientService._isRoute53ResourceRecordSame = sandbox.stub().returns(true);
 
 
       //Act
@@ -617,7 +617,7 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves(recordSets);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
-      route53ClientService._isResourceRecordSame = sandbox.stub().returns(false);
+      route53ClientService._isRoute53ResourceRecordSame = sandbox.stub().returns(false);
 
 
       //Act
@@ -884,7 +884,7 @@ describe('Route53 Client', function () {
       route53ClientService._getResourceRecordSetsByName = sandbox.stub().resolves([]);
       route53ClientService._getHostedZoneIdFromDomainName = sandbox.stub().resolves('APPLESAUCE');
       route53ClientService._doResourceRecordsHaveHealthCheck = sandbox.stub().resolves(true);
-      route53ClientService._isResourceRecordSame = sandbox.stub().returns(false);
+      route53ClientService._isRoute53ResourceRecordSame = sandbox.stub().returns(false);
 
 
       //Act

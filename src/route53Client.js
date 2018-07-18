@@ -198,13 +198,6 @@ class Route53Client extends BaseClient {
     };
 
     this.logMessage(`Checking if resource record has changed. [Params: ${JSON.stringify(parameters)}]`);
-    const recordSetsByName = await this._getResourceRecordSetsByName(domainHostedZoneId, domainName);
-
-    const hasRecordSetChangedResult = await this._isResourceRecordSame(parameters, recordSetsByName);
-    if (!hasRecordSetChangedResult) {
-      this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
-      return BlueBirdPromise.resolve();
-    }
 
     const params = {
       HostedZoneId: domainHostedZoneId,

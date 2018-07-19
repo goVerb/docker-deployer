@@ -692,6 +692,7 @@ class CloudFrontClient extends BaseClient {
    * @private
    */
   _createCustomErrorResponse(params) {
+    
     const {errorCode, errorCachingMinTTL = 300, responseCode = '200', responsePagePath = ''} = params;
 
     let resultObject = {

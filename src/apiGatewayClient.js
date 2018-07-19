@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const moment = require('moment');
 const BlueBirdPromise = require('bluebird');
 let util = require('util');
+const __ = require('lodash');
 
 const BaseClient = require('./baseClient');
 
@@ -99,7 +100,15 @@ class APIGatewayClient extends BaseClient {
     this.logMessage(`API available: [API ID: ${api.id}]`);
     return this._getDomainName(api.id);
   }
-
+  
+  /**
+   *
+   * @param restApiId
+   * @param stageName
+   * @param variableCollection
+   * @param loggingParams
+   * @returns {Promise<void>}
+   */
   async createDeployment(restApiId, stageName, variableCollection, loggingParams={}) {
 
     try {
@@ -252,15 +261,19 @@ class APIGatewayClient extends BaseClient {
    *
    * @param swaggerEntity
    * @param {boolean} [failOnWarnings=false]
+   * @param endpointConfiguration
    * @return {Promise<*>}
    * @private
    */
-  async _createSwagger(swaggerEntity, failOnWarnings = false) {
-    this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}]`);
+  async _createSwagger(swaggerEntity, failOnWarnings = false, endpointConfiguration = 'EDGE') {
+    this.logMessage(`createSwagger swagger for [Swagger Title: ${swaggerEntity.info.title}] [EndpointConfiguration: ${endpointConfiguration}]`);
 
     try {
       const options = {
         body: JSON.stringify(swaggerEntity),
+        parameters: {
+          'endpointConfigurationTypes': endpointConfiguration
+        },
         failOnWarnings: failOnWarnings
       };
 
@@ -274,15 +287,27 @@ class APIGatewayClient extends BaseClient {
     }
 
   }
-
-  async _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false) {
-    this.logMessage(`overwriting swagger for [ApiGatewayId: ${apiGatewayId}]`);
+  
+  /**
+   *
+   * @param apiGatewayId
+   * @param swaggerEntity
+   * @param failOnWarnings
+   * @param endpointConfiguration
+   * @returns {Promise<PromiseResult<APIGateway.RestApi, AWSError>>}
+   * @private
+   */
+  async _overwriteSwagger(apiGatewayId, swaggerEntity, failOnWarnings = false, endpointConfiguration = 'EDGE') {
+    this.logMessage(`overwriting swagger for [ApiGatewayId: ${apiGatewayId}] [EndpointConfiguration: ${endpointConfiguration}]`);
 
     try {
       const options = {
         restApiId: apiGatewayId,
         body: JSON.stringify(swaggerEntity),
         failOnWarnings: failOnWarnings,
+        parameters: {
+          'endpointConfigurationTypes': endpointConfiguration
+        },
         mode: "overwrite"
       };
 
@@ -292,8 +317,16 @@ class APIGatewayClient extends BaseClient {
       throw err;
     }
   }
-
-  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false){
+  
+  /**
+   *
+   * @param swaggerEntity
+   * @param delayInMilliseconds
+   * @param failOnWarnings
+   * @param endpointConfiguration
+   * @returns {Promise<*>}
+   */
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false, endpointConfiguration = 'EDGE') {
 
     try {
       let methodName = 'createOrOverwriteApiSwagger';
@@ -314,14 +347,14 @@ class APIGatewayClient extends BaseClient {
       let data;
       if (util.isNullOrUndefined(foundApi)) {
         this.logMessage(`${methodName}: creating api gateway`);
-        data = await this._createSwagger(swaggerEntity, failOnWarnings);
+        data = await this._createSwagger(swaggerEntity, failOnWarnings, endpointConfiguration);
         await BlueBirdPromise.delay(delayInMilliseconds);
         return data;
       }
 
       this.logMessage(`${methodName}: Found the [foundApid: ${JSON.stringify(foundApi.id)}]`);
 
-      data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings);
+      data = await this._overwriteSwagger(foundApi.id, swaggerEntity, failOnWarnings, endpointConfiguration);
       await BlueBirdPromise.delay(delayInMilliseconds);
       this.logMessage(`${methodName} was a success ${this._getObjectAsString(data)}`);
       return data;
@@ -331,8 +364,144 @@ class APIGatewayClient extends BaseClient {
       throw err;
     }
   }
-
-
+  
+  /**
+   *
+   * @param {string} domainName
+   * @param {string} regionalCertificateArn
+   * @param {string} endpointConfiguration
+   * @returns {Promise<PromiseResult<APIGateway.DomainName, AWSError>>}
+   */
+  async upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration) {
+    try {
+    
+      //check if domainName exists, if it does return
+      const getDomainNameParams = {
+        domainName
+      };
+    
+      try {
+        this.logMessage(`Calling ApiGatewayClient.getDomainName`);
+        const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
+        this.logMessage(`Results from getDomainName: ${JSON.stringify(result)}`);
+        if (!__.isEmpty(result)) {
+          return;
+        }
+      } catch(err) {
+        this.logMessage(`err.name: ${err.name}`);
+        if(err.name !== 'NotFoundException') {
+          throw err;
+        }
+      }
+    
+      //create custom domain name
+      const createDomainNameParams = {
+        domainName,
+        regionalCertificateArn,
+        endpointConfiguration: {
+          types: [endpointConfiguration]
+        }
+      };
+    
+      this.logMessage(`Calling ApiGatewayClient.createDomainName`);
+      return await this._apiGatewayClient.createDomainName(createDomainNameParams).promise();
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
+  }
+  
+  /**
+   *
+   * @param customDomainName
+   * @returns {Promise<string>}
+   */
+  async getCustomDomainCname(customDomainName) {
+    try {
+    
+      //check if domainName exists, if it does return
+      const getDomainNameParams = {
+        domainName: customDomainName
+      };
+    
+      let regionalDomainName = '';
+      
+      try {
+        this.logMessage(`Calling ApiGatewayClient.getDomainName`);
+        const result = await this._apiGatewayClient.getDomainName(getDomainNameParams).promise();
+        this.logMessage(`Results from getDomainName: ${JSON.stringify(result)}`);
+        if (!__.isEmpty(result)) {
+          regionalDomainName = result.regionalDomainName;
+        }
+      } catch(err) {
+        this.logMessage(`err.name: ${err.name}`);
+      }
+      
+      return regionalDomainName;
+  
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
+  }
+  
+  /**
+   *
+   * @param {string} domainName
+   * @param {string} apiGatewayId
+   * @param {string} basePath
+   * @param {string} stage
+   * @returns {void|Promise<PromiseResult<APIGateway.Types.BasePathMapping, AWSError>>}
+   */
+  async upsertBasePathMapping(domainName, apiGatewayId, basePath, stage) {
+    try {
+    
+      const getBasePathMappingParams = {
+        basePath: basePath,
+        domainName: domainName
+      };
+    
+      if(__.isEmpty(basePath)) {
+        getBasePathMappingParams.basePath = '(none)';
+      }
+    
+      try {
+        this.logMessage(`Calling ApiGatewayClient.getBasePathMapping`);
+        const result = await this._apiGatewayClient.getBasePathMapping(getBasePathMappingParams).promise();
+        this.logMessage(`Results from getBasePathMapping: ${JSON.stringify(result)}`);
+        if (!__.isEmpty(result)) {
+          return;
+        }
+      } catch(err) {
+        this.logMessage(`err.name: ${err.name}`);
+        if(err.name !== 'NotFoundException') {
+          throw err;
+        }
+      }
+    
+      //create new basePathMapping
+      const createBasePathMappingParams = {
+        domainName: domainName,
+        restApiId: apiGatewayId,
+        basePath: basePath,
+        stage: stage
+      };
+    
+      this.logMessage(`Calling ApiGatewayClient.createBasePathMappingParams`);
+      return await this._apiGatewayClient.createBasePathMapping(createBasePathMappingParams).promise();
+    } catch (err) {
+      this.logMessage(err);
+      throw err;
+    }
+  }
+  
+  
+  /**
+   *
+   * @param entity
+   * @returns {string}
+   * @private
+   */
   _getObjectAsString(entity) {
     return util.isNullOrUndefined(entity) ? '' : JSON.stringify(entity);
   }

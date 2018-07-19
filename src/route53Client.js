@@ -9,6 +9,8 @@ const __ = require('lodash');
 const uuid = require('uuid');
 
 const BaseClient = require('./baseClient');
+const RegionName = require('./constants/regionName');
+
 
 class Route53Client extends BaseClient {
 
@@ -213,7 +215,7 @@ class Route53Client extends BaseClient {
    *
    * @param params
    * @param recordSetsByName
-   * @return {bool}
+   * @returns {boolean}
    * @private
    */
   _isRoute53ResourceRecordSame(params, recordSetsByName) {
@@ -277,7 +279,7 @@ class Route53Client extends BaseClient {
     };
 
     this.logMessage(`Checking if resource record has changed. [Params: ${JSON.stringify(parameters)}]`);
-
+  
     const hasRecordSetChangedResult = await this._hasCloudFrontResourceRecordSetChanged(parameters, CLOUDFRONT_HOSTED_ZONE_ID);
     if (!hasRecordSetChangedResult) {
       this.logMessage(`No Route53 changes need to be made.  No Action taken.`);
@@ -317,7 +319,7 @@ class Route53Client extends BaseClient {
     const changeRecordSetsResult = await this._awsRoute53Client.changeResourceRecordSets(params).promise();
     this.logMessage(`Result: ${JSON.stringify(changeRecordSetsResult)}`);
 
-    let waitParams = {
+    const waitParams = {
       Id: changeRecordSetsResult.ChangeInfo.Id
     };
 
@@ -325,7 +327,60 @@ class Route53Client extends BaseClient {
     await this._awsRoute53Client.waitFor('resourceRecordSetsChanged', waitParams).promise();
     this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
   }
-
+  
+  /**
+   *
+   * @param domainName
+   * @param customDomainNameCname
+   * @returns {Promise<void>}
+   */
+  async associateCustomDomainWithCName(domainName, customDomainNameCname) {
+    try {
+  
+      //get hostedZoneID from domainName
+      const domainHostedZoneId = await this._getHostedZoneIdFromDomainName(domainName);
+  
+      const params = {
+        ChangeBatch: {
+          Changes: [
+            {
+              Action: 'UPSERT',
+              ResourceRecordSet: {
+                Name: domainName,
+                Region: this._region,
+                ResourceRecords: [
+                  {
+                    Value: customDomainNameCname
+                  }
+                ],
+                SetIdentifier: RegionName.getName(this._region),
+                TTL: 300,
+                Type: "CNAME"
+              }
+            }
+          ],
+          Comment: "API Gateway Custom Domain CName"
+        },
+        HostedZoneId: domainHostedZoneId
+      };
+  
+      this.logMessage(`Adding CName for API Gateway Custom Domain. [DomainName: ${domainName}]`);
+      const changeRecordSetsResult = await this._awsRoute53Client.changeResourceRecordSets(params).promise();
+      this.logMessage(`Result: ${JSON.stringify(changeRecordSetsResult)}`);
+      
+      const waitParams = {
+        Id: changeRecordSetsResult.ChangeInfo.Id
+      };
+  
+      this.logMessage('Waiting for Route53 change to propagate');
+      await this._awsRoute53Client.waitFor('resourceRecordSetsChanged', waitParams).promise();
+      this.logMessage(`Change Propogated! [DomainName: ${domainName}]`);
+      
+    } catch(err) {
+      this.logMessage(`associateCustomDomainWithCName error. [Message: ${err.message}`);
+    }
+  }
+  
   /**
    *
    * @param recordsSets

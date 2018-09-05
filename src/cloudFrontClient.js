@@ -582,14 +582,17 @@ class CloudFrontClient extends BaseClient {
         },
         QueryString: queryString, /* required */
         Headers: {
-          Quantity: 6, /* required */
+          Quantity: 9, /* required */
           Items: [
             'x-verb-version',
             'x-verb-session',
             'x-verb-correlation',
             'x-verb-test',
             'Content-Type',
-            'authorization'
+            'authorization',
+            'Origin',
+            'Access-Control-Request-Headers',
+            'Access-Control-Request-Method'
           ]
         },
         QueryStringCacheKeys: {

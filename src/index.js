@@ -1,3 +1,4 @@
+
 const AWS = require('aws-sdk');
 const BlueBirdPromise = require('bluebird');
 AWS.config.setPromisesDependency(BlueBirdPromise);
@@ -42,17 +43,17 @@ class Deployer extends BaseClient {
     this._region = opts.region;
     this._logLevel = opts.logLevel;
     this._s3Client = new S3(this._accessKey, this._secretKey, this._region, this._logLevel);
-    this._vpcClient = new VPC(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._ecsClient = new ECS(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._ec2Client = new EC2(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._elbClient = new ELB(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._autoScalingClient = new AutoScaling(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._route53Client = new Route53(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._cloudFrontClient = new CloudFront(this._accessKey, this._secretKey, this._logLevel );
-    this._apiGatewayClient = new APIGateway(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._applicationAutoScalingClient = new ApplicationAutoScaling(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._cloudWatchClient = new CloudWatch(this._accessKey, this._secretKey, this._region, this._logLevel );
-    this._lambdaClient = new Lambda(this._accessKey, this._secretKey, this._region, this._logLevel );
+    this._vpcClient = new VPC(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._ecsClient = new ECS(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._ec2Client = new EC2(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._elbClient = new ELB(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._autoScalingClient = new AutoScaling(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._route53Client = new Route53(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._cloudFrontClient = new CloudFront(this._accessKey, this._secretKey, this._logLevel);
+    this._apiGatewayClient = new APIGateway(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._applicationAutoScalingClient = new ApplicationAutoScaling(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._cloudWatchClient = new CloudWatch(this._accessKey, this._secretKey, this._region, this._logLevel);
+    this._lambdaClient = new Lambda(this._accessKey, this._secretKey, this._region, this._logLevel);
   }
 
 
@@ -76,7 +77,7 @@ class Deployer extends BaseClient {
     }
 
     // Create file hosting buckets if they do not exist already
-    await this.createS3BucketIfNecessary({name: config.s3.name, enableHosting: false});
+    await this.createS3BucketIfNecessary({ name: config.s3.name, enableHosting: false });
 
     //Create Launch configuration
     const launchConfigNames = await this._createOrUpdateLaunchConfiguration(config.launchConfiguration, config.ecsClusterName);
@@ -136,16 +137,30 @@ class Deployer extends BaseClient {
     return await this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
 
+  /**
+   *
+   * @param params
+   * @returns {Promise<void>}
+   */
+  async upsertApiGatewayCustomDomainName(params) {
+    const { apiGatewayId, domainName, basePath, stage, regionalCertificateArn, endpointConfiguration = 'REGIONAL' } = params;
+
+    await this._apiGatewayClient.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+
+    await this._apiGatewayClient.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  }
+
 
   /**
    * This will do the following: 1. lookup api by swagger title, 2. delay 3a. if api not found create the new api, 3b. if api found it will update it 4. delay again
    * @param {Object} swaggerEntity Note: swaggerEntity must have valid info.title. Pulling from here because the is the aws importer strategy
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
    * @param {boolean} [failOnWarnings=false]
+   * @param {string} endpointConfiguration
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
-  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
-    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false, endpointConfiguration = 'EDGE') {
+    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds, failOnWarnings, endpointConfiguration);
   }
 
 
@@ -181,12 +196,30 @@ class Deployer extends BaseClient {
     return await this._s3Client.publishToBucket(config);
   }
 
+  /**
+   *
+   * @param domainName
+   * @returns {Promise<void>}
+   */
+  async associateCustomDomainWithCName(domainName) {
+    this.logMessage(`Calling associateCustomDomainWithCName. [DomainName: ${domainName}]`);
+
+    //get customDomainCname from customDomainName
+    const customDomainCname = await this._apiGatewayClient.getCustomDomainCname(domainName);
+    if (__.isEmpty(customDomainCname)) {
+      this.logMessage('customDomainCname is blank, no further action required');
+      return;
+    }
+
+    await this._route53Client.associateCustomDomainWithCName(domainName, customDomainCname);
+  }
 
   /**
    *
    * @param restApiId
    * @param stageName
    * @param variableCollection
+   * @param loggingParams
    * @returns {Promise.<*>}
    */
   async createDeployment(restApiId, stageName, variableCollection, loggingParams) {
@@ -311,7 +344,7 @@ class Deployer extends BaseClient {
    */
   async _createApplicationLoadBalancerListener(listenerConfig) {
     let listenerConfigs = listenerConfig;
-    if(!__.isArray(listenerConfigs)) {
+    if (!__.isArray(listenerConfigs)) {
       listenerConfigs = [listenerConfig];
     }
 
@@ -320,7 +353,7 @@ class Deployer extends BaseClient {
 
       //convert certificateArn to an array
       let certificateArnArray = [];
-      if(listenerConfigObject.certificateArn) {
+      if (listenerConfigObject.certificateArn) {
         certificateArnArray = [
           {
             CertificateArn: listenerConfigObject.certificateArn
@@ -410,7 +443,7 @@ class Deployer extends BaseClient {
    * @param {Object} [lambdaConfig.environments[].variables]
    */
   deployLambda(lambdaConfig) {
-    const ALLOWED_ENVIRONMENTS = {dev: 'dev', demo: 'demo', prod:'prod'};
+    const ALLOWED_ENVIRONMENTS = { dev: 'dev', demo: 'demo', prod: 'prod' };
     if (!__.has(lambdaConfig, 'zipFileName')) {
       this.logError('lambdaConfig must have field \'zipFileName\'');
       throw new Error('lambdaConfig must have field \'zipFileName\'');
@@ -426,10 +459,10 @@ class Deployer extends BaseClient {
       delete lambdaConfig.environments;
 
       let currentEnvironment;
-      for(let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
+      for (let envIndex = 0, envLength = environments.length; envIndex < envLength; ++envIndex) {
         currentEnvironment = environments[envIndex];
 
-        if(!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
+        if (!(currentEnvironment.name in ALLOWED_ENVIRONMENTS)) {
           this.logMessage(`Invalid Lambda environment, skipping entry. [Environment: ${currentEnvironment.name}] [Allowed Environments: ${JSON.stringify(Object.keys(ALLOWED_ENVIRONMENTS))}]`);
           continue;
         }
@@ -447,6 +480,6 @@ class Deployer extends BaseClient {
   }
 }
 
-module.exports = function() {
+module.exports = function () {
   return Deployer;
 }();

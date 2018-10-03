@@ -102,7 +102,7 @@ class CloudFrontClient extends BaseClient {
       return distribution;
 
     } catch (err) {
-      this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN!`);
+      this.logMessage(`First waitFor failed for [CloudFront Id: ${distribution.Id}] TRYING AGAIN! [Message: ${err.message}]`);
       return await this._awsCloudFrontClient.waitFor('distributionDeployed', waitForParams).promise();
     }
   }
@@ -582,14 +582,17 @@ class CloudFrontClient extends BaseClient {
         },
         QueryString: queryString, /* required */
         Headers: {
-          Quantity: 6, /* required */
+          Quantity: 9, /* required */
           Items: [
             'x-verb-version',
             'x-verb-session',
             'x-verb-correlation',
             'x-verb-test',
             'Content-Type',
-            'authorization'
+            'authorization',
+            'Origin',
+            'Access-Control-Request-Headers',
+            'Access-Control-Request-Method'
           ]
         },
         QueryStringCacheKeys: {
@@ -597,6 +600,7 @@ class CloudFrontClient extends BaseClient {
           Items: []
         }
       },
+      FieldLevelEncryptionId: '',
       MinTTL: minTTL, /* required */
       PathPattern: pathPattern, /* required */
       TargetOriginId: originName, /* required */
@@ -691,6 +695,7 @@ class CloudFrontClient extends BaseClient {
    * @private
    */
   _createCustomErrorResponse(params) {
+    
     const {errorCode, errorCachingMinTTL = 300, responseCode = '200', responsePagePath = ''} = params;
 
     let resultObject = {
@@ -705,7 +710,7 @@ class CloudFrontClient extends BaseClient {
       resultObject.ResponsePagePath = responsePagePath;
     } else {
       if((__.isEmpty(responseCode) && !__.isEmpty(responsePagePath)) || (!__.isEmpty(responseCode) && __.isEmpty(responsePagePath))) {
-        this.logMessage(`Setting ResponseCode and ResponsePagePath to empty string since one of the values was invalid.  
+        this.logMessage(`Setting ResponseCode and ResponsePagePath to empty string since one of the values was invalid.
         Both values must be populated for the fields to be passed to Cloudfront. [ResponseCode: ${responseCode}] [ResponsePagePath: ${responsePagePath}]`);
       }
       resultObject.ResponseCode = '';

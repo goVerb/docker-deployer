@@ -1,15 +1,18 @@
-const chai = require('chai');
-const sinon = require('sinon');
-const chaiAsPromised = require('chai-as-promised');
-const expect = chai.expect;
+import { expect } from 'chai';
+import sinon from 'sinon';
 const __ = require('lodash');
 const BluebirdPromise = require('bluebird');
 const base64 = require('base-64');
 import proxyquire from 'proxyquire';
 
-
-
-chai.use(chaiAsPromised);
+class NotFoundException extends Error {
+  
+  constructor(message) {
+    super();
+    super.name = 'NotFoundException';
+    super.message = message;
+  }
+}
 
 
 describe('APIGateway Client', function() {
@@ -446,6 +449,7 @@ describe('APIGateway Client', function() {
 
     });
   });
+  
   describe('_overwriteSwagger', () => {
     let APIGatewayMock;
     let mockAwsSdk;
@@ -485,30 +489,33 @@ describe('APIGateway Client', function() {
       apiGatewayService = null;
     });
 
-    it('should call apiGatewayClient.putRestApi', (done) => {
+    it('should call apiGatewayClient.putRestApi', () => {
       //Act
       const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{});
+      
       //Assert
-      promiseResult.then(data => {
+      return promiseResult.then(() => {
         expect(APIGatewayMock.putRestApi.calledOnce).to.be.true;
-        done();
       });
     });
 
-    it('should pass options apiGatewayClient.putRestApi', (done) => {
+    it('should pass options apiGatewayClient.putRestApi', () => {
       //Arrange
       let options = {
         restApiId: 'gatewayId',
         body: '{}',
         failOnWarnings: false,
+        parameters: {
+          'endpointConfigurationTypes': 'EDGE'
+        },
         mode: 'overwrite'
       };
       //Act
       const promiseResult = apiGatewayService._overwriteSwagger('gatewayId',{});
+      
       //Assert
-      promiseResult.then(data => {
+      return promiseResult.then(data => {
         expect(APIGatewayMock.putRestApi.args[0][0]).to.deep.equal(options);
-        done();
       });
     });
   });
@@ -564,9 +571,17 @@ describe('APIGateway Client', function() {
 
     it('should pass options apiGatewayClient.putRestApi', (done) => {
       //Arrange
-      let options = {"body":"{\"info\":{\"title\":\"test\"}}","failOnWarnings":false};
+      const options = {
+        body: "{\"info\":{\"title\":\"test\"}}",
+        parameters: {
+          'endpointConfigurationTypes': 'EDGE'
+        },
+        failOnWarnings:false
+      };
+      
       //Act
       const promiseResult = apiGatewayService._createSwagger({info: {title: 'test'}});
+      
       //Assert
       promiseResult.then(data => {
         expect(APIGatewayMock.importRestApi.args[0][0]).to.deep.equal(options);
@@ -1208,4 +1223,532 @@ describe('APIGateway Client', function() {
       }
     });
   });
+  
+  describe('upsertCustomDomainName', () => {
+  
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let getDomainNameStub;
+    let createDomainNameStub;
+    let mocks;
+    let accessKey = 'fdsafads';
+    let secretKey = '123232131';
+    let region = 'us-west-2';
+    beforeEach(() => {
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      createDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub}),
+        createDomainName: sandbox.stub().returns({promise: createDomainNameStub})
+      };
+    
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      
+      };
+      
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      
+    });
+  
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      getDomainNameStub = null;
+      createDomainNameStub = null;
+    });
+    
+    it('should call getDomainName once', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const regionalCertificateArn = 'fsdafkljfa:123132:1231231:0';
+      const endpointConfiguration = '123131321321';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+      
+      //Act
+      await apiGatewayService.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+      
+      //Assert
+      expect(getDomainNameStub.calledOnce).to.be.true;
+    });
+  
+    it('should pass getDomainName params', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const regionalCertificateArn = 'fsdafkljfa:123132:1231231:0';
+      const endpointConfiguration = '123131321321';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+  
+      //Assert
+      expect(apiGatewayService._apiGatewayClient.getDomainName.args[0][0]).to.be.deep.equal({
+        domainName: 'safdds.fasfsd.fdsafads'
+      });
+    });
+  
+    it('should NOT call createDomainName if getDomainName returns value', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const regionalCertificateArn = 'fsdafkljfa:123132:1231231:0';
+      const endpointConfiguration = '123131321321';
+  
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve({data: { domainName: 'fdsafdas'}}));
+      createDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub}),
+        createDomainName: sandbox.stub().returns({promise: createDomainNameStub})
+      };
+  
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+    
+      };
+  
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+  
+      //Assert
+      expect(apiGatewayService._apiGatewayClient.createDomainName.callCount).to.be.equal(0);
+    });
+  
+    it('should call createDomainName if getDomainName throw an NotFound error', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const regionalCertificateArn = 'fsdafkljfa:123132:1231231:0';
+      const endpointConfiguration = '123131321321';
+    
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.reject(new NotFoundException('invalid item')));
+      createDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub}),
+        createDomainName: sandbox.stub().returns({promise: createDomainNameStub})
+      };
+    
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      
+      };
+    
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+    
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+    
+      //Act
+      await apiGatewayService.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+    
+      //Assert
+      expect(apiGatewayService._apiGatewayClient.createDomainName.callCount).to.be.equal(1);
+    });
+  
+    it('should call createDomainName once if getDomainName returns empty data', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const regionalCertificateArn = 'fsdafkljfa:123132:1231231:0';
+      const endpointConfiguration = '123131321321';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+  
+      //Assert
+      expect(apiGatewayService._apiGatewayClient.createDomainName.calledOnce).to.be.true;
+    });
+  
+    it('should pass params to createDomainName', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const regionalCertificateArn = 'fsdafkljfa:123132:1231231:0';
+      const endpointConfiguration = '123131321321';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
+  
+      //Assert
+      expect(apiGatewayService._apiGatewayClient.createDomainName.args[0][0]).to.be.deep.equal({
+        domainName: 'safdds.fasfsd.fdsafads',
+        regionalCertificateArn: 'fsdafkljfa:123132:1231231:0',
+        endpointConfiguration: {types: ['123131321321']}
+      });
+    });
+  });
+  
+  describe('upsertBasePathMapping', () => {
+  
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let getBasePathMappingStub;
+    let createBasePathMappingStub;
+    let mocks;
+    let accessKey = 'fdsafads';
+    let secretKey = '123232131';
+    let region = 'us-west-2';
+    
+    beforeEach(() => {
+      getBasePathMappingStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      createBasePathMappingStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      APIGatewayMock = {
+        getBasePathMapping: sandbox.stub().returns({promise: getBasePathMappingStub}),
+        createBasePathMapping: sandbox.stub().returns({promise: createBasePathMappingStub})
+      };
+    
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      };
+  
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      
+    });
+  
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      getBasePathMappingStub = null;
+      createBasePathMappingStub = null;
+    });
+    
+    it('should call getBasePathMapping once', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '/';
+      const stage = 'dev';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  
+      //Assert
+      expect(getBasePathMappingStub.calledOnce).to.be.true;
+    });
+  
+    it('should pass getBasePathMapping params', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '/';
+      const stage = 'dev';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  
+      //Assert
+      const stub = apiGatewayService._apiGatewayClient.getBasePathMapping;
+      expect(stub.args[0][0]).to.be.deep.equal({
+        basePath: '/',
+        domainName: 'safdds.fasfsd.fdsafads'
+      });
+    });
+  
+    it('should pass special (none) key if basePath is empty', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '';
+      const stage = 'dev';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  
+      //Assert
+      const stub = apiGatewayService._apiGatewayClient.getBasePathMapping;
+      expect(stub.args[0][0]).to.be.deep.equal({
+        basePath: '(none)',
+        domainName: 'safdds.fasfsd.fdsafads'
+      });
+    });
+    
+    it('should NOT call createBasePathMapping if getBasePathMapping returns value', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '/';
+      const stage = 'dev';
+  
+      getBasePathMappingStub = sandbox.stub().returns(BluebirdPromise.resolve({data: { domainName: 'fdsafdas'}}));
+      createBasePathMappingStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      APIGatewayMock = {
+        getBasePathMapping: sandbox.stub().returns({promise: getBasePathMappingStub}),
+        createBasePathMapping: sandbox.stub().returns({promise: createBasePathMappingStub})
+      };
+  
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+    
+      };
+  
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      
+      
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  
+      //Assert
+      const stub = apiGatewayService._apiGatewayClient.createBasePathMapping;
+      expect(stub.callCount).to.be.deep.equal(0);
+    });
+  
+    it('should call createBasePathMapping if getBasePathMapping throw NotFound error', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '/';
+      const stage = 'dev';
+    
+      getBasePathMappingStub = sandbox.stub().returns(BluebirdPromise.reject(new NotFoundException('Invalid item')));
+      createBasePathMappingStub = sandbox.stub().returns(BluebirdPromise.resolve({}));
+      APIGatewayMock = {
+        getBasePathMapping: sandbox.stub().returns({promise: getBasePathMappingStub}),
+        createBasePathMapping: sandbox.stub().returns({promise: createBasePathMappingStub})
+      };
+    
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      
+      };
+    
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+    
+    
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+    
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+    
+      //Assert
+      const stub = apiGatewayService._apiGatewayClient.createBasePathMapping;
+      expect(stub.callCount).to.be.deep.equal(1);
+    });
+  
+  
+    it('should call createBasePathMapping once if getBasePathMapping returns empty data', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '/';
+      const stage = 'dev';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  
+      //Assert
+      const stub = apiGatewayService._apiGatewayClient.createBasePathMapping;
+      expect(stub.calledOnce).to.be.true;
+    });
+  
+    it('should pass params to createBasePathMapping', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+      const apiGatewayId = '1231231231';
+      const basePath = '/';
+      const stage = 'dev';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      await apiGatewayService.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
+  
+      //Assert
+      const stub = apiGatewayService._apiGatewayClient.createBasePathMapping;
+      expect(stub.args[0][0]).to.be.deep.equal({
+        domainName: 'safdds.fasfsd.fdsafads',
+        restApiId: '1231231231',
+        basePath: '/',
+        stage: 'dev'
+      });
+    });
+  });
+  
+  describe('getCustomDomainCname', () => {
+  
+    let APIGatewayMock;
+    let mockAwsSdk;
+    let APIGateway;
+    let apiGatewayService;
+    let getDomainNameStub;
+    let mocks;
+    let accessKey = 'fdsafads';
+    let secretKey = '123232131';
+    let region = 'us-west-2';
+    const getDomainNameResult = {"domainName":"apigateway.demo-internal.verb.net","certificateUploadDate":"2018-07-17T15:32:15.000Z","regionalDomainName":"d-kvsgrzichl.execute-api.us-west-2.amazonaws.com","regionalHostedZoneId":"Z2OJLYMUO9EFXC","regionalCertificateArn":"arn:aws:acm:us-west-2:368933298027:certificate/8c7ce13b-d615-474a-af32-1396c3213d84","endpointConfiguration":{"types":["REGIONAL"]}};
+    beforeEach(() => {
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.resolve(getDomainNameResult));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub}),
+      };
+    
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {
+          }
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      
+      };
+    
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+    
+    });
+  
+    afterEach(() => {
+      APIGatewayMock = null;
+      mockAwsSdk = null;
+      APIGateway = null;
+      apiGatewayService = null;
+      getDomainNameStub = null;
+    });
+  
+    it('should call getDomainName once', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+    
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+    
+      //Act
+      await apiGatewayService.getCustomDomainCname(domainName);
+    
+      //Assert
+      expect(getDomainNameStub.calledOnce).to.be.true;
+    });
+    
+    it('should return regionalDomainName from result if it exists', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+  
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      const result = await apiGatewayService.getCustomDomainCname(domainName);
+  
+      //Assert
+      expect(result).to.be.equal(getDomainNameResult.regionalDomainName);
+    });
+    
+    it('should return empty string if error is thrown', async () => {
+      //Arrange
+      const domainName = 'safdds.fasfsd.fdsafads';
+  
+      getDomainNameStub = sandbox.stub().returns(BluebirdPromise.reject(new NotFoundException('invalid item')));
+      APIGatewayMock = {
+        getDomainName: sandbox.stub().returns({promise: getDomainNameStub})
+      };
+  
+      mockAwsSdk = {
+        config: {
+          setPromisesDependency: (promise) => {}
+        },
+        APIGateway: function() {
+          return APIGatewayMock;
+        }
+      };
+  
+      mocks = {
+        'aws-sdk': mockAwsSdk
+      };
+      
+      const APIGateway = proxyquire('../src/apiGatewayClient', mocks);
+      const apiGatewayService = new APIGateway(accessKey, secretKey, region);
+  
+      //Act
+      const result = await apiGatewayService.getCustomDomainCname(domainName);
+  
+      //Assert
+      expect(result).to.be.equal('');
+    });
+  });
+  
 });

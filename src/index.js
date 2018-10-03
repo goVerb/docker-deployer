@@ -135,19 +135,6 @@ class Deployer extends BaseClient {
   async lookupApiGatewayDomainName(apiName) {
     return await this._apiGatewayClient.lookupApiGatewayDomainName(apiName);
   }
-  
-  /**
-   *
-   * @param params
-   * @returns {Promise<void>}
-   */
-  async upsertApiGatewayCustomDomainName(params) {
-    const { apiGatewayId, domainName, basePath, stage, regionalCertificateArn, endpointConfiguration = 'REGIONAL' } = params;
-    
-    await this._apiGatewayClient.upsertCustomDomainName(domainName, regionalCertificateArn, endpointConfiguration);
-    
-    await this._apiGatewayClient.upsertBasePathMapping(domainName, apiGatewayId, basePath, stage);
-  }
 
 
   /**
@@ -155,11 +142,10 @@ class Deployer extends BaseClient {
    * @param {Object} swaggerEntity Note: swaggerEntity must have valid info.title. Pulling from here because the is the aws importer strategy
    * @param {number} [delayInMilliseconds=16000] this defaults to 16 seconds
    * @param {boolean} [failOnWarnings=false]
-   * @param {string} endpointConfiguration
    * @return {Promise<Object>|Promise<gulpUtil.PluginError>}
    */
-  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false, endpointConfiguration = 'EDGE') {
-    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings, endpointConfiguration);
+  async createOrOverwriteApiSwagger(swaggerEntity, delayInMilliseconds = 16000, failOnWarnings = false) {
+    return await this._apiGatewayClient.createOrOverwriteApiSwagger(swaggerEntity,delayInMilliseconds,failOnWarnings);
   }
 
 
@@ -180,8 +166,8 @@ class Deployer extends BaseClient {
    * @param config
    * @return {Promise}
    */
-  createS3BucketIfNecessary(config) {
-    return this._s3Client.createBucketIfNecessary(config);
+  async createS3BucketIfNecessary(config) {
+    return await this._s3Client.createBucketIfNecessary(config);
   }
 
 
@@ -191,34 +177,16 @@ class Deployer extends BaseClient {
    * @param config.name
    * @return {Promise.<D>}
    */
-  publishChangesToBucket(config) {
-    return this._s3Client.publishToBucket(config);
+  async publishChangesToBucket(config) {
+    return await this._s3Client.publishToBucket(config);
   }
-  
-  /**
-   *
-   * @param domainName
-   * @returns {Promise<void>}
-   */
-  async associateCustomDomainWithCName(domainName) {
-    this.logMessage(`Calling associateCustomDomainWithCName. [DomainName: ${domainName}]`);
-    
-    //get customDomainCname from customDomainName
-    const customDomainCname = await this._apiGatewayClient.getCustomDomainCname(domainName);
-    if(__.isEmpty(customDomainCname)) {
-      this.logMessage('customDomainCname is blank, no further action required');
-      return;
-    }
-    
-    await this._route53Client.associateCustomDomainWithCName(domainName, customDomainCname);
-  }
+
 
   /**
    *
    * @param restApiId
    * @param stageName
    * @param variableCollection
-   * @param loggingParams
    * @returns {Promise.<*>}
    */
   async createDeployment(restApiId, stageName, variableCollection, loggingParams) {

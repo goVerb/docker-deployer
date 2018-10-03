@@ -166,8 +166,8 @@ class Deployer extends BaseClient {
    * @param config
    * @return {Promise}
    */
-  async createS3BucketIfNecessary(config) {
-    return await this._s3Client.createBucketIfNecessary(config);
+  createS3BucketIfNecessary(config) {
+    return this._s3Client.createBucketIfNecessary(config);
   }
 
 
@@ -177,8 +177,8 @@ class Deployer extends BaseClient {
    * @param config.name
    * @return {Promise.<D>}
    */
-  async publishChangesToBucket(config) {
-    return await this._s3Client.publishToBucket(config);
+  publishChangesToBucket(config) {
+    return this._s3Client.publishToBucket(config);
   }
 
 

@@ -73,6 +73,12 @@ class LambdaClient extends BaseClient {
       Environment: localConfig.Environment
     };
 
+    if (localConfig.VpcConfig && localConfig.VpcConfig.SecurityGroupIds && localConfig.VpcConfig.SubnetIds) {
+      params.VpcConfig = {
+        SecurityGroupIds: params.VpcConfig.SecurityGroupIds,
+        SubnetIds: params.VpcConfig.SubnetIds
+      };
+    }
 
     return this.retryAwsCall(this.getLambdaFunction, 'getLambdaFunction', params.FunctionName)
       .then((getResult) => {

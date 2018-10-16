@@ -73,11 +73,8 @@ class LambdaClient extends BaseClient {
       Environment: localConfig.Environment
     };
 
-    if (localConfig.VpcConfig && localConfig.VpcConfig.SecurityGroupIds && localConfig.VpcConfig.SubnetIds) {
-      params.VpcConfig = {
-        SecurityGroupIds: params.VpcConfig.SecurityGroupIds,
-        SubnetIds: params.VpcConfig.SubnetIds
-      };
+    if (localConfig.VpcConfig) {
+      params.VpcConfig = localConfig.VpcConfig;
     }
 
     return this.retryAwsCall(this.getLambdaFunction, 'getLambdaFunction', params.FunctionName)
@@ -400,9 +397,15 @@ class LambdaClient extends BaseClient {
       resultConfig.functionName = config.functionName;
     }
 
+    if (deploymentParams.VpcConfig && deploymentParams.VpcConfig.SecurityGroupIds && deploymentParams.VpcConfig.SubnetIds) {
+      console.log('HERE HEREE ', JSON.stringify(deploymentParams));
+      resultConfig.VpcConfig = deploymentParams.VpcConfig;
+    }
+
     resultConfig.Environment = {};
     resultConfig.Environment.Variables = deploymentParams.variables || {};
 
+    console.log('RESULT', resultConfig);
     return resultConfig;
   }
 
@@ -470,7 +473,7 @@ class LambdaClient extends BaseClient {
    */
   createLambdaFunction(codePackage, params) {
     return new BlueBirdPromise((resolve, reject) => {
-      this.logMessage(`Creating LambdaFunction. [FunctionName: ${params.FunctionName}]`);
+      this.logMessage(`Creating LambdaFunction. [FunctionName: ${params.FunctionName}] [Params: ${JSON.stringify(params)}]`);
       const zipFileContents = fs.readFileSync(codePackage);
       const localParams = params;
       localParams.Code = {ZipFile: zipFileContents};

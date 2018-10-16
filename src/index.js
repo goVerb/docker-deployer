@@ -469,7 +469,8 @@ class Deployer extends BaseClient {
 
         let currentDeploymentParams = {
           environmentName: currentEnvironment.name,
-          variables: currentEnvironment.variables
+          variables: currentEnvironment.variables,
+          VpcConfig: currentEnvironment.vpcConfig || null,
         };
 
         envLambdas.push(this._lambdaClient.deployLambdaFunction(currentDeploymentParams, lambdaConfig));

@@ -398,14 +398,12 @@ class LambdaClient extends BaseClient {
     }
 
     if (deploymentParams.VpcConfig && deploymentParams.VpcConfig.SecurityGroupIds && deploymentParams.VpcConfig.SubnetIds) {
-      console.log('HERE HEREE ', JSON.stringify(deploymentParams));
       resultConfig.VpcConfig = deploymentParams.VpcConfig;
     }
 
     resultConfig.Environment = {};
     resultConfig.Environment.Variables = deploymentParams.variables || {};
 
-    console.log('RESULT', resultConfig);
     return resultConfig;
   }
 

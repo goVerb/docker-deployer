@@ -301,7 +301,7 @@ class CloudFrontClient extends BaseClient {
         }
 
         //originProtocolPolicy
-        if (!foundOrigin || foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== item.originProtocolPolicy) {
+        if (!foundOrigin || (foundOrigin.CustomOriginConfig && foundOrigin.CustomOriginConfig.OriginProtocolPolicy !== item.originProtocolPolicy)) {
           this.logMessage('No foundOrigin or OriginProtocolPolicy does not match');
 
           foundDifference = true;

@@ -9,11 +9,11 @@ module.exports = () => {
       name: 'amzn2-ami-ecs-hvm-2.0.20190301-x86_64-ebs'
     },
     'us-west-1': {
-      id: 'ami-62e0d802',
+      id: 'ami-007571470797b8ffa',
       name: 'amzn-ami-2017.09.d-amazon-ecs-optimized'
     },
     'us-west-2': {
-      id: 'ami-7114c909',
+      id: 'ami-0302f3ec240b9d23c',
       name: 'amzn2-ami-ecs-hvm-2.0.20190301-x86_64-ebs'
     },
     'eu-west-1': {

@@ -87,7 +87,7 @@ class AutoScalingClient extends BaseClient {
 
     const {
       name,
-      baseImageId=amiIds.getIdByRegion(this._region),
+      baseImageId = amiIds.getIdByRegion(this._region),
       securityGroupId,
       instanceType
     } = launchConfigurationConfig;

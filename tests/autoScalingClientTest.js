@@ -393,7 +393,7 @@ describe('Auto Scaling Client', function() {
 
       const foundLaunchConfiguration = {
         name: 'LCName',
-        ImageId: 'ami-7114c909',
+        ImageId: 'ami-0302f3ec240b9d23c',
         SecurityGroups: [ 'sg-123abctest' ],
         InstanceType: 't2.micro'
       };
